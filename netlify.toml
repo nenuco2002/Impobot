@@ -1,0 +1,37 @@
+# ImpoBot — impobot.com.ar
+# Configuración Netlify
+
+[build]
+  publish = "."
+
+# Redirigir HTTP → HTTPS y www
+[[redirects]]
+  from = "http://impobot.com.ar/*"
+  to   = "https://www.impobot.com.ar/:splat"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from = "https://impobot.com.ar/*"
+  to   = "https://www.impobot.com.ar/:splat"
+  status = 301
+  force  = true
+
+# Headers de seguridad
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=1800, stale-while-revalidate=3600"
+
+[[headers]]
+  for = "/tools/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=1800"
