@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Sueldos 2026 — FiscalAR</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#0a0f1a;--card:#131e31;--border:#1e2d47;--text:#e8edf5;--sub:#8899b4;--cyan:#00c9b8;--amber:#f59e0b;--green:#10b981;--red:#ef4444;--purple:#8b5cf6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
+.topnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,15,26,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 20px;height:54px}
+.back-btn{color:var(--sub);text-decoration:none;font-size:.78rem;font-weight:500;padding:5px 10px;border-radius:7px;transition:all .15s}
+.back-btn:hover{color:var(--text);background:#1a2744}
+.nav-title{font-size:.88rem;font-weight:700;color:#fff}
+.nav-sub{font-size:.65rem;color:var(--sub)}
+.nav-badge{margin-left:auto;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);color:var(--purple);font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:5px;text-transform:uppercase}
+.app{margin-top:54px;display:grid;grid-template-columns:360px 1fr;height:calc(100vh - 54px);overflow:hidden}
+.panel-l{padding:14px;overflow-y:auto;border-right:1px solid var(--border);background:rgba(17,24,39,.4)}
+.panel-r{padding:16px;overflow-y:auto}
+@media(max-width:800px){.app{flex-direction:column}.panel-l{width:100%;border-right:none;border-bottom:1px solid var(--border)}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.card-hd{padding:10px 14px;border-bottom:1px solid var(--border);font-size:.8rem;font-weight:700;display:flex;align-items:center;gap:7px}
+.card-body{padding:14px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);margin-bottom:4px}
+.field select,.field input{width:100%;background:#0a0f1a;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:.88rem;outline:none;font-family:'Inter',sans-serif;transition:border-color .15s}
+.field select:focus,.field input:focus{border-color:var(--purple)}
+.field .hint{font-size:.65rem;color:var(--sub);margin-top:3px}
+.sep{font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);padding:8px 0 5px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-calc{width:100%;background:linear-gradient(135deg,#3b0764,var(--purple));color:#fff;border:none;padding:11px;border-radius:9px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:filter .15s}
+.btn-calc:hover{filter:brightness(1.08)}
+.recibo{background:#0a0f1a;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.recibo-hd{background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(79,142,247,.08));border-bottom:1px solid var(--border);padding:16px 20px}
+.recibo-empresa{font-size:.7rem;color:var(--sub);text-transform:uppercase;letter-spacing:.08em}
+.recibo-emp{font-size:1rem;font-weight:800;color:#fff;margin-top:2px}
+.recibo-body{padding:0}
+.linea{display:flex;justify-content:space-between;align-items:center;padding:9px 20px;border-bottom:1px solid rgba(30,45,71,.4);font-size:.8rem}
+.linea:last-child{border-bottom:none}
+.linea .concepto{color:var(--sub)}
+.linea .monto{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--text)}
+.linea.subtotal{background:rgba(255,255,255,.02)}
+.linea.subtotal .concepto{font-weight:700;color:var(--text)}
+.linea.neto{background:rgba(16,185,129,.05);border-top:2px solid rgba(16,185,129,.3);border-bottom:none}
+.linea.neto .concepto{font-weight:800;color:#fff;font-size:.88rem}
+.linea.neto .monto{color:var(--green);font-size:1.1rem;font-weight:800}
+.linea.descuento .monto{color:var(--red)}
+.linea.contribu .monto{color:var(--amber)}
+.sep-recibo{background:rgba(255,255,255,.03);padding:6px 20px;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--sub);border-bottom:1px solid var(--border)}
+.total-costo{display:flex;justify-content:space-between;padding:14px 20px;background:rgba(245,158,11,.05);border-top:1px solid rgba(245,158,11,.2)}
+.total-costo .lbl{font-size:.8rem;font-weight:700;color:var(--amber)}
+.total-costo .val{font-size:1rem;font-weight:800;color:var(--amber);font-family:'JetBrains Mono',monospace}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--sub);text-align:center;gap:12px}
+.empty-ico{font-size:3rem;opacity:.2}
+</style>
+</head>
+<body>
+<div style="position:fixed;top:0;left:0;right:0;height:40px;background:rgba(7,9,15,.92);border-bottom:1px solid #1c2535;display:flex;align-items:center;padding:0 16px;gap:10px;z-index:9999;font-family:Inter,system-ui,sans-serif;backdrop-filter:blur(12px)">
+  <a href="../index.html" style="color:#64748b;font-size:.76rem;font-weight:500;text-decoration:none;padding:3px 8px;border-radius:5px;display:flex;align-items:center;gap:5px;transition:color .15s" onmouseover="this.style.color='#e2e8f4'" onmouseout="this.style.color='#64748b'">
+    🤖 ← ImpoBot
+  </a>
+  <span style="color:#1c2535">|</span>
+  <span id="tool-nav-title" style="color:#e2e8f4;font-size:.78rem;font-weight:700"></span>
+  <span style="margin-left:auto;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:#818cf8;font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:4px">ARCA 2026</span>
+</div>
+<div style="height:40px"></div>
+<script>document.getElementById("tool-nav-title").textContent="💰 Liquidador de Sueldos";</script>
+<nav class="topnav">
+  <a class="back-btn" href="#" onclick="window.location='../index.html';return false">← FiscalAR</a>
+  <div style="width:1px;height:24px;background:var(--border)"></div>
+  <div><div class="nav-title">💰 Liquidador de Sueldos</div><div class="nav-sub">Recibo básico · Aportes y contribuciones 2026</div></div>
+  <div class="nav-badge">✓ 2026</div>
+</nav>
+<div class="app">
+<div class="panel-l">
+  <button onclick="calcular()" style="width:100%;background:linear-gradient(135deg,#3b0764,var(--purple));color:#fff;border:none;padding:10px;border-radius:9px;font-size:.88rem;font-weight:800;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:12px;position:sticky;top:0;z-index:10">
+    💰 Calcular recibo
+  </button>
+  <div class="card">
+    <div class="card-hd">👤 Datos del empleado</div>
+    <div class="card-body">
+      <div class="field"><label>Nombre del empleado</label><input type="text" id="inp-nombre" placeholder="Apellido, Nombre"/></div>
+      <div class="field"><label>CUIL</label><input type="text" id="inp-cuil" placeholder="20-12345678-9"/></div>
+      <div class="sep">Remuneración</div>
+      <div class="field"><label>Sueldo bruto mensual $</label><input type="number" id="inp-bruto" placeholder="0" oninput="calcular()" onchange="calcular()"/></div>
+      <div class="row2">
+        <div class="field"><label>Período</label>
+          <select id="sel-periodo">
+            <option>Agosto 2026</option><option>Julio 2026</option><option>Junio 2026</option>
+          </select>
+        </div>
+        <div class="field"><label>Categoría CCT</label><input type="text" id="inp-cct" placeholder="Ej: Categoría C"/></div>
+      </div>
+      <div class="sep">Adicionales</div>
+      <div class="field"><label>Horas extras 50% $</label><input type="number" id="inp-he50" placeholder="0" oninput="calcular()"/></div>
+      <div class="field"><label>Horas extras 100% $</label><input type="number" id="inp-he100" placeholder="0" oninput="calcular()"/></div>
+      <div class="field"><label>Presentismo $</label><input type="number" id="inp-pres" placeholder="0" oninput="calcular()"/></div>
+      <div class="field"><label>Otros haberes $</label><input type="number" id="inp-otros" placeholder="0" oninput="calcular()"/></div>
+      <div class="sep">Descuentos</div>
+      <div class="field"><label>Embargo / Otros desc. $</label><input type="number" id="inp-embargo" placeholder="0" oninput="calcular()"/></div>
+      <button class="btn-calc" onclick="calcular()">💰 Calcular recibo</button>
+    </div>
+  </div>
+</div>
+<div class="panel-r" id="panel-r">
+  <div class="empty"><div class="empty-ico">💰</div>
+    <div style="font-weight:700;font-size:.95rem;color:#fff">Completá los datos</div>
+    <div style="font-size:.78rem;max-width:300px;line-height:1.55">Ingresá el sueldo bruto y los adicionales para generar el recibo con aportes y contribuciones calculados automáticamente.</div>
+  </div>
+</div>
+</div>
+<script>
+// Formatter sin Intl (más compatible en iframes)
+function fmt(n){
+  n = parseFloat(n)||0;
+  return '$ ' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+const TOPE_SIPA = 4594798.23 // Agosto 2026 — Res. ANSES 232/2026;
+const AP_EMP       = { jub:0.11, os:0.03, ley:0.03, sindicato:0.02 };
+const AP_EMP_PATRO = { jub:0.127, os:0.06, ley:0.02, ART:0.015, asig:0.059 };
+
+function calcular(){
+  var bruto = parseFloat(document.getElementById('inp-bruto').value)||0;
+  if(!bruto){
+    document.getElementById('panel-r').innerHTML = '<div style="padding:30px;color:#f59e0b;text-align:center;font-size:.9rem">⚠ Ingresá el sueldo bruto para calcular.</div>';
+    return;
+  }
+
+  const nombre   = document.getElementById('inp-nombre').value||'Empleado';
+  const cuil     = document.getElementById('inp-cuil').value||'—';
+  const periodo  = document.getElementById('sel-periodo').value;
+  const cct      = document.getElementById('inp-cct').value;
+  const he50     = parseFloat(document.getElementById('inp-he50').value)||0;
+  const he100    = parseFloat(document.getElementById('inp-he100').value)||0;
+  const pres     = parseFloat(document.getElementById('inp-pres').value)||0;
+  const otros    = parseFloat(document.getElementById('inp-otros').value)||0;
+  const embargo  = parseFloat(document.getElementById('inp-embargo').value)||0;
+
+  const totalBruto = bruto + he50 + he100 + pres + otros;
+  const base = Math.min(totalBruto, TOPE_SIPA);
+  const topado = totalBruto > TOPE_SIPA;
+
+  // Descuentos empleado
+  const dJub  = base * AP_EMP.jub;
+  const dOS   = base * AP_EMP.os;
+  const dLey  = base * AP_EMP.ley;
+  const dSind = base * AP_EMP.sindicato;
+  const totalDesc = dJub + dOS + dLey + dSind + embargo;
+  const neto = totalBruto - totalDesc;
+
+  // Contribuciones patronales
+  const cJub  = base * AP_EMP_PATRO.jub;
+  const cOS   = base * AP_EMP_PATRO.os;
+  const cLey  = base * AP_EMP_PATRO.ley;
+  const cART  = base * AP_EMP_PATRO.ART;
+  const cAsig = base * AP_EMP_PATRO.asig;
+  const totalContrib = cJub + cOS + cLey + cART + cAsig;
+  const costTotal = totalBruto + totalContrib;
+
+  var html = '';
+  html += '<div class="recibo">';
+  html += '<div class="recibo-hd">';
+  html += '<div class="recibo-empresa">Recibo de haberes &middot; ' + periodo + (cct?' &middot; '+cct:'') + '</div>';
+  html += '<div class="recibo-emp">' + nombre + '</div>';
+  html += '<div style="font-size:.68rem;color:#8899b4;margin-top:3px">CUIL: ' + cuil + (topado?' &nbsp;&#9888; Tope SIPA: '+fmt(TOPE_SIPA):'') + '</div>';
+  html += '</div>';
+  html += '<div class="recibo-body">';
+  html += '<div class="sep-recibo">Haberes</div>';
+  html += '<div class="linea"><span class="concepto">Sueldo b&aacute;sico</span><span class="monto">'+fmt(bruto)+'</span></div>';
+  if(he50)  html += '<div class="linea"><span class="concepto">Horas extras 50%</span><span class="monto">'+fmt(he50)+'</span></div>';
+  if(he100) html += '<div class="linea"><span class="concepto">Horas extras 100%</span><span class="monto">'+fmt(he100)+'</span></div>';
+  if(pres)  html += '<div class="linea"><span class="concepto">Presentismo</span><span class="monto">'+fmt(pres)+'</span></div>';
+  if(otros) html += '<div class="linea"><span class="concepto">Otros haberes</span><span class="monto">'+fmt(otros)+'</span></div>';
+  html += '<div class="linea subtotal"><span class="concepto">Total bruto</span><span class="monto">'+fmt(totalBruto)+'</span></div>';
+  html += '<div class="sep-recibo">Descuentos (empleado)</div>';
+  html += '<div class="linea descuento"><span class="concepto">Jubilaci&oacute;n 11%</span><span class="monto">'+fmt(dJub)+'</span></div>';
+  html += '<div class="linea descuento"><span class="concepto">Obra Social 3%</span><span class="monto">'+fmt(dOS)+'</span></div>';
+  html += '<div class="linea descuento"><span class="concepto">Ley 19.032 PAMI 3%</span><span class="monto">'+fmt(dLey)+'</span></div>';
+  html += '<div class="linea descuento"><span class="concepto">Sindicato 2%</span><span class="monto">'+fmt(dSind)+'</span></div>';
+  if(embargo) html += '<div class="linea descuento"><span class="concepto">Embargo / Otros</span><span class="monto">'+fmt(embargo)+'</span></div>';
+  html += '<div class="linea subtotal"><span class="concepto">Total descuentos</span><span class="monto" style="color:#ef4444">'+fmt(totalDesc)+'</span></div>';
+  html += '<div class="linea neto"><span class="concepto">NETO A PAGAR</span><span class="monto">'+fmt(neto)+'</span></div>';
+  html += '<div class="sep-recibo">Contribuciones patronales (empleador)</div>';
+  html += '<div class="linea contribu"><span class="concepto">Jubilaci&oacute;n 12.70%</span><span class="monto">'+fmt(cJub)+'</span></div>';
+  html += '<div class="linea contribu"><span class="concepto">Obra Social 6%</span><span class="monto">'+fmt(cOS)+'</span></div>';
+  html += '<div class="linea contribu"><span class="concepto">Ley 19.032 PAMI 2%</span><span class="monto">'+fmt(cLey)+'</span></div>';
+  html += '<div class="linea contribu"><span class="concepto">ART 1.5%</span><span class="monto">'+fmt(cART)+'</span></div>';
+  html += '<div class="linea contribu"><span class="concepto">Asig. Familiares 5.90%</span><span class="monto">'+fmt(cAsig)+'</span></div>';
+  html += '<div class="linea subtotal"><span class="concepto">Total contribuciones</span><span class="monto" style="color:#f59e0b">'+fmt(totalContrib)+'</span></div>';
+  html += '</div>';
+  html += '<div class="total-costo"><div class="lbl">&#128188; Costo total para el empleador</div><div class="val">'+fmt(costTotal)+'</div></div>';
+  html += '</div>';
+  document.getElementById('panel-r').innerHTML = html;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Autónomos 2026 — FiscalAR</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#0a0f1a;--navy:#111827;--card:#131e31;--border:#1e2d47;--text:#e8edf5;--sub:#8899b4;--cyan:#00c9b8;--amber:#f59e0b;--green:#10b981;--red:#ef4444;--purple:#8b5cf6}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
+.topnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,15,26,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 20px;height:54px}
+.back-btn{color:var(--sub);text-decoration:none;font-size:.78rem;font-weight:500;display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;transition:all .15s}
+.back-btn:hover{color:var(--text);background:#1a2744}
+.nav-title{font-size:.88rem;font-weight:700;color:#fff}
+.nav-sub{font-size:.65rem;color:var(--sub)}
+.nav-badge{margin-left:auto;background:rgba(0,201,184,.1);border:1px solid rgba(0,201,184,.25);color:var(--cyan);font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.06em}
+.app{margin-top:54px;display:flex;min-height:calc(100vh - 54px)}
+.panel-l{width:380px;flex-shrink:0;padding:18px;overflow-y:auto;border-right:1px solid var(--border);background:rgba(17,24,39,.4)}
+.panel-r{flex:1;padding:18px;overflow-y:auto}
+@media(max-width:800px){.app{flex-direction:column}.panel-l{width:100%;border-right:none;border-bottom:1px solid var(--border)}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.card-hd{padding:10px 14px;border-bottom:1px solid var(--border);font-size:.8rem;font-weight:700;display:flex;align-items:center;gap:7px}
+.card-body{padding:14px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);margin-bottom:4px}
+.field select,.field input{width:100%;background:#0a0f1a;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:.88rem;outline:none;font-family:'Inter',sans-serif;transition:border-color .15s}
+.field select:focus,.field input:focus{border-color:var(--cyan)}
+.field .hint{font-size:.65rem;color:var(--sub);margin-top:3px}
+.sep{font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);padding:8px 0 5px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.btn-calc{width:100%;background:linear-gradient(135deg,#005a53,var(--cyan));color:#0a0f1a;border:none;padding:11px;border-radius:9px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:filter .15s}
+.btn-calc:hover{filter:brightness(1.08)}
+.result-hero{background:linear-gradient(135deg,#0a1a14,#0d2218);border:1px solid rgba(0,201,184,.25);border-radius:14px;padding:22px;text-align:center;margin-bottom:14px}
+.result-hero .lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(0,201,184,.6);margin-bottom:6px}
+.result-hero .val{font-size:2.8rem;font-weight:900;color:var(--cyan);font-family:'JetBrains Mono',monospace;letter-spacing:-.03em}
+.result-hero .sub{font-size:.75rem;color:var(--sub);margin-top:4px}
+.breakdown{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.bk-card{background:#0a0f1a;border:1px solid var(--border);border-radius:9px;padding:12px;text-align:center}
+.bk-card .lbl{font-size:.62rem;color:var(--sub);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.bk-card .val{font-size:1rem;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace}
+.table-cat{width:100%;border-collapse:collapse;font-size:.75rem}
+.table-cat th{background:rgba(255,255,255,.03);padding:7px 10px;text-align:left;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);border-bottom:1px solid var(--border)}
+.table-cat td{padding:7px 10px;border-bottom:1px solid rgba(30,45,71,.5);font-family:'JetBrains Mono',monospace;font-size:.72rem}
+.table-cat tr.active td{background:rgba(0,201,184,.06);font-weight:700}
+.table-cat tr.active td:first-child{color:var(--cyan)}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--sub);text-align:center;gap:12px}
+.empty-ico{font-size:3rem;opacity:.2}
+.alerta{border-radius:8px;padding:10px 13px;font-size:.75rem;line-height:1.5;margin-bottom:8px}
+.alerta.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#fbbf24}
+.alerta.info{background:rgba(0,201,184,.06);border:1px solid rgba(0,201,184,.15);color:var(--cyan)}
+</style>
+</head>
+<body>
+<div style="position:fixed;top:0;left:0;right:0;height:40px;background:rgba(7,9,15,.92);border-bottom:1px solid #1c2535;display:flex;align-items:center;padding:0 16px;gap:10px;z-index:9999;font-family:Inter,system-ui,sans-serif;backdrop-filter:blur(12px)">
+  <a href="../index.html" style="color:#64748b;font-size:.76rem;font-weight:500;text-decoration:none;padding:3px 8px;border-radius:5px;display:flex;align-items:center;gap:5px;transition:color .15s" onmouseover="this.style.color='#e2e8f4'" onmouseout="this.style.color='#64748b'">
+    🤖 ← ImpoBot
+  </a>
+  <span style="color:#1c2535">|</span>
+  <span id="tool-nav-title" style="color:#e2e8f4;font-size:.78rem;font-weight:700"></span>
+  <span style="margin-left:auto;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);color:#818cf8;font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:4px">ARCA 2026</span>
+</div>
+<div style="height:40px"></div>
+<script>document.getElementById("tool-nav-title").textContent="💼 Aportes Autónomos";</script>
+<nav class="topnav">
+  <a class="back-btn" href="#" onclick="window.location='../index.html';return false">← FiscalAR</a>
+  <div style="width:1px;height:24px;background:var(--border)"></div>
+  <div><div class="nav-title">💼 Aportes Autónomos</div><div class="nav-sub">Categorías · Contribuciones 2026</div></div>
+  <div class="nav-badge">✓ ARCA 2026</div>
+</nav>
+<div class="app">
+<div class="panel-l">
+  <div class="card">
+    <div class="card-hd">💼 Datos del autónomo</div>
+    <div class="card-body">
+      <div class="sep">Categoría</div>
+      <div class="field">
+        <label>Categoría de revista</label>
+        <select id="sel-cat" onchange="calcular()">
+          <option value="">— Seleccioná categoría —</option>
+          <option value="1">Cat. I — Locadores de inmuebles, directores, socios</option>
+          <option value="2">Cat. II — Resto (actividad principal)</option>
+          <option value="3">Cat. III — Ingresos anuales hasta $2.800.000</option>
+          <option value="4">Cat. IV — Ingresos anuales hasta $5.600.000</option>
+          <option value="5">Cat. V — Ingresos anuales más de $5.600.000</option>
+        </select>
+        <div class="hint">La categoría determina el monto de aportes mensuales</div>
+      </div>
+      <div class="sep">Actividad</div>
+      <div class="field">
+        <label>Tipo de actividad</label>
+        <select id="sel-actividad" onchange="calcular()">
+          <option value="prof">Profesional (universitario)</option>
+          <option value="comercio">Comercio / Industria / Servicios</option>
+          <option value="agro">Agropecuaria</option>
+        </select>
+      </div>
+      <div class="sep">Obra social</div>
+      <div class="field">
+        <label>¿Adhiere a obra social?</label>
+        <select id="sel-os" onchange="calcular()">
+          <option value="si">Sí — incluir aporte OS</option>
+          <option value="no">No — solo jubilación</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>¿Incluye grupo familiar?</label>
+        <select id="sel-fam" onchange="calcular()">
+          <option value="0">Solo titular</option>
+          <option value="1">+ 1 beneficiario</option>
+          <option value="2">+ 2 beneficiarios</option>
+          <option value="3">+ 3 o más beneficiarios</option>
+        </select>
+      </div>
+      <button class="btn-calc" onclick="calcular()">💼 Calcular aportes</button>
+    </div>
+  </div>
+</div>
+<div class="panel-r" id="panel-r">
+  <div class="empty"><div class="empty-ico">💼</div>
+    <div style="font-weight:700;font-size:.95rem;color:#fff">Calculá tus aportes</div>
+    <div style="font-size:.78rem;max-width:300px;line-height:1.55">Seleccioná tu categoría de revista y tipo de actividad para ver el detalle de aportes mensuales obligatorios.</div>
+  </div>
+</div>
+</div>
+<script>
+// ── TABLAS ARCA 2026 — Autónomos ─────────────────────────────
+// Aportes mensuales actualizados al 2do semestre 2026
+// RG 5.608/2026 — Base imponible autónomos
+// Rentas de referencia autónomos — 2do semestre 2026 (+16.8% sobre H1/2026)
+// Fuente: ARCA RG 5608/2026 — vigentes desde julio 2026
+const RENTAS = {
+  1: { label:'Categoría I',   renta: 8207.67  },
+  2: { label:'Categoría II',  renta: 13144.41 },
+  3: { label:'Categoría III', renta: 16430.51 },
+  4: { label:'Categoría IV',  renta: 24645.77 },
+  5: { label:'Categoría V',   renta: 32861.02 },
+};
+
+// Alícuotas
+// Alícuotas autónomos — OS actualizada H2 2026
+const ALICUOTAS = {
+  jubilacion: 0.27,   // 27% sobre renta de referencia
+  retiro:     0.015,  // 1.5% PAMI (Ley 19.032)
+  os_titular: 7777,   // obra social titular (actualizado H2 2026)
+  os_benefic: 3889,   // por cada beneficiario adicional
+};
+
+const fmt = n => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',minimumFractionDigits:2}).format(n);
+
+function calcular(){
+  const cat = parseInt(document.getElementById('sel-cat').value);
+  if(!cat) return;
+  const os   = document.getElementById('sel-os').value === 'si';
+  const fam  = parseInt(document.getElementById('sel-fam').value)||0;
+  const datos = RENTAS[cat];
+
+  const jub    = datos.renta * ALICUOTAS.jubilacion;
+  const pami   = datos.renta * ALICUOTAS.retiro;
+  const osTit  = os ? ALICUOTAS.os_titular : 0;
+  const osFam  = os ? fam * ALICUOTAS.os_benefic : 0;
+  const osTotal= osTit + osFam;
+  const total  = jub + pami + osTotal;
+  const anual  = total * 12;
+
+  document.getElementById('panel-r').innerHTML = `
+    <div class="result-hero">
+      <div class="lbl">Aporte mensual total</div>
+      <div class="val">${fmt(total)}</div>
+      <div class="sub">${datos.label} · Renta ref: ${fmt(datos.renta)}/mes · Anual: ${fmt(anual)}</div>
+    </div>
+    <div class="breakdown">
+      <div class="bk-card"><div class="lbl">Jubilación (27%)</div><div class="val">${fmt(jub)}</div></div>
+      <div class="bk-card"><div class="lbl">PAMI (1.5%)</div><div class="val">${fmt(pami)}</div></div>
+      <div class="bk-card"><div class="lbl">OS titular</div><div class="val">${os?fmt(osTit):'—'}</div></div>
+      <div class="bk-card"><div class="lbl">OS familiares (×${fam})</div><div class="val">${os&&fam?fmt(osFam):'—'}</div></div>
+    </div>
+    <div class="alerta info">💡 Los aportes se pagan mensualmente hasta el día 22 del mes siguiente. Podés adherir al débito automático desde el portal de ARCA.</div>
+    <div class="alerta warn">⚠ Las rentas de referencia se actualizan semestralmente por IPC (enero y julio). Verificá en ARCA los valores vigentes para el período en curso.</div>
+    <div class="card" style="margin-top:14px">
+      <div class="card-hd">📊 Todas las categorías</div>
+      <div class="card-body" style="padding:0">
+        <table class="table-cat">
+          <thead><tr><th>Cat.</th><th>Renta ref./mes</th><th>Jubilación</th><th>PAMI</th><th>Total s/OS</th></tr></thead>
+          <tbody>
+            ${Object.entries(RENTAS).map(([k,v])=>`
+            <tr class="${k==cat?'active':''}">
+              <td>${v.label.split(' ')[1]}</td>
+              <td>${fmt(v.renta)}</td>
+              <td>${fmt(v.renta*0.27)}</td>
+              <td>${fmt(v.renta*0.015)}</td>
+              <td>${fmt(v.renta*0.285)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+</script>
+</body>
+</html>
