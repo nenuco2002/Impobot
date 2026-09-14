@@ -97,103 +97,182 @@ const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','
 // Vencimientos ARCA 2026 — Principales obligaciones
 // Días son aproximados — verificar en arca.gob.ar ante cambios por feriados
 const VENC = [
-  // ENERO
-  {m:0,d:15,n:'IVA — DJ mensual',det:'CUIT terminados en 0-1',tags:['IVA']},
-  {m:0,d:16,n:'IVA — DJ mensual',det:'CUIT terminados en 2-3',tags:['IVA']},
-  {m:0,d:19,n:'IVA — DJ mensual',det:'CUIT terminados en 4-5',tags:['IVA']},
-  {m:0,d:20,n:'IVA — DJ mensual',det:'CUIT terminados en 6-7',tags:['IVA']},
-  {m:0,d:21,n:'IVA — DJ mensual',det:'CUIT terminados en 8-9',tags:['IVA']},
-  {m:0,d:22,n:'Autónomos — cuota mensual',det:'Pago aporte autónomos diciembre',tags:['GAN']},
-  {m:0,d:22,n:'Monotributo — cuota mensual',det:'Pago cuota diciembre',tags:['MON']},
-  {m:0,d:27,n:'SUSS / F.931',det:'Nómina y contribuciones patronales',tags:['SS']},
-  // FEBRERO
-  {m:1,d:17,n:'IVA — DJ mensual',det:'CUIT terminados en 0-1',tags:['IVA']},
-  {m:1,d:18,n:'IVA — DJ mensual',det:'CUIT terminados en 2-3',tags:['IVA']},
-  {m:1,d:19,n:'IVA — DJ mensual',det:'CUIT terminados en 4-5',tags:['IVA']},
-  {m:1,d:20,n:'IVA — DJ mensual',det:'CUIT terminados en 6-7',tags:['IVA']},
-  {m:1,d:21,n:'IVA — DJ mensual',det:'CUIT terminados en 8-9',tags:['IVA']},
-  {m:1,d:21,n:'Ganancias — 1° anticipo',det:'Personas jurídicas cierre dic/25',tags:['GAN']},
-  {m:1,d:22,n:'Autónomos — cuota mensual',det:'Pago aporte enero',tags:['GAN']},
-  {m:1,d:22,n:'Monotributo — cuota mensual',det:'Pago cuota enero',tags:['MON']},
-  {m:1,d:27,n:'SUSS / F.931',det:'Nómina y contribuciones patronales',tags:['SS']},
-  // MARZO
-  {m:2,d:16,n:'IVA — DJ mensual',det:'CUIT terminados en 0-1',tags:['IVA']},
-  {m:2,d:17,n:'IVA — DJ mensual',det:'CUIT terminados en 2-3',tags:['IVA']},
-  {m:2,d:18,n:'IVA — DJ mensual',det:'CUIT terminados en 4-5',tags:['IVA']},
-  {m:2,d:19,n:'IVA — DJ mensual',det:'CUIT terminados en 6-7',tags:['IVA']},
-  {m:2,d:20,n:'IVA — DJ mensual',det:'CUIT terminados en 8-9',tags:['IVA']},
-  {m:2,d:22,n:'Autónomos — cuota mensual',det:'Pago aporte febrero',tags:['GAN']},
-  {m:2,d:22,n:'Monotributo — cuota mensual',det:'Pago cuota febrero',tags:['MON']},
-  {m:2,d:27,n:'SUSS / F.931',det:'Nómina y contribuciones patronales',tags:['SS']},
-  {m:2,d:31,n:'Bienes Personales — vencimiento DJ',det:'PH y sucesiones',tags:['GAN']},
-  // ABRIL
-  {m:3,d:15,n:'IVA — DJ mensual',det:'CUIT terminados en 0-1',tags:['IVA']},
-  {m:3,d:16,n:'IVA — DJ mensual',det:'CUIT terminados en 2-3',tags:['IVA']},
-  {m:3,d:17,n:'IVA — DJ mensual',det:'CUIT terminados en 4-5',tags:['IVA']},
-  {m:3,d:22,n:'Autónomos — cuota mensual',det:'Pago aporte marzo',tags:['GAN']},
-  {m:3,d:22,n:'Monotributo — cuota mensual',det:'Pago cuota marzo',tags:['MON']},
-  {m:3,d:25,n:'Ganancias PH — DJ anual',det:'Personas humanas período 2025',tags:['GAN']},
-  {m:3,d:27,n:'SUSS / F.931',det:'Nómina y contribuciones patronales',tags:['SS']},
-  {m:3,d:30,n:'Recategorización Monotributo',det:'Semestre enero-junio 2026',tags:['MON']},
-  // MAYO
-  {m:4,d:15,n:'IVA — DJ mensual',det:'CUIT terminados en 0-1',tags:['IVA']},
-  {m:4,d:16,n:'IVA — DJ mensual',det:'CUIT terminados en 2-3',tags:['IVA']},
-  {m:4,d:19,n:'IVA — DJ mensual',det:'CUIT terminados en 4-5',tags:['IVA']},
-  {m:4,d:22,n:'Autónomos — cuota mensual',det:'Pago aporte abril',tags:['GAN']},
-  {m:4,d:22,n:'Monotributo — cuota mensual',det:'Pago cuota abril',tags:['MON']},
-  {m:4,d:27,n:'SUSS / F.931',det:'Nómina y contribuciones patronales',tags:['SS']},
-  {m:4,d:22,n:'Ganancias — DJ anual PJ',det:'Personas jurídicas cierre dic/25',tags:['GAN']},
-  // JUNIO
-  {m:5,d:15,n:'IVA — DJ mensual',det:'CUIT terminados en 0-1',tags:['IVA']},
-  {m:5,d:16,n:'IVA — DJ mensual',det:'CUIT terminados en 2-3',tags:['IVA']},
-  {m:5,d:17,n:'IVA — DJ mensual',det:'CUIT terminados en 4-5',tags:['IVA']},
-  {m:5,d:22,n:'Autónomos — cuota mensual',det:'Pago aporte mayo',tags:['GAN']},
-  {m:5,d:22,n:'Monotributo — cuota mensual',det:'Pago cuota mayo',tags:['MON']},
-  {m:5,d:27,n:'SUSS / F.931',det:'Nómina y contribuciones patronales',tags:['SS']},
-  {m:5,d:30,n:'Recategorización Monotributo',det:'Último día semestre ene-jun',tags:['MON']},
-  // JULIO
-  {m:6,d:15,n:'IVA — DJ mensual',det:'CUIT terminados en 0-1',tags:['IVA']},
-  {m:6,d:16,n:'IVA — DJ mensual',det:'CUIT terminados en 2-3',tags:['IVA']},
-  {m:6,d:17,n:'IVA — DJ mensual',det:'CUIT terminados en 4-5',tags:['IVA']},
-  {m:6,d:22,n:'Autónomos — cuota mensual',det:'Pago aporte junio',tags:['GAN']},
-  {m:6,d:22,n:'Monotributo — cuota mensual',det:'Pago cuota junio',tags:['MON']},
-  {m:6,d:27,n:'SUSS / F.931',det:'Nómina y contribuciones patronales',tags:['SS']},
-  // AGOSTO
-  {m:7,d:17,n:'IVA — DJ mensual',det:'CUIT terminados en 0-1',tags:['IVA']},
-  {m:7,d:18,n:'IVA — DJ mensual',det:'CUIT terminados en 2-3',tags:['IVA']},
-  {m:7,d:19,n:'IVA — DJ mensual',det:'CUIT terminados en 4-5',tags:['IVA']},
-  {m:7,d:22,n:'Autónomos — cuota mensual',det:'Pago aporte julio',tags:['GAN']},
-  {m:7,d:22,n:'Monotributo — cuota mensual',det:'Pago cuota julio',tags:['MON']},
-  {m:7,d:27,n:'SUSS / F.931',det:'Nómina y contribuciones patronales',tags:['SS']},
-  // SEPTIEMBRE
-  {m:8,d:15,n:'IVA — DJ mensual',det:'CUIT terminados en 0-1',tags:['IVA']},
-  {m:8,d:16,n:'IVA — DJ mensual',det:'CUIT terminados en 2-3',tags:['IVA']},
-  {m:8,d:17,n:'IVA — DJ mensual',det:'CUIT terminados en 4-5',tags:['IVA']},
-  {m:8,d:22,n:'Autónomos — cuota mensual',det:'Pago aporte agosto',tags:['GAN']},
-  {m:8,d:22,n:'Monotributo — cuota mensual',det:'Pago cuota agosto',tags:['MON']},
-  {m:8,d:27,n:'SUSS / F.931',det:'Nómina y contribuciones patronales',tags:['SS']},
-  // OCTUBRE
-  {m:9,d:15,n:'IVA — DJ mensual',det:'CUIT terminados en 0-1',tags:['IVA']},
-  {m:9,d:16,n:'IVA — DJ mensual',det:'CUIT terminados en 2-3',tags:['IVA']},
-  {m:9,d:19,n:'IVA — DJ mensual',det:'CUIT terminados en 4-5',tags:['IVA']},
-  {m:9,d:22,n:'Autónomos — cuota mensual',det:'Pago aporte septiembre',tags:['GAN']},
-  {m:9,d:22,n:'Monotributo — cuota mensual',det:'Pago cuota septiembre',tags:['MON']},
-  {m:9,d:27,n:'SUSS / F.931',det:'Nómina y contribuciones patronales',tags:['SS']},
-  // NOVIEMBRE
-  {m:10,d:16,n:'IVA — DJ mensual',det:'CUIT terminados en 0-1',tags:['IVA']},
-  {m:10,d:17,n:'IVA — DJ mensual',det:'CUIT terminados en 2-3',tags:['IVA']},
-  {m:10,d:18,n:'IVA — DJ mensual',det:'CUIT terminados en 4-5',tags:['IVA']},
-  {m:10,d:22,n:'Autónomos — cuota mensual',det:'Pago aporte octubre',tags:['GAN']},
-  {m:10,d:22,n:'Monotributo — cuota mensual',det:'Pago cuota octubre',tags:['MON']},
-  {m:10,d:27,n:'SUSS / F.931',det:'Nómina y contribuciones patronales',tags:['SS']},
-  // DICIEMBRE
-  {m:11,d:15,n:'IVA — DJ mensual',det:'CUIT terminados en 0-1',tags:['IVA']},
-  {m:11,d:16,n:'IVA — DJ mensual',det:'CUIT terminados en 2-3',tags:['IVA']},
-  {m:11,d:17,n:'IVA — DJ mensual',det:'CUIT terminados en 4-5',tags:['IVA']},
-  {m:11,d:22,n:'Autónomos — cuota mensual',det:'Pago aporte noviembre',tags:['GAN']},
-  {m:11,d:22,n:'Monotributo — cuota mensual',det:'Pago cuota noviembre',tags:['MON']},
-  {m:11,d:27,n:'SUSS / F.931',det:'Nómina y contribuciones patronales',tags:['SS']},
-  {m:11,d:31,n:'Recategorización Monotributo',det:'Último día semestre jul-dic',tags:['MON']},
+  // ══════════════════════════ ENERO ══════════════════════════
+  // Autónomos (devengado: diciembre 2025)
+  {m:0,d:5,  n:'Autónomos',det:'CUIT terminado en 0, 1, 2 y 3',tags:['AUT']},
+  {m:0,d:6,  n:'Autónomos',det:'CUIT terminado en 4, 5 y 6',tags:['AUT']},
+  {m:0,d:7,  n:'Autónomos',det:'CUIT terminado en 7, 8 y 9',tags:['AUT']},
+  // Cargas Sociales F.931 (devengado: diciembre 2025)
+  {m:0,d:9,  n:'Cargas Sociales F.931',det:'CUIT terminado en 0, 1, 2 y 3',tags:['SS']},
+  {m:0,d:12, n:'Cargas Sociales F.931',det:'CUIT terminado en 4, 5 y 6',tags:['SS']},
+  {m:0,d:13, n:'Cargas Sociales F.931',det:'CUIT terminado en 7, 8 y 9',tags:['SS']},
+  // Monotributo
+  {m:0,d:20, n:'Monotributo — cuota',det:'Todas las terminaciones de CUIT',tags:['MON']},
+  // IVA (devengado: diciembre 2025)
+  {m:0,d:19, n:'IVA',det:'CUIT terminado en 0 y 1',tags:['IVA']},
+  {m:0,d:20, n:'IVA',det:'CUIT terminado en 2 y 3',tags:['IVA']},
+  {m:0,d:21, n:'IVA',det:'CUIT terminado en 4 y 5',tags:['IVA']},
+  {m:0,d:22, n:'IVA',det:'CUIT terminado en 6 y 7',tags:['IVA']},
+  {m:0,d:23, n:'IVA',det:'CUIT terminado en 8 y 9',tags:['IVA']},
+
+  // ══════════════════════════ FEBRERO ════════════════════════
+  {m:1,d:5,  n:'Autónomos',det:'CUIT terminado en 0, 1, 2 y 3',tags:['AUT']},
+  {m:1,d:6,  n:'Autónomos',det:'CUIT terminado en 4, 5 y 6',tags:['AUT']},
+  {m:1,d:9,  n:'Autónomos',det:'CUIT terminado en 7, 8 y 9',tags:['AUT']},
+  {m:1,d:9,  n:'Cargas Sociales F.931',det:'CUIT terminado en 0, 1, 2 y 3',tags:['SS']},
+  {m:1,d:10, n:'Cargas Sociales F.931',det:'CUIT terminado en 4, 5 y 6',tags:['SS']},
+  {m:1,d:11, n:'Cargas Sociales F.931',det:'CUIT terminado en 7, 8 y 9',tags:['SS']},
+  {m:1,d:20, n:'Monotributo — cuota',det:'Todas las terminaciones de CUIT',tags:['MON']},
+  {m:1,d:28, n:'Recategorización Monotributo',det:'Vencimiento semestre julio–diciembre 2025',tags:['MON']},
+  {m:1,d:18, n:'IVA',det:'CUIT terminado en 0 y 1',tags:['IVA']},
+  {m:1,d:19, n:'IVA',det:'CUIT terminado en 2 y 3',tags:['IVA']},
+  {m:1,d:20, n:'IVA',det:'CUIT terminado en 4 y 5',tags:['IVA']},
+  {m:1,d:23, n:'IVA',det:'CUIT terminado en 6 y 7',tags:['IVA']},
+  {m:1,d:24, n:'IVA',det:'CUIT terminado en 8 y 9',tags:['IVA']},
+
+  // ══════════════════════════ MARZO ══════════════════════════
+  {m:2,d:5,  n:'Autónomos',det:'CUIT terminado en 0, 1, 2 y 3',tags:['AUT']},
+  {m:2,d:6,  n:'Autónomos',det:'CUIT terminado en 4, 5 y 6',tags:['AUT']},
+  {m:2,d:9,  n:'Autónomos',det:'CUIT terminado en 7, 8 y 9',tags:['AUT']},
+  {m:2,d:9,  n:'Cargas Sociales F.931',det:'CUIT terminado en 0, 1, 2 y 3',tags:['SS']},
+  {m:2,d:10, n:'Cargas Sociales F.931',det:'CUIT terminado en 4, 5 y 6',tags:['SS']},
+  {m:2,d:11, n:'Cargas Sociales F.931',det:'CUIT terminado en 7, 8 y 9',tags:['SS']},
+  {m:2,d:20, n:'Monotributo — cuota',det:'Todas las terminaciones de CUIT',tags:['MON']},
+  {m:2,d:31, n:'SIRADIG — fecha límite',det:'Empleados en relación de dependencia: carga de datos 2025',tags:['GAN']},
+  {m:2,d:18, n:'IVA',det:'CUIT terminado en 0 y 1',tags:['IVA']},
+  {m:2,d:19, n:'IVA',det:'CUIT terminado en 2 y 3',tags:['IVA']},
+  {m:2,d:20, n:'IVA',det:'CUIT terminado en 4 y 5',tags:['IVA']},
+  {m:2,d:23, n:'IVA',det:'CUIT terminado en 6 y 7',tags:['IVA']},
+  {m:2,d:25, n:'IVA',det:'CUIT terminado en 8 y 9',tags:['IVA']},
+
+  // ══════════════════════════ ABRIL ══════════════════════════
+  {m:3,d:6,  n:'Autónomos',det:'CUIT terminado en 0, 1, 2 y 3',tags:['AUT']},
+  {m:3,d:7,  n:'Autónomos',det:'CUIT terminado en 4, 5 y 6',tags:['AUT']},
+  {m:3,d:8,  n:'Autónomos',det:'CUIT terminado en 7, 8 y 9',tags:['AUT']},
+  {m:3,d:9,  n:'Cargas Sociales F.931',det:'CUIT terminado en 0, 1, 2 y 3',tags:['SS']},
+  {m:3,d:10, n:'Cargas Sociales F.931',det:'CUIT terminado en 4, 5 y 6',tags:['SS']},
+  {m:3,d:13, n:'Cargas Sociales F.931',det:'CUIT terminado en 7, 8 y 9',tags:['SS']},
+  {m:3,d:22, n:'Monotributo — cuota',det:'Todas las terminaciones (20/4 feriado → 22)',tags:['MON']},
+  {m:3,d:20, n:'IVA',det:'CUIT terminado en 0 y 1',tags:['IVA']},
+  {m:3,d:21, n:'IVA',det:'CUIT terminado en 2 y 3',tags:['IVA']},
+  {m:3,d:22, n:'IVA',det:'CUIT terminado en 4 y 5',tags:['IVA']},
+  {m:3,d:23, n:'IVA',det:'CUIT terminado en 6 y 7',tags:['IVA']},
+  {m:3,d:24, n:'IVA',det:'CUIT terminado en 8 y 9',tags:['IVA']},
+
+  // ══════════════════════════ MAYO ═══════════════════════════
+  {m:4,d:5,  n:'Autónomos',det:'CUIT terminado en 0, 1, 2 y 3',tags:['AUT']},
+  {m:4,d:6,  n:'Autónomos',det:'CUIT terminado en 4, 5 y 6',tags:['AUT']},
+  {m:4,d:7,  n:'Autónomos',det:'CUIT terminado en 7, 8 y 9',tags:['AUT']},
+  {m:4,d:11, n:'Cargas Sociales F.931',det:'CUIT terminado en 0, 1, 2 y 3',tags:['SS']},
+  {m:4,d:12, n:'Cargas Sociales F.931',det:'CUIT terminado en 4, 5 y 6',tags:['SS']},
+  {m:4,d:13, n:'Cargas Sociales F.931',det:'CUIT terminado en 7, 8 y 9',tags:['SS']},
+  {m:4,d:20, n:'Monotributo — cuota',det:'Todas las terminaciones de CUIT',tags:['MON']},
+  {m:4,d:31, n:'Recategorización anual Autónomos',det:'Recategorización según ingresos del año anterior (Art. 24 RG 2217)',tags:['AUT']},
+  {m:4,d:18, n:'IVA',det:'CUIT terminado en 0 y 1',tags:['IVA']},
+  {m:4,d:19, n:'IVA',det:'CUIT terminado en 2 y 3',tags:['IVA']},
+  {m:4,d:20, n:'IVA',det:'CUIT terminado en 4 y 5',tags:['IVA']},
+  {m:4,d:21, n:'IVA',det:'CUIT terminado en 6 y 7',tags:['IVA']},
+  {m:4,d:22, n:'IVA',det:'CUIT terminado en 8 y 9',tags:['IVA']},
+
+  // ══════════════════════════ JUNIO ══════════════════════════
+  {m:5,d:5,  n:'Autónomos',det:'CUIT terminado en 0, 1, 2 y 3',tags:['AUT']},
+  {m:5,d:8,  n:'Autónomos',det:'CUIT terminado en 4, 5 y 6',tags:['AUT']},
+  {m:5,d:9,  n:'Autónomos',det:'CUIT terminado en 7, 8 y 9',tags:['AUT']},
+  {m:5,d:9,  n:'Cargas Sociales F.931',det:'CUIT terminado en 0, 1, 2 y 3',tags:['SS']},
+  {m:5,d:10, n:'Cargas Sociales F.931',det:'CUIT terminado en 4, 5 y 6',tags:['SS']},
+  {m:5,d:11, n:'Cargas Sociales F.931',det:'CUIT terminado en 7, 8 y 9',tags:['SS']},
+  {m:5,d:20, n:'Monotributo — cuota',det:'Todas las terminaciones de CUIT',tags:['MON']},
+  {m:5,d:18, n:'IVA',det:'CUIT terminado en 0 y 1',tags:['IVA']},
+  {m:5,d:19, n:'IVA',det:'CUIT terminado en 2 y 3',tags:['IVA']},
+  {m:5,d:22, n:'IVA',det:'CUIT terminado en 4 y 5',tags:['IVA']},
+  {m:5,d:23, n:'IVA',det:'CUIT terminado en 6 y 7',tags:['IVA']},
+  {m:5,d:24, n:'IVA',det:'CUIT terminado en 8 y 9',tags:['IVA']},
+
+  // ══════════════════════════ JULIO ══════════════════════════
+  {m:6,d:6,  n:'Autónomos',det:'CUIT terminado en 0, 1, 2 y 3',tags:['AUT']},
+  {m:6,d:7,  n:'Autónomos',det:'CUIT terminado en 4, 5 y 6',tags:['AUT']},
+  {m:6,d:8,  n:'Autónomos',det:'CUIT terminado en 7, 8 y 9',tags:['AUT']},
+  {m:6,d:13, n:'Cargas Sociales F.931',det:'CUIT terminado en 0, 1, 2 y 3',tags:['SS']},
+  {m:6,d:14, n:'Cargas Sociales F.931',det:'CUIT terminado en 4, 5 y 6',tags:['SS']},
+  {m:6,d:15, n:'Cargas Sociales F.931',det:'CUIT terminado en 7, 8 y 9',tags:['SS']},
+  {m:6,d:21, n:'Monotributo — cuota',det:'Todas las terminaciones (20/7 domingo → 21)',tags:['MON']},
+  {m:6,d:20, n:'IVA',det:'CUIT terminado en 0 y 1',tags:['IVA']},
+  {m:6,d:21, n:'IVA',det:'CUIT terminado en 2 y 3',tags:['IVA']},
+  {m:6,d:22, n:'IVA',det:'CUIT terminado en 4 y 5',tags:['IVA']},
+  {m:6,d:23, n:'IVA',det:'CUIT terminado en 6 y 7',tags:['IVA']},
+  {m:6,d:24, n:'IVA',det:'CUIT terminado en 8 y 9',tags:['IVA']},
+
+  // ══════════════════════════ AGOSTO ═════════════════════════
+  {m:7,d:5,  n:'Autónomos',det:'CUIT terminado en 0, 1, 2 y 3',tags:['AUT']},
+  {m:7,d:6,  n:'Autónomos',det:'CUIT terminado en 4, 5 y 6',tags:['AUT']},
+  {m:7,d:7,  n:'Autónomos',det:'CUIT terminado en 7, 8 y 9',tags:['AUT']},
+  {m:7,d:5,  n:'Recategorización Monotributo',det:'Vencimiento semestre enero–junio 2026',tags:['MON']},
+  {m:7,d:10, n:'Cargas Sociales F.931',det:'CUIT terminado en 0, 1, 2 y 3',tags:['SS']},
+  {m:7,d:11, n:'Cargas Sociales F.931',det:'CUIT terminado en 4, 5 y 6',tags:['SS']},
+  {m:7,d:12, n:'Cargas Sociales F.931',det:'CUIT terminado en 7, 8 y 9',tags:['SS']},
+  {m:7,d:20, n:'Monotributo — cuota',det:'Todas las terminaciones de CUIT',tags:['MON']},
+  {m:7,d:18, n:'IVA',det:'CUIT terminado en 0 y 1',tags:['IVA']},
+  {m:7,d:19, n:'IVA',det:'CUIT terminado en 2 y 3',tags:['IVA']},
+  {m:7,d:20, n:'IVA',det:'CUIT terminado en 4 y 5',tags:['IVA']},
+  {m:7,d:21, n:'IVA',det:'CUIT terminado en 6 y 7',tags:['IVA']},
+  {m:7,d:24, n:'IVA',det:'CUIT terminado en 8 y 9',tags:['IVA']},
+
+  // ══════════════════════════ SEPTIEMBRE ═════════════════════
+  {m:8,d:7,  n:'Autónomos',det:'CUIT terminado en 0, 1, 2 y 3',tags:['AUT']},
+  {m:8,d:8,  n:'Autónomos',det:'CUIT terminado en 4, 5 y 6',tags:['AUT']},
+  {m:8,d:9,  n:'Autónomos',det:'CUIT terminado en 7, 8 y 9',tags:['AUT']},
+  {m:8,d:9,  n:'Cargas Sociales F.931',det:'CUIT terminado en 0, 1, 2 y 3',tags:['SS']},
+  {m:8,d:10, n:'Cargas Sociales F.931',det:'CUIT terminado en 4, 5 y 6',tags:['SS']},
+  {m:8,d:11, n:'Cargas Sociales F.931',det:'CUIT terminado en 7, 8 y 9',tags:['SS']},
+  {m:8,d:22, n:'Monotributo — cuota',det:'Todas las terminaciones (20/9 domingo → 22)',tags:['MON']},
+  {m:8,d:18, n:'IVA',det:'CUIT terminado en 0 y 1',tags:['IVA']},
+  {m:8,d:21, n:'IVA',det:'CUIT terminado en 2 y 3',tags:['IVA']},
+  {m:8,d:22, n:'IVA',det:'CUIT terminado en 4 y 5',tags:['IVA']},
+  {m:8,d:23, n:'IVA',det:'CUIT terminado en 6 y 7',tags:['IVA']},
+  {m:8,d:24, n:'IVA',det:'CUIT terminado en 8 y 9',tags:['IVA']},
+
+  // ══════════════════════════ OCTUBRE ════════════════════════
+  {m:9,d:5,  n:'Autónomos',det:'CUIT terminado en 0, 1, 2 y 3',tags:['AUT']},
+  {m:9,d:6,  n:'Autónomos',det:'CUIT terminado en 4, 5 y 6',tags:['AUT']},
+  {m:9,d:7,  n:'Autónomos',det:'CUIT terminado en 7, 8 y 9',tags:['AUT']},
+  {m:9,d:9,  n:'Cargas Sociales F.931',det:'CUIT terminado en 0, 1, 2 y 3',tags:['SS']},
+  {m:9,d:12, n:'Cargas Sociales F.931',det:'CUIT terminado en 4, 5 y 6',tags:['SS']},
+  {m:9,d:13, n:'Cargas Sociales F.931',det:'CUIT terminado en 7, 8 y 9',tags:['SS']},
+  {m:9,d:20, n:'Monotributo — cuota',det:'Todas las terminaciones de CUIT',tags:['MON']},
+  {m:9,d:19, n:'IVA',det:'CUIT terminado en 0 y 1',tags:['IVA']},
+  {m:9,d:20, n:'IVA',det:'CUIT terminado en 2 y 3',tags:['IVA']},
+  {m:9,d:21, n:'IVA',det:'CUIT terminado en 4 y 5',tags:['IVA']},
+  {m:9,d:22, n:'IVA',det:'CUIT terminado en 6 y 7',tags:['IVA']},
+  {m:9,d:23, n:'IVA',det:'CUIT terminado en 8 y 9',tags:['IVA']},
+
+  // ══════════════════════════ NOVIEMBRE ══════════════════════
+  {m:10,d:5,  n:'Autónomos',det:'CUIT terminado en 0, 1, 2 y 3',tags:['AUT']},
+  {m:10,d:6,  n:'Autónomos',det:'CUIT terminado en 4, 5 y 6',tags:['AUT']},
+  {m:10,d:9,  n:'Autónomos',det:'CUIT terminado en 7, 8 y 9',tags:['AUT']},
+  {m:10,d:9,  n:'Cargas Sociales F.931',det:'CUIT terminado en 0, 1, 2 y 3',tags:['SS']},
+  {m:10,d:10, n:'Cargas Sociales F.931',det:'CUIT terminado en 4, 5 y 6',tags:['SS']},
+  {m:10,d:11, n:'Cargas Sociales F.931',det:'CUIT terminado en 7, 8 y 9',tags:['SS']},
+  {m:10,d:20, n:'Monotributo — cuota',det:'Todas las terminaciones de CUIT',tags:['MON']},
+  {m:10,d:18, n:'IVA',det:'CUIT terminado en 0 y 1',tags:['IVA']},
+  {m:10,d:19, n:'IVA',det:'CUIT terminado en 2 y 3',tags:['IVA']},
+  {m:10,d:20, n:'IVA',det:'CUIT terminado en 4 y 5',tags:['IVA']},
+  {m:10,d:23, n:'IVA',det:'CUIT terminado en 6 y 7',tags:['IVA']},
+  {m:10,d:24, n:'IVA',det:'CUIT terminado en 8 y 9',tags:['IVA']},
+
+  // ══════════════════════════ DICIEMBRE ══════════════════════
+  {m:11,d:7,  n:'Autónomos',det:'CUIT terminado en 0, 1, 2 y 3',tags:['AUT']},
+  {m:11,d:9,  n:'Autónomos',det:'CUIT terminado en 4, 5 y 6',tags:['AUT']},
+  {m:11,d:10, n:'Autónomos',det:'CUIT terminado en 7, 8 y 9',tags:['AUT']},
+  {m:11,d:9,  n:'Cargas Sociales F.931',det:'CUIT terminado en 0, 1, 2 y 3',tags:['SS']},
+  {m:11,d:10, n:'Cargas Sociales F.931',det:'CUIT terminado en 4, 5 y 6',tags:['SS']},
+  {m:11,d:11, n:'Cargas Sociales F.931',det:'CUIT terminado en 7, 8 y 9',tags:['SS']},
+  {m:11,d:22, n:'Monotributo — cuota',det:'Todas las terminaciones (20/12 domingo → 22)',tags:['MON']},
+  {m:11,d:31, n:'Recategorización Monotributo',det:'Vencimiento semestre julio–diciembre 2026',tags:['MON']},
+  {m:11,d:18, n:'IVA',det:'CUIT terminado en 0 y 1',tags:['IVA']},
+  {m:11,d:21, n:'IVA',det:'CUIT terminado en 2 y 3',tags:['IVA']},
+  {m:11,d:22, n:'IVA',det:'CUIT terminado en 4 y 5',tags:['IVA']},
+  {m:11,d:23, n:'IVA',det:'CUIT terminado en 6 y 7',tags:['IVA']},
+  {m:11,d:24, n:'IVA',det:'CUIT terminado en 8 y 9',tags:['IVA']},
 ];
 
 const TAG_MAP = {IVA:'tag-iva',GAN:'tag-gan',SS:'tag-ss',IIBB:'tag-iibb',MON:'tag-mon',SDO:'tag-sdo'};
@@ -257,5 +336,12 @@ function renderGrid(){
 }
 renderGrid();
 </script>
+<a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener"
+  style="position:fixed;bottom:16px;right:16px;z-index:999;
+    display:flex;align-items:center;gap:6px;
+    background:#FFDD00;color:#000;font-weight:800;font-size:.72rem;
+    padding:8px 14px;border-radius:50px;text-decoration:none;
+    box-shadow:0 3px 16px rgba(0,0,0,.25);border:2px solid rgba(0,0,0,.08)"
+  title="☕ Invitarnos un café">☕</a>
 </body>
 </html>

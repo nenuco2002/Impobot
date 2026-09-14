@@ -118,7 +118,8 @@ function fmt(n){
 
 const TOPE_SIPA = 4594798.23 // Agosto 2026 — Res. ANSES 232/2026;
 const AP_EMP       = { jub:0.11, os:0.03, ley:0.03, sindicato:0.02 };
-const AP_EMP_PATRO = { jub:0.127, os:0.06, ley:0.02, ART:0.015, asig:0.059 };
+// Contribuciones patronales correctas 2026
+const AP_EMP_PATRO = { prev:0.1077, pami:0.0159, os:0.051, fsr:0.009, fne:0.0094, asig:0.047 };
 
 function calcular(){
   var bruto = parseFloat(document.getElementById('inp-bruto').value)||0;
@@ -194,5 +195,12 @@ function calcular(){
   document.getElementById('panel-r').innerHTML = html;
 }
 </script>
+<a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener"
+  style="position:fixed;bottom:16px;right:16px;z-index:999;
+    display:flex;align-items:center;gap:6px;
+    background:#FFDD00;color:#000;font-weight:800;font-size:.72rem;
+    padding:8px 14px;border-radius:50px;text-decoration:none;
+    box-shadow:0 3px 16px rgba(0,0,0,.25);border:2px solid rgba(0,0,0,.08)"
+  title="☕ Invitarnos un café">☕</a>
 </body>
 </html>

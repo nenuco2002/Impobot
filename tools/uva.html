@@ -67,7 +67,8 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
     <div class="uva-hero">
       <div class="uva-label">Valor UVA hoy</div>
       <div class="uva-val" id="uva-val">$1.887,43</div>
-      <div class="uva-fecha" id="uva-fecha">Fuente: BCRA · Actualizar para valor del día</div>
+      <div id="api-status" style="font-size:.6rem;margin-bottom:3px"></div>
+    <div class="uva-fecha" id="uva-fecha">Fuente: BCRA · Actualizar para valor del día</div>
     </div>
     <div class="card-body">
       <div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:8px 12px;font-size:.72rem;color:#fcd34d;margin-bottom:10px">⚠ Los valores son orientativos. Verificar diariamente en <a href="https://www.bcra.gob.ar" target="_blank" style="color:#fcd34d">bcra.gob.ar</a> y bancos.</div>
@@ -148,7 +149,6 @@ const fmt  = (n,d=2) => new Intl.NumberFormat('es-AR',{style:'currency',currency
 const fmtN = n => new Intl.NumberFormat('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
 
 // Valor UVA de referencia (actualizar periódicamente)
-let UVA = 1887.43;  // Valor orientativo sept/2026 — verificar en bcra.gob.ar
 
 // Tipos de cambio de referencia (actualizar o conectar a API)
 const TIPOS = [
@@ -179,6 +179,77 @@ function convertirDolar(){
 }
 
 convertirDolar();
+
+// ── Valores dinámicos — se actualizan al abrir la página ─────
+let UVA = 1887.43;  // fallback mientras carga
+
+async function cargarValoresDiarios(){
+  let uvaOk = false, dolarOk = false;
+
+  // ── UVA desde BCRA API (pública, sin auth) ──────────────────
+  try {
+    const hoy   = new Date();
+    const desde = new Date(hoy); desde.setDate(hoy.getDate()-5);
+    const fmt   = d => d.toISOString().slice(0,10);
+    const url   = `https://api.bcra.gob.ar/estadisticas/v2.0/datosvariable/4/${fmt(desde)}/${fmt(hoy)}`;
+    const resp  = await fetch(url);
+    if(resp.ok){
+      const data = await resp.json();
+      const resultados = data.results || data.data || [];
+      if(resultados.length){
+        UVA = resultados[resultados.length-1].valor;
+        uvaOk = true;
+      }
+    }
+  } catch(e){ console.log('UVA API error:', e.message); }
+
+  // ── Dólar desde dolarapi.com ─────────────────────────────────
+  try {
+    const resp = await fetch('https://dolarapi.com/v1/dolares');
+    if(resp.ok){
+      const dolares = await resp.json();
+      const of  = dolares.find(d=>d.casa==='oficial');
+      const mep = dolares.find(d=>d.casa==='bolsa');
+      const ccl = dolares.find(d=>d.casa==='contadoconliqui');
+      const taj = dolares.find(d=>d.casa==='tarjeta');
+      if(of||mep||ccl){
+        TIPOS = [
+          {nombre:'Oficial BCRA',    val:of?of.venta:1065,  sub:'Tipo de cambio oficial'},
+          {nombre:'Dólar MEP/Bolsa', val:mep?mep.venta:1245,sub:'Mercado de capitales'},
+          {nombre:'CCL',             val:ccl?ccl.venta:1260, sub:'Contado con liquidación'},
+          {nombre:'Tarjeta/Turista', val:taj?taj.venta:(of?(of.venta*1.6):1704), sub:'Oficial + impuestos (60%)'},
+        ];
+        dolarOk = true;
+      }
+    }
+  } catch(e){ console.log('Dólar API error:', e.message); }
+
+  // ── Actualizar UI ────────────────────────────────────────────
+  const uvaEl = document.getElementById('uva-val');
+  if(uvaEl) uvaEl.textContent = fmt(UVA);
+  const uvaFecha = document.getElementById('uva-fecha');
+  if(uvaFecha) uvaFecha.textContent = uvaOk
+    ? 'Fuente: BCRA · Actualizado hoy'
+    : 'Fuente: BCRA · Valor de referencia — verificar en bcra.gob.ar';
+  const statusEl = document.getElementById('api-status');
+  if(statusEl) statusEl.innerHTML = 
+    `<span style="color:${uvaOk?'#10b981':'#f59e0b'}">UVA ${uvaOk?'✓ live':'⚠ fallback'}</span> &nbsp;
+     <span style="color:${dolarOk?'#10b981':'#f59e0b'}">Dólar ${dolarOk?'✓ live':'⚠ fallback'}</span>`;
+
+  // Actualizar conversor si ya hay algo cargado
+  if(document.getElementById('usd-inp').value) convertirDolar();
+  if(document.getElementById('ars-a-uva').value) convertirArsUva();
+}
+
+window.addEventListener('load', cargarValoresDiarios);
+
 </script>
+<a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener"
+  style="position:fixed;bottom:16px;right:16px;z-index:999;
+    display:flex;align-items:center;gap:6px;
+    background:#FFDD00;color:#000;font-weight:800;font-size:.72rem;
+    padding:8px 14px;border-radius:50px;text-decoration:none;
+    box-shadow:0 3px 16px rgba(0,0,0,.25);border:2px solid rgba(0,0,0,.08)"
+  title="☕ Invitarnos un café">☕</a>
 </body>
 </html>

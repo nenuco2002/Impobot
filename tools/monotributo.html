@@ -312,16 +312,16 @@ function calcular(){
     const hoy = new Date();
     const mesActual = hoy.getMonth()+1;
     if(mesActual >= 4 && mesActual <= 6){
-      alertas.push({tipo:'ok', texto:'✓ Estás en período de recategorización semestral (Enero–Junio). Verificá tu categoría antes del 30 de junio.'});
+      alertas.push({tipo:'ok', texto:'✓ Estás en período de recategorización semestral (Ene–Jun 2026). El vencimiento para recategorizarse es el 5 de agosto de 2026.'});
     } else if(mesActual >= 10 && mesActual <= 12){
-      alertas.push({tipo:'ok', texto:'✓ Estás en período de recategorización semestral (Julio–Diciembre). Verificá tu categoría antes del 31 de diciembre.'});
+      alertas.push({tipo:'ok', texto:'✓ Estás en período de recategorización semestral (Jul–Dic 2026). El vencimiento es el 28 de febrero de 2027.'});
     }
   }
 
   // Próximas fechas de recategorización
   const recategFechas = [
-    {mes:'Enero–Junio', fecha:'30 junio 2026', estado: new Date() > new Date('2026-06-30') ? 'pasado' : 'proximo'},
-    {mes:'Julio–Diciembre', fecha:'31 diciembre 2026', estado: new Date() > new Date('2026-12-31') ? 'pasado' : 'proximo'},
+    {mes:'Ene–Jun 2026', fecha:'5 de agosto 2026', estado: new Date() > new Date('2026-08-05') ? 'pasado' : 'proximo'},
+    {mes:'Jul–Dic 2026', fecha:'28 de febrero 2027', estado: new Date() > new Date('2027-02-28') ? 'pasado' : 'proximo'},
   ];
 
   // Tabla de categorías para comparar
@@ -416,7 +416,7 @@ function calcular(){
     <!-- RECATEGORIZACIÓN -->
     <div class="tab-pane" id="tab-recateg">
       <div class="alerta info" style="margin-bottom:14px">
-        La recategorización es obligatoria dos veces por año: enero–junio (hasta el 30/06) y julio–diciembre (hasta el 31/12).
+        La cuota mensual vence el <strong>día 20 de cada mes</strong> (o el primer día hábil siguiente). La recategorización semestral: enero–junio vence el <strong>5 de agosto</strong>; julio–diciembre vence el <strong>28 de febrero</strong> del año siguiente.
         También hay recategorización de oficio si ARCA detecta inconsistencias.
       </div>
       ${recategFechas.map(r=>`
@@ -466,5 +466,12 @@ function swTab(id,btn){
 // Init
 actualizarLimites();
 </script>
+<a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener"
+  style="position:fixed;bottom:16px;right:16px;z-index:999;
+    display:flex;align-items:center;gap:6px;
+    background:#FFDD00;color:#000;font-weight:800;font-size:.72rem;
+    padding:8px 14px;border-radius:50px;text-decoration:none;
+    box-shadow:0 3px 16px rgba(0,0,0,.25);border:2px solid rgba(0,0,0,.08)"
+  title="☕ Invitarnos un café">☕</a>
 </body>
 </html>
