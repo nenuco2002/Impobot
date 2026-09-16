@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.impobot.com.ar/</loc><lastmod>2026-09-09</lastmod><priority>1.0</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.impobot.com.ar/tools/ganancias.html</loc><lastmod>2026-09-09</lastmod><priority>0.9</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://www.impobot.com.ar/tools/monotributo.html</loc><lastmod>2026-09-09</lastmod><priority>0.9</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://www.impobot.com.ar/tools/sueldos.html</loc><lastmod>2026-09-09</lastmod><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://www.impobot.com.ar/tools/autonomos.html</loc><lastmod>2026-09-09</lastmod><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://www.impobot.com.ar/tools/vencimientos.html</loc><lastmod>2026-09-09</lastmod><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://www.impobot.com.ar/tools/cm.html</loc><lastmod>2026-09-09</lastmod><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://www.impobot.com.ar/tools/uva.html</loc><lastmod>2026-09-09</lastmod><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://www.impobot.com.ar/tools/recibos.html</loc><lastmod>2026-09-09</lastmod><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://www.impobot.com.ar/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.impobot.com.ar/tools/ganancias.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.impobot.com.ar/tools/recibos.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.impobot.com.ar/tools/monotributo.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.impobot.com.ar/tools/sueldos.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.impobot.com.ar/tools/autonomos.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.impobot.com.ar/tools/vencimientos.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.impobot.com.ar/tools/cm.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.impobot.com.ar/tools/uva.html</loc><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.impobot.com.ar/tools/intereses.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.impobot.com.ar/tools/rg830.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.impobot.com.ar/tools/valores.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.impobot.com.ar/tools/sac.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.impobot.com.ar/tools/indemnizacion.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.impobot.com.ar/tools/f931.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
