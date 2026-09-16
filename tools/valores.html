@@ -3,96 +3,39 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Monotributo 2026 — FiscalAR</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<title>Valores Fiscales Clave 2026 — ImpoBot</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
-:root{
-  --ink:#1e2f42;--navy:#111827;--navy-l:#1a2744;
-  --amber:#f59e0b;--amber-l:rgba(245,158,11,.12);
-  --cyan:#00c9b8;--green:#10b981;--red:#ef4444;--purple:#8b5cf6;
-  --border:#1e2d47;--text:#e8edf5;--sub:#8899b4;
-  --card:#25394f;--white:#fff;
-  --bg:#1e2f42;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
-
-/* NAV */
-.topnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,15,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 20px;height:54px}
-.back-btn{color:var(--sub);text-decoration:none;font-size:.78rem;font-weight:500;display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;transition:all .15s}
-.back-btn:hover{color:var(--text);background:var(--navy-l)}
-.nav-title{font-size:.88rem;font-weight:700;color:#fff}
-.nav-sub{font-size:.65rem;color:var(--sub)}
-.nav-badge{margin-left:auto;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);color:var(--amber);font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.06em}
-
-/* LAYOUT */
-.app{display:flex;min-height:calc(100vh - 54px);margin-top:54px}
-.panel-l{width:400px;flex-shrink:0;padding:18px;overflow-y:auto;border-right:1px solid var(--border);background:rgba(17,24,39,.4)}
-.panel-r{flex:1;padding:18px;overflow-y:auto}
-@media(max-width:900px){.app{flex-direction:column}.panel-l{width:100%;border-right:none;border-bottom:1px solid var(--border)}}
-
-/* CARD */
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
-.card-hd{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;font-size:.8rem;font-weight:700}
-.card-body{padding:14px}
-
-/* FORM */
-.field{margin-bottom:12px}
-.field label{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);margin-bottom:4px}
-.field input,.field select{width:100%;background:#1e2f42;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:.88rem;outline:none;font-family:'Inter',sans-serif;transition:border-color .15s}
-.field input:focus,.field select:focus{border-color:var(--amber)}
-.field .hint{font-size:.65rem;color:var(--sub);margin-top:3px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sep{font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);padding:8px 0 5px;border-bottom:1px solid var(--border);margin-bottom:10px}
-
-/* BOTÓN */
-.btn-calc{width:100%;background:linear-gradient(135deg,#d97706,var(--amber));color:#1e2f42;border:none;padding:11px;border-radius:9px;font-size:.9rem;font-weight:800;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px;font-family:'Inter',sans-serif}
-.btn-calc:hover{filter:brightness(1.08);transform:translateY(-1px)}
-
-/* RESULTADO */
-.cat-hero{background:linear-gradient(135deg,#1a1400,#2d1f00);border:1px solid rgba(245,158,11,.3);border-radius:14px;padding:22px;text-align:center;margin-bottom:16px}
-.cat-letter{font-size:5rem;font-weight:900;color:var(--amber);line-height:1;letter-spacing:-.05em}
-.cat-label{font-size:.75rem;color:rgba(245,158,11,.6);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
-.cat-desc{font-size:.8rem;color:var(--sub);margin-top:6px}
-
-.cuota-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.cuota-card{background:#1e2f42;border:1px solid var(--border);border-radius:9px;padding:11px;text-align:center}
-.cuota-card .lbl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--sub);margin-bottom:4px}
-.cuota-card .val{font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:600;color:#fff}
-.cuota-card.total{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2)}
-.cuota-card.total .val{color:var(--amber);font-size:1rem}
-
-.alerta{border-radius:9px;padding:10px 13px;font-size:.75rem;line-height:1.5;display:flex;gap:8px;margin-bottom:8px}
-.alerta.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#fbbf24}
-.alerta.ok{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);color:#34d399}
-.alerta.err{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
-.alerta.info{background:rgba(0,201,184,.06);border:1px solid rgba(0,201,184,.15);color:var(--cyan)}
-
-.table-cat{width:100%;border-collapse:collapse;font-size:.75rem}
-.table-cat th{background:rgba(255,255,255,.03);padding:7px 10px;text-align:left;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);border-bottom:1px solid var(--border)}
-.table-cat td{padding:7px 10px;border-bottom:1px solid rgba(30,45,71,.5);font-family:'JetBrains Mono',monospace;font-size:.72rem}
-.table-cat tr.active-row td{background:rgba(245,158,11,.06);color:#fff;font-weight:700}
-.table-cat tr.active-row td:first-child{color:var(--amber);font-size:.85rem}
-.table-cat tr:last-child td{border-bottom:none}
-
-.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:14px}
-.tab-btn{background:none;border:none;padding:8px 14px;font-size:.75rem;font-weight:600;color:var(--sub);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;transition:all .12s;font-family:'Inter',sans-serif}
-.tab-btn.active{color:var(--amber);border-bottom-color:var(--amber)}
-.tab-pane{display:none}.tab-pane.active{display:block}
-
-.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--sub);text-align:center;gap:12px}
-.empty-icon{font-size:3rem;opacity:.2}
-
-.recateg-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;background:#1e2f42;border:1px solid var(--border);margin-bottom:6px}
-.recateg-mes{font-size:.72rem;font-weight:700;color:var(--sub);width:70px}
-.recateg-fecha{font-size:.78rem;font-weight:600;color:#fff;flex:1}
-.recateg-estado{font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:5px}
-.estado-proximo{background:rgba(245,158,11,.15);color:var(--amber)}
-.estado-pasado{background:rgba(136,153,180,.1);color:var(--sub)}
-.estado-ahora{background:rgba(16,185,129,.15);color:#34d399}
-
-.progress-bar{height:6px;background:#1e2d47;border-radius:3px;overflow:hidden;margin-top:6px}
-.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#d97706,var(--amber));transition:width .6s ease}
+:root{--ink:#1e2f42;--card:#35546f;--card2:#35546f;--border:#35546f;--text:#eaf1f8;--sub:#7fa0be;--blue:#0b82f5;--blue-l:#60a5fa;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--cyan:#38bdf8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:60px}
+.shell{max-width:1100px;margin:0 auto;padding:16px}
+.search-bar{background:var(--card);border:1.5px solid var(--border);border-radius:12px;display:flex;align-items:center;gap:10px;padding:10px 16px;margin-bottom:20px}
+.search-bar input{flex:1;background:none;border:none;color:var(--text);font-size:.92rem;font-family:'Inter',sans-serif;outline:none}
+.search-bar input::placeholder{color:var(--sub)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden}
+.card-hd{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.card-hd .icon{font-size:1rem}
+.card-hd .title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-l)}
+.card-hd .sub{font-size:.65rem;color:var(--sub);margin-left:auto}
+.val-row{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(26,47,69,.5);font-size:.82rem}
+.val-row:last-child{border-bottom:none}
+.val-row .lbl{color:var(--sub);flex:1}
+.val-row .val{font-weight:700;color:#fff;font-family:'Courier New',monospace;font-size:.85rem}
+.val-row .val.blue{color:var(--blue-l)}
+.val-row .val.green{color:var(--green)}
+.val-row .val.amber{color:var(--amber)}
+.val-row .val.red{color:var(--red)}
+.val-row .val.cyan{color:var(--cyan)}
+.badge-live{display:inline-flex;align-items:center;gap:4px;font-size:.58rem;font-weight:700;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);color:var(--green);padding:2px 7px;border-radius:10px}
+.badge-live::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.nota-act{font-size:.7rem;color:var(--sub);padding:8px 16px;background:rgba(11,130,245,.04);border-top:1px solid var(--border)}
+.filter-btns{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.fbtn{background:var(--card);border:1px solid var(--border);color:var(--sub);font-size:.72rem;font-weight:600;padding:5px 12px;border-radius:20px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.fbtn.on,.fbtn:hover{background:rgba(11,130,245,.12);border-color:rgba(11,130,245,.3);color:var(--blue-l)}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
 </style>
 <link rel="manifest" href="../manifest.json"/>
 <meta name="theme-color" content="#0b82f5"/>
@@ -113,384 +56,250 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
     <span style="background:rgba(11,130,245,.1);border:1px solid rgba(11,130,245,.2);color:#60a5fa;font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:4px">ARCA 2026</span>
   </div>
 </div>
-<div style="height:46px"></div>
-<script>var t=document.getElementById("tnav-title");if(t)t.textContent="📊 Monotributo";</script>
-<script>var tnav=document.getElementById("tnav-title");if(tnav)tnav.textContent="📊 Monotributo";</script>
-<script>document.getElementById("tool-nav-title").textContent="📊 Monotributo";</script>
+<script>var t=document.getElementById("tnav-title");if(t)t.textContent="📊 Valores Fiscales Clave 2026";</script>
 
-<!-- NAV -->
-<nav class="topnav">
-  <a class="back-btn" href="../index.html">← FiscalAR</a>
-  <div style="width:1px;height:24px;background:var(--border)"></div>
-  <div>
-    <div class="nav-title">📊 Monotributo</div>
-    <div class="nav-sub">Categorías · Cuotas · Recategorización 2026</div>
-  </div>
-  <div class="nav-badge">✓ ARCA 2026</div>
-</nav>
+<script>var t=document.getElementById('tnav-title');if(t)t.textContent='📊 Valores Clave 2026';</script>
 
-<!-- APP -->
-<div class="app">
-
-<!-- PANEL IZQUIERDO: FORMULARIO -->
-<div class="panel-l">
-
-  <div class="card">
-    <div class="card-hd">📋 Datos del monotributista</div>
-    <div class="card-body">
-      <div class="sep">Actividad</div>
-      <div class="field">
-        <label>Tipo de actividad</label>
-        <select id="sel-actividad" onchange="actualizarLimites()">
-          <option value="servicios">Locación de servicios / obras</option>
-          <option value="bienes">Venta de bienes muebles</option>
-          </select>
-      </div>
-
-      <div class="sep">Ingresos brutos anuales</div>
-      <div class="field">
-        <label>Ingresos brutos últimos 12 meses $</label>
-        <input type="number" id="inp-ingresos" placeholder="0" oninput="calcular()"/>
-        <div class="hint" id="hint-tope"></div>
-      </div>
-
-      <div class="sep">Superficie afectada</div>
-      <div class="field">
-        <label>Superficie del local (m²) — 0 si no tiene</label>
-        <input type="number" id="inp-sup" placeholder="0" value="0" oninput="calcular()"/>
-      </div>
-
-      <div class="sep">Energía eléctrica</div>
-      <div class="field">
-        <label>Consumo eléctrico anual (KWh) — 0 si no aplica</label>
-        <input type="number" id="inp-kwh" placeholder="0" value="0" oninput="calcular()"/>
-      </div>
-
-      <div class="sep">Empleados</div>
-      <div class="field">
-        <label>Cantidad de empleados en relación de dependencia</label>
-        <select id="sel-empleados" onchange="calcular()">
-          <option value="0">Sin empleados</option>
-          <option value="1">1 empleado</option>
-          <option value="2">2 empleados</option>
-          <option value="3">3 o más empleados</option>
-        </select>
-      </div>
-
-      <div class="sep">Período</div>
-      <div class="row2">
-        <div class="field">
-          <label>Mes de inicio</label>
-          <select id="sel-mes-inicio" onchange="calcular()">
-            <option value="1">Enero</option><option value="2">Febrero</option>
-            <option value="3">Marzo</option><option value="4">Abril</option>
-            <option value="5">Mayo</option><option value="6" selected>Junio</option>
-            <option value="7">Julio</option><option value="8">Agosto</option>
-            <option value="9">Septiembre</option><option value="10">Octubre</option>
-            <option value="11">Noviembre</option><option value="12">Diciembre</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Año inicio actividad</label>
-          <input type="number" id="inp-anio" value="2020" min="2000" max="2026" oninput="calcular()"/>
-        </div>
-      </div>
-
-      <button class="btn-calc" onclick="calcular()">📊 Calcular categoría</button>
-    </div>
+<div class="shell">
+  <div style="margin-bottom:16px">
+    <h1 style="font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:5px">Valores Fiscales Clave 2026 🇦🇷</h1>
+    <p style="font-size:.82rem;color:var(--sub)">Todos los valores de referencia para la práctica profesional en un solo lugar. Actualizados con las últimas resoluciones de ARCA y ANSES.</p>
   </div>
 
+  <div class="search-bar">
+    <span style="font-size:1rem">🔍</span>
+    <input id="buscar" placeholder="Buscar valor... (ej: tope SIPA, SMVyM, GNI...)" oninput="filtrar()"/>
+  </div>
+
+  <div class="filter-btns">
+    <button class="fbtn on" onclick="setFiltro('todos',this)">Todos</button>
+    <button class="fbtn" onclick="setFiltro('sueldo',this)">Sueldos</button>
+    <button class="fbtn" onclick="setFiltro('ganancias',this)">Ganancias</button>
+    <button class="fbtn" onclick="setFiltro('monotributo',this)">Monotributo</button>
+    <button class="fbtn" onclick="setFiltro('autonomos',this)">Autónomos</button>
+    <button class="fbtn" onclick="setFiltro('indices',this)">Índices</button>
+    <button class="fbtn" onclick="setFiltro('intereses',this)">Intereses</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div id="no-result" style="display:none;text-align:center;padding:40px;color:var(--sub);font-size:.88rem">No se encontraron valores para la búsqueda.</div>
+  <p style="font-size:.68rem;color:var(--sub);text-align:center;margin-top:16px">Fuentes: ARCA · ANSES · INDEC · Banco Central · Min. Economía · Valores orientativos — verificar con la normativa vigente.</p>
 </div>
-
-<!-- PANEL DERECHO: RESULTADO -->
-<div class="panel-r" id="panel-r">
-  <div class="empty-state">
-    <div class="empty-icon">📊</div>
-    <div style="font-weight:700;font-size:.95rem;color:#fff">Calculá tu categoría</div>
-    <div style="font-size:.78rem;max-width:300px;line-height:1.55">Completá los datos de tu actividad y el sistema determina la categoría de Monotributo y las cuotas a pagar.</div>
-  </div>
-</div>
-
-</div><!-- /app -->
 
 <script>
-// ══════════════════════════════════════════════════════════════
-// TABLAS MONOTRIBUTO 2026 — ARCA
-// Actualización RG 5.xxx/2026 — valores vigentes desde enero 2026
-// ══════════════════════════════════════════════════════════════
-const MESES = ["","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-
-// Categorías A–K (o J para servicios sin K)
-// Fuente: ARCA - valores vigentes 01/08/2026
-// ═══════════════════════════════════════════════════════════════
-// CATEGORÍAS MONOTRIBUTO — Vigentes desde 01/08/2026
-// Fuente oficial: https://www.afip.gob.ar/monotributo/categorias.asp
-// ═══════════════════════════════════════════════════════════════
-const CATEGORIAS = [
-  { cat:'A', ing:12009410.45, sup:30,  kwh:3300,  alq:2792886.15,  precioMax:716840.77 },
-  { cat:'B', ing:17595182.74, sup:45,  kwh:5000,  alq:2792886.15,  precioMax:716840.77 },
-  { cat:'C', ing:24670494.31, sup:60,  kwh:6700,  alq:3816944.41,  precioMax:716840.77 },
-  { cat:'D', ing:30628651.43, sup:85,  kwh:10000, alq:3816944.41,  precioMax:716840.77 },
-  { cat:'E', ing:36028231.33, sup:110, kwh:13000, alq:4841002.66,  precioMax:716840.77 },
-  { cat:'F', ing:45151659.41, sup:150, kwh:16500, alq:4841002.66,  precioMax:716840.77 },
-  { cat:'G', ing:53995798.87, sup:200, kwh:20000, alq:5771964.69,  precioMax:716840.77 },
-  { cat:'H', ing:81924660.37, sup:200, kwh:20000, alq:8378658.45,  precioMax:716840.77 },
-  { cat:'I', ing:91699761.90, sup:200, kwh:20000, alq:8378658.45,  precioMax:716840.77 },
-  { cat:'J', ing:105012519.20,sup:200, kwh:20000, alq:8378658.45,  precioMax:716840.77 },
-  { cat:'K', ing:126610838.75,sup:200, kwh:20000, alq:8378658.45,  precioMax:716840.77 },
+var DATA = [
+  {
+    id:'sipa', cat:'sueldo', titulo:'Tope SIPA / Base imponible (Ley 24.241)', icon:'💰', badge:'ANSES', color:'blue',
+    items:[
+      {lbl:'Base imponible máxima — septiembre 2026', val:'$ 4.691.748,47', nota:'Res. ANSES 257/2026 — VIGENTE'},
+      {lbl:'Base imponible máxima — agosto 2026',     val:'$ 4.594.798,23', nota:'Res. ANSES 232/2026'},
+      {lbl:'Base imponible máxima — julio 2026',      val:'$ 4.509.567,41', nota:'Res. ANSES 186/2026'},
+      {lbl:'Base imponible mínima — septiembre 2026', val:'$ 144.363,55',   nota:'Res. ANSES 257/2026'},
+      {lbl:'Movilidad septiembre 2026',               val:'2,11%',           nota:'Sobre IPC julio 2026 (INDEC)'},
+    ],
+    nota:'Se actualiza mensualmente por movilidad previsional (DNU 274/2024). Afecta aportes y contribuciones.'
+  },
+  {
+    id:'smvym', cat:'sueldo', titulo:'SMVyM — Salario Mínimo Vital y Móvil', icon:'👷', badge:'MTEySS', color:'green',
+    items:[
+      {lbl:'SMVyM septiembre 2026 (mensualizado)', val:'$ 383.800', nota:'Res. 4/2026 — VIGENTE'},
+      {lbl:'SMVyM septiembre 2026 (por hora)',     val:'$ 1.919',   nota:'Res. 4/2026'},
+      {lbl:'SMVyM agosto 2026 (mensualizado)',     val:'$ 376.600', nota:'Res. 9/2025'},
+      {lbl:'SMVyM octubre 2026 (mensualizado)',    val:'$ 391.200', nota:'Res. 4/2026 — próximo'},
+      {lbl:'SMVyM noviembre 2026',                 val:'$ 398.800', nota:'Res. 4/2026'},
+      {lbl:'SMVyM diciembre 2026',                 val:'$ 406.400', nota:'Res. 4/2026'},
+    ],
+    nota:'Cronograma Res. 4/2026: llega a $437.000 en abril 2027 (+13,86% entre sep 2026 y abr 2027).'
+  },
+  {
+    id:'aportes', cat:'sueldo', titulo:'Aportes del empleado (tasas s/base topada)', icon:'📋', badge:'ARCA', color:'blue',
+    items:[
+      {lbl:'Jubilación (SIPA)',     val:'11%', nota:'Sobre base topada'},
+      {lbl:'PAMI (Ley 19.032)',     val:'3%',  nota:'Sobre base topada'},
+      {lbl:'Obra Social empleado', val:'3%',  nota:'Sobre base topada'},
+      {lbl:'Sindicato (promedio)', val:'2%',  nota:'Varía según CCT'},
+    ],
+    nota:'Total aportes empleado: 17% + sindicato. Base topada = mín($bruto, tope SIPA).'
+  },
+  {
+    id:'contribs', cat:'sueldo', titulo:'Contribuciones patronales (tasas)', icon:'🏛', badge:'ARCA', color:'amber',
+    items:[
+      {lbl:'890000 — Previsional SIPA',      val:'10,77%',    nota:'Sobre base topada'},
+      {lbl:'890001 — PAMI Ley 19.032',       val:'1,59%',     nota:'Sobre base topada'},
+      {lbl:'890004 — Obra Social empleador', val:'5,10%',     nota:'Sobre bruto sin tope'},
+      {lbl:'890005 — FSR ex ANSSAL',         val:'0,90%',     nota:'Sobre bruto sin tope'},
+      {lbl:'890006 — Fondo Nac. de Empleo',  val:'0,94%',     nota:'Sobre base topada'},
+      {lbl:'890007 — SCVO (suma fija)',       val:'$ 424,62',  nota:'Dec. 590/97 — fija'},
+      {lbl:'890010 — Asignaciones Fam.',     val:'4,70%',     nota:'Sobre base topada'},
+      {lbl:'890017 — ART (suma fija)',        val:'$ 1.905,00', nota:'Dec. 590/97 — fija'},
+    ],
+    nota:'890004 y 890005 se calculan sobre el bruto total sin aplicar tope SIPA.'
+  },
+  {
+    id:'jubilacion', cat:'sueldo', titulo:'Haberes jubilatorios — septiembre 2026', icon:'🏦', badge:'ANSES', color:'green',
+    items:[
+      {lbl:'Haber mínimo garantizado',          val:'$ 428.633,20',   nota:'Res. ANSES 257/2026'},
+      {lbl:'Haber máximo',                      val:'$ 2.884.295,54', nota:'Res. ANSES 257/2026'},
+      {lbl:'Prestación Básica Universal (PBU)', val:'$ 196.080,12',   nota:'Res. ANSES 257/2026'},
+      {lbl:'PUAM (Adulto Mayor)',                val:'$ 342.906,56',   nota:'Res. ANSES 257/2026'},
+      {lbl:'Prestación por desempleo — mínimo', val:'$ 191.900',       nota:'50% del SMVyM sept'},
+      {lbl:'Prestación por desempleo — máximo', val:'$ 383.800',       nota:'100% del SMVyM sept'},
+    ],
+    nota:'Movilidad mensual por IPC (DNU 274/2024). Se actualiza el 1° de cada mes.'
+  },
+  {
+    id:'gni', cat:'ganancias', titulo:'GNI y deducciones — Ganancias 4ª Cat 2026', icon:'🧮', badge:'ARCA', color:'blue',
+    items:[
+      {lbl:'GNI mensual — H2 2026',              val:'$ 501.639,28',   nota:'Ganancia no imponible'},
+      {lbl:'GNI anual — H2 2026',                val:'$ 6.019.671,36', nota:'GNI × 12'},
+      {lbl:'Deducción especial mensual',          val:'x 3,8 del GNI', nota:'Empleados rel. dependencia'},
+      {lbl:'Deducción cónyuge',                   val:'$ 472.443,59',   nota:'Art. 81 inc. b LIG'},
+      {lbl:'Deducción hijo/a',                    val:'$ 238.255,03',   nota:'Art. 81 inc. c LIG'},
+      {lbl:'Deducción hijo discapacidad',         val:'$ 476.510,05',   nota:'Art. 81 inc. c LIG'},
+      {lbl:'1° tramo escala mensual H2',          val:'$ 194.746,16',   nota:'Art. 94 LIG'},
+    ],
+    nota:'Valores H2 2026. RG ARCA 2026.2. Verificar actualización en arca.gob.ar.'
+  },
+  {
+    id:'uva', cat:'indices', titulo:'UVA, ICL y CER — septiembre 2026', icon:'💱', badge:'BCRA', color:'cyan',
+    items:[
+      {lbl:'UVA — 15/09/2026 (BCRA)',         val:'$ 2.116,04', nota:'Actualizado diario — bcra.gob.ar'},
+      {lbl:'ICL — agosto 2026 (BCRA)',         val:'35,2500',    nota:'Índice Contratos Locación'},
+      {lbl:'IPC julio 2026 (INDEC)',           val:'2,11%',      nota:'Base movilidad septiembre'},
+      {lbl:'IPC interanual a jul 2026',        val:'Ver INDEC',   nota:'indec.gob.ar'},
+    ],
+    nota:'UVA y CER se actualizan diariamente. Consultar valores exactos en bcra.gob.ar. La calculadora de UVA de ImpoBot usa el API del BCRA en tiempo real.'
+  },
+  {
+    id:'intereses', cat:'intereses', titulo:'Tasas de interés ARCA — Res. 3/24 ME', icon:'⚖️', badge:'ARCA', color:'red',
+    items:[
+      {lbl:'Resarcitorios desde 01/07/2025 (Art. 37)', val:'2,75%/mes — 0,0917%/día', nota:'Res. 3/24 ME — VIGENTE'},
+      {lbl:'Punitorios desde 01/07/2025 (Art. 52)',    val:'3,50%/mes — 0,1167%/día', nota:'Res. 3/24 ME — VIGENTE'},
+      {lbl:'Devoluciones desde 01/07/2025',            val:'0,50%/mes',               nota:'Res. 3/24 ME'},
+      {lbl:'Resarcitorios 01/03–30/06/2025',           val:'4,00%/mes',               nota:'Res. 3/24 ME'},
+      {lbl:'Punitorios 01/03–30/06/2025',              val:'5,00%/mes',               nota:'Res. 3/24 ME'},
+      {lbl:'Resarcitorios 01/12/2024–31/01/2025',      val:'7,47%/mes',               nota:'Res. 3/24 ME'},
+      {lbl:'Punitorios 01/12/2024–31/01/2025',         val:'8,62%/mes',               nota:'Res. 3/24 ME'},
+      {lbl:'Obligaciones en USD — resarcitorios',      val:'0,83%/mes',               nota:'Res. 3/24 ME'},
+      {lbl:'Obligaciones en USD — punitorios',         val:'1,00%/mes',               nota:'Res. 3/24 ME'},
+    ],
+    nota:'ARCA computa meses completos por 30 días fijos (independiente de días reales del mes). Usar calculadora de intereses de ImpoBot para cálculos por tramo.'
+  },
+  {
+    id:'monotributo', cat:'monotributo', titulo:'Límites y cuotas Monotributo — vigente 01/08/2026', icon:'📊', badge:'ARCA', color:'amber',
+    items:[
+      {lbl:'Precio unitario máximo venta',    val:'$ 716.840,77',    nota:'Todas las categorías'},
+      {lbl:'Vencimiento cuota mensual',       val:'Día 20 de c/mes', nota:'O sig. hábil si cae feriado/fin de sem.'},
+      {lbl:'Recategorización H1 (ene–jun)',   val:'Hasta 5/08/2026', nota:'Venc. primer semestre'},
+      {lbl:'Recategorización H2 (jul–dic)',   val:'Hasta 28/02/2027',nota:'Venc. segundo semestre'},
+      {lbl:'Cat. A — ingresos máx.',          val:'$ 12.009.410,45', nota:'Cuota serv: $49.527,18'},
+      {lbl:'Cat. D — ingresos máx.',          val:'$ 30.628.651,43', nota:'Cuota serv: $84.612,93'},
+      {lbl:'Cat. G — ingresos máx.',          val:'$ 53.995.798,87', nota:'Cuota serv: $230.312,94'},
+      {lbl:'Cat. K — ingresos máx.',          val:'$ 126.610.838,75',nota:'Cuota serv: $1.614.446,04'},
+    ],
+    nota:'Valores vigentes desde 01/08/2026. Ver tabla completa A-K en herramienta Monotributo de ImpoBot.'
+  },
+  {
+    id:'autonomos', cat:'autonomos', titulo:'Aportes Autónomos — vigentes desde 15/09/2026', icon:'💼', badge:'ARCA', color:'blue',
+    items:[
+      {lbl:'Cat. I — renta referencia / aporte', val:'$240.604,60 / $76.993,48',   nota:'32% de la renta'},
+      {lbl:'Cat. II — renta referencia / aporte',val:'$336.841,28 / $107.789,20',  nota:'32% de la renta'},
+      {lbl:'Cat. III — renta referencia / aporte',val:'$481.204,97 / $153.985,59', nota:'32% de la renta'},
+      {lbl:'Cat. IV — renta referencia / aporte', val:'$769.927,62 / $246.376,84', nota:'32% de la renta'},
+      {lbl:'Cat. V — renta referencia / aporte',  val:'$1.058.646,30 / $338.766,81',nota:'32% de la renta'},
+      {lbl:'Aporte = 27% jub + 1.5% PAMI + 3.5% OS', val:'32% total',             nota:''},
+      {lbl:'Vencimiento',                         val:'Días 5–7 según CUIT',        nota:'Ver vencimientos ARCA'},
+    ],
+    nota:'Fuente: PDF ARCA "Valores autónomos desde septiembre 2026". Tope ingresos Art. 19/20 RG 2217: $1.732.810,08.'
+  },
+  {
+    id:'rg830', cat:'ganancias', titulo:'Retenciones RG 830 — montos no imponibles exactos', icon:'📋', badge:'ARCA', color:'blue',
+    items:[
+      {lbl:'Cód. 31 — Inmuebles urbanos (MNI)',   val:'$ 11.200',  nota:'Anexo VIII RG 4525/2019'},
+      {lbl:'Cód. 32 — Inmuebles rurales (MNI)',   val:'$ 7.870',   nota:'Anexo VIII RG 4525/2019'},
+      {lbl:'Cód. 21 — Intereses otros (MNI)',     val:'$ 7.870',   nota:'Anexo VIII RG 4525/2019'},
+      {lbl:'Cód. 94 — Locaciones obra/serv (MNI)',val:'$ 67.170',  nota:'Anexo VIII RG 4525/2019'},
+      {lbl:'Cód. 119 — Prof. liberales (MNI)',    val:'$ 160.000', nota:'RG 5423/2023'},
+      {lbl:'Cód. 116 — Honor. dir./síndicos (MNI)',val:'$ 67.170', nota:'Anexo VIII RG 4525/2019'},
+      {lbl:'No inscripto PH — alícuota',          val:'28%',       nota:'Sin MNI'},
+      {lbl:'No inscripto PJ — alícuota',          val:'25%',       nota:'Sin MNI'},
+      {lbl:'Retención mínima general',            val:'$ 240',     nota:'Inscriptos'},
+      {lbl:'Retención mínima inmuebles urbanos NI',val:'$ 1.020',  nota:'No inscriptos'},
+    ],
+    nota:'MNI = Monto No Imponible. Valores exactos del Anexo VIII RG 4525/2019 y RG 5423/2023. Usar simulador RG 830 de ImpoBot.'
+  },
+  {
+    id:'otros', cat:'indices', titulo:'Otros valores de referencia — sept 2026', icon:'📌', badge:'Varios', color:'sub',
+    items:[
+      {lbl:'SCVO — Seguro Vida Oblig. (Dec. 590/97)', val:'$ 424,62/mes', nota:'Fijo por empleado'},
+      {lbl:'ART — Suma Fija (Dec. 590/97)',           val:'$ 1.905,00/mes',nota:'Fijo por empleado'},
+      {lbl:'RIPTE agosto 2026',                       val:'Ver MECON',     nota:'mecon.gob.ar'},
+      {lbl:'Desempleo — mínimo (50% SMVyM)',          val:'$ 191.900',     nota:'Res. 4/2026'},
+      {lbl:'Desempleo — máximo (100% SMVyM)',         val:'$ 383.800',     nota:'Res. 4/2026'},
+    ],
+    nota:'Fuentes: MTEySS, ANSES, INDEC, BCRA. Verificar valores vigentes en cada organismo.'
+  },
 ];
 
-// Cuotas mensuales por categoría (impuesto + obra social + aporte jubilatorio)
-// Cuotas exactas ARCA vigentes desde 01/08/2026
-// Fuente: https://www.afip.gob.ar/monotributo/categorias.asp
-// Cuotas mensuales — valores exactos ARCA vigentes desde 01/08/2026
-// impServ = impuesto integrado locaciones/servicios
-// impVenta = impuesto integrado venta de cosas muebles
-// sipa = aportes al SIPA (jubilación)
-// os = aportes obra social (titular sin adherentes)
-// totalServ / totalVenta = total mensual a abonar
-const CUOTAS = {
-  A: { impServ:5585.77,    impVenta:5585.77,    sipa:18246.86, os:25694.55, totalServ:49527.18,    totalVenta:49527.18   },
-  B: { impServ:10612.98,   impVenta:10612.98,   sipa:20071.55, os:25694.55, totalServ:56379.08,    totalVenta:56379.08   },
-  C: { impServ:18246.86,   impVenta:16757.32,   sipa:22078.71, os:25694.55, totalServ:66020.12,    totalVenta:64530.58   },
-  D: { impServ:29790.79,   impVenta:27742.67,   sipa:24286.58, os:30535.56, totalServ:84612.93,    totalVenta:82564.81   },
-  E: { impServ:55857.73,   impVenta:44313.79,   sipa:26715.24, os:37238.48, totalServ:119811.45,   totalVenta:108267.51  },
-  F: { impServ:78573.20,   impVenta:57719.64,   sipa:29386.76, os:42824.25, totalServ:150784.21,   totalVenta:129930.65  },
-  G: { impServ:142995.76,  impVenta:71497.87,   sipa:41141.46, os:46175.72, totalServ:230312.94,   totalVenta:158815.05  },
-  H: { impServ:409623.31,  impVenta:204811.64,  sipa:57598.04, os:55485.33, totalServ:522706.68,   totalVenta:317895.01  },
-  I: { impServ:814591.79,  impVenta:325836.71,  sipa:80637.26, os:68518.81, totalServ:963747.86,   totalVenta:474992.78  },
-  J: { impServ:977510.14,  impVenta:391004.07,  sipa:112892.16,os:76897.46, totalServ:1167299.76,  totalVenta:580793.69  },
-  K: { impServ:1368514.20, impVenta:456171.40,  sipa:158049.02,os:87882.82, totalServ:1614446.04,  totalVenta:702103.24  },
-};
+var filtroActual = 'todos';
+var busquedaActual = '';
 
-const fmt = n => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',minimumFractionDigits:0,maximumFractionDigits:0}).format(n);
-const fmtN = n => new Intl.NumberFormat('es-AR').format(n);
-const v = id => parseFloat(document.getElementById(id)?.value)||0;
-const s = id => document.getElementById(id)?.value||'';
+function render(){
+  var grid = document.getElementById('grid');
+  var noRes = document.getElementById('no-result');
+  var visible = DATA.filter(function(d){
+    var matchCat = filtroActual==='todos' || d.cat===filtroActual;
+    if(!matchCat) return false;
+    if(!busquedaActual) return true;
+    var q = busquedaActual.toLowerCase();
+    if(d.titulo.toLowerCase().indexOf(q)>=0) return true;
+    if(d.items.some(function(i){ return i.lbl.toLowerCase().indexOf(q)>=0 || i.val.toLowerCase().indexOf(q)>=0; })) return true;
+    return false;
+  });
 
-function actualizarLimites(){
-  const act = s('sel-actividad');
-  const topeMax = act==='bienes' ? CATEGORIAS[10].ing : CATEGORIAS[10].ing;
-  document.getElementById('hint-tope').textContent = `Tope máximo para esta actividad: ${fmt(topeMax)}. Superado → responsable inscripto.`;
-  calcular();
-}
-
-function determinarCategoria(ingresos, superficie, kwh, actividad, empleados){
-  const esBienes = actividad === 'bienes';
-  for(const cat of CATEGORIAS){
-    // K está disponible para todos (ver ARCA) // K solo para bienes
-    const topeIng = esBienes ? cat.ing : cat.ing;
-    if(topeIng === null) continue;
-    if(ingresos > topeIng) continue;
-    if(cat.sup !== null){
-      const topeSup = esBienes ? cat.sup : cat.sup;
-      if(superficie > topeSup) continue;
-    }
-    if(cat.kwh !== null && kwh > cat.kwh) continue;
-    // Verificar empleados mínimos para categorías altas
-    if(['H','I','J','K'].includes(cat.cat) && empleados < 1) {
-      // No es un requisito de empleados para categorías altas, solo info
-    }
-    return cat.cat;
+  if(!visible.length){
+    grid.innerHTML=''; noRes.style.display='block'; return;
   }
-  return 'EXCLUIDO';
+  noRes.style.display='none';
+
+  grid.innerHTML = visible.map(function(d){
+    var rows = d.items.filter(function(i){
+      if(!busquedaActual) return true;
+      var q = busquedaActual.toLowerCase();
+      return i.lbl.toLowerCase().indexOf(q)>=0 || i.val.toLowerCase().indexOf(q)>=0;
+    }).map(function(i){
+      return '<div class="val-row">'+
+        '<span class="lbl">'+i.lbl+(i.nota?' <span style="font-size:.62rem;color:#35546f;font-style:italic">— '+i.nota+'</span>':'')+'</span>'+
+        '<span class="val '+d.color+'">'+i.val+'</span>'+
+        '</div>';
+    }).join('');
+    return '<div class="card" data-id="'+d.id+'">'+
+      '<div class="card-hd">'+
+        '<span class="icon">'+d.icon+'</span>'+
+        '<span class="title">'+d.titulo+'</span>'+
+        '<span class="sub">'+d.badge+'</span>'+
+      '</div>'+rows+
+      (d.nota?'<div class="nota-act">'+d.nota+'</div>':'')+
+      '</div>';
+  }).join('');
 }
 
-function calcular(){
-  const ingresos  = v('inp-ingresos');
-  const superficie= v('inp-sup');
-  const kwh       = v('inp-kwh');
-  const actividad = s('sel-actividad');
-  const empleados = parseInt(s('sel-empleados'))||0;
-  const mesInicio = parseInt(s('sel-mes-inicio'))||1;
-  const anio      = parseInt(document.getElementById('inp-anio')?.value)||2020;
-
-  if(!ingresos) return;
-
-  const cat = determinarCategoria(ingresos, superficie, kwh, actividad, empleados);
-  const cuotas = CUOTAS[cat];
-  const esBienes = actividad==='bienes';
-  const topeMax = CATEGORIAS[10].ing;
-
-  // Advertencias
-  const alertas = [];
-  if(cat==='EXCLUIDO'){
-    alertas.push({tipo:'err', texto:'⚠ Tus ingresos superan el límite máximo del Monotributo. Debés inscribirte como Responsable Inscripto.'});
-  } else {
-    // Porcentaje del tope
-    const catObj = CATEGORIAS.find(c=>c.cat===cat);
-    const tope = esBienes ? catObj.ing : catObj.ing;
-    const pct = (ingresos/tope)*100;
-    if(pct > 85) alertas.push({tipo:'warn', texto:`⚠ Estás al ${pct.toFixed(0)}% del tope de la categoría ${cat}. Considerá recategorizar preventivamente.`});
-
-    // Empleados mínimos para categorías altas
-    if(['H','I','J','K'].includes(cat) && empleados < 1){
-      alertas.push({tipo:'warn', texto:`Las categorías ${cat} y superiores normalmente requieren empleados en relación de dependencia. Verificá con tu contador.`});
-    }
-
-    // Recategorización
-    const hoy = new Date();
-    const mesActual = hoy.getMonth()+1;
-    if(mesActual >= 4 && mesActual <= 6){
-      alertas.push({tipo:'ok', texto:'✓ Estás en período de recategorización semestral (Ene–Jun 2026). El vencimiento para recategorizarse es el 5 de agosto de 2026.'});
-    } else if(mesActual >= 10 && mesActual <= 12){
-      alertas.push({tipo:'ok', texto:'✓ Estás en período de recategorización semestral (Jul–Dic 2026). El vencimiento es el 28 de febrero de 2027.'});
-    }
-  }
-
-  // Próximas fechas de recategorización
-  const recategFechas = [
-    {mes:'Ene–Jun 2026', fecha:'5 de agosto 2026', estado: new Date() > new Date('2026-08-05') ? 'pasado' : 'proximo'},
-    {mes:'Jul–Dic 2026', fecha:'28 de febrero 2027', estado: new Date() > new Date('2027-02-28') ? 'pasado' : 'proximo'},
-  ];
-
-  // Tabla de categorías para comparar
-  const tablaCats = CATEGORIAS.filter(c=> !(!esBienes && c.cat==='K'));
-
-  document.getElementById('panel-r').innerHTML = cat==='EXCLUIDO'
-    ? `<div class="cat-hero" style="border-color:rgba(239,68,68,.4);background:linear-gradient(135deg,#1a0000,#2d0000)">
-        <div style="font-size:1.1rem;font-weight:800;color:#ef4444;margin-bottom:8px">EXCLUIDO</div>
-        <div style="font-size:.8rem;color:#fca5a5">Tus ingresos superan el máximo del Monotributo</div>
-        <div style="font-size:.78rem;color:var(--sub);margin-top:8px">Debés inscribirte como Responsable Inscripto (IVA + Ganancias)</div>
-       </div>
-       ${alertas.map(a=>`<div class="alerta ${a.tipo}">${a.texto}</div>`).join('')}`
-    : `
-    <!-- CATEGORÍA HERO -->
-    <div class="cat-hero">
-      <div class="cat-label">Tu categoría</div>
-      <div class="cat-letter">${cat}</div>
-      <div class="cat-desc">${actividad==='bienes'?'Venta de bienes muebles':'Locación de servicios'} · ${fmtN(ingresos)} ingresos/año</div>
-    </div>
-
-    <!-- ALERTAS -->
-    ${alertas.map(a=>`<div class="alerta ${a.tipo}">${a.texto}</div>`).join('')}
-
-    <!-- CUOTAS -->
-    <div class="cuota-grid">
-      <div class="cuota-card">
-        <div class="lbl">Impuesto</div>
-        <div class="val">${fmt(esBienes ? cuotas.impVenta : cuotas.impServ)}</div>
-      </div>
-      <div class="cuota-card">
-        <div class="lbl">Obra Social</div>
-        <div class="val">${fmt(cuotas.os)}</div>
-      </div>
-      <div class="cuota-card">
-        <div class="lbl">Jubilación (SIPA)</div>
-        <div class="val">${fmt(cuotas.sipa)}</div>
-      </div>
-    </div>
-    <div class="cuota-card total" style="padding:13px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <span style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(245,158,11,.7)">Cuota total mensual</span>
-      <span class="val">${fmt(esBienes ? cuotas.totalVenta : cuotas.totalServ)}</span>
-    </div>
-    <div class="alerta info" style="margin-bottom:14px">
-      💡 Cuota anual estimada: <strong>${fmt(cuotas.total*12)}</strong>
-      ${empleados>0?` · Con ${empleados} empleado${empleados>1?'s':''}: sumá aportes patronales adicionales.`:''}
-    </div>
-
-    <!-- TABS -->
-    <div class="tabs">
-      <button class="tab-btn active" onclick="swTab('tabla',this)">📊 Todas las categorías</button>
-      <button class="tab-btn" onclick="swTab('recateg',this)">📅 Recategorización</button>
-      <button class="tab-btn" onclick="swTab('info',this)">ℹ Información</button>
-    </div>
-
-    <!-- TABLA CATEGORÍAS -->
-    <div class="tab-pane active" id="tab-tabla">
-      <div style="overflow-x:auto">
-      <table class="table-cat">
-        <thead>
-          <tr>
-            <th>Cat.</th>
-            <th>Ingresos máx.</th>
-            <th>Superficie</th>
-            <th>KWh/año</th>
-            <th>Impuesto</th>
-            <th>OS</th>
-            <th>Jub.</th>
-            <th>Total/mes</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${tablaCats.map(c=>{
-            const cu = CUOTAS[c.cat];
-            const ing = esBienes ? c.ing : c.ing;
-            const sup = esBienes ? c.sup : c.sup;
-            return `<tr class="${c.cat===cat?'active-row':''}">
-              <td>${c.cat}</td>
-              <td>${fmt(ing||0)}</td>
-              <td>${sup!==null?sup+' m²':'—'}</td>
-              <td>${c.kwh!==null?fmtN(c.kwh):'—'}</td>
-              <td>${fmt(esBienes ? cu.impVenta : cu.impServ)}</td>
-              <td>${fmt(cu.os)}</td>
-              <td>${fmt(cu.sipa)}</td>
-              <td style="color:var(--amber)">${fmt(esBienes ? cu.totalVenta : cu.totalServ)}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table></div>
-      <div style="font-size:.67rem;color:var(--sub);margin-top:8px">* Valores vigentes desde enero 2026 según ARCA. Fila resaltada = tu categoría actual.</div>
-    </div>
-
-    <!-- RECATEGORIZACIÓN -->
-    <div class="tab-pane" id="tab-recateg">
-      <div class="alerta info" style="margin-bottom:14px">
-        La cuota mensual vence el <strong>día 20 de cada mes</strong> (o el primer día hábil siguiente). La recategorización semestral: enero–junio vence el <strong>5 de agosto</strong>; julio–diciembre vence el <strong>28 de febrero</strong> del año siguiente.
-        También hay recategorización de oficio si ARCA detecta inconsistencias.
-      </div>
-      ${recategFechas.map(r=>`
-      <div class="recateg-item">
-        <span class="recateg-mes">${r.mes}</span>
-        <span class="recateg-fecha">Vence: ${r.fecha}</span>
-        <span class="recateg-estado estado-${r.estado}">${r.estado==='proximo'?'Próxima':'Pasada'}</span>
-      </div>`).join('')}
-      <div style="margin-top:14px;background:#1e2f42;border:1px solid var(--border);border-radius:9px;padding:13px">
-        <div style="font-size:.72rem;font-weight:700;color:#fff;margin-bottom:8px">Cómo recategorizarte</div>
-        ${['Ingresá a ARCA con clave fiscal','Accedé a Monotributo → Adhesión/Recategorización','El sistema calcula la categoría según tus ingresos declarados','Confirmá y pagá la diferencia si subiste de categoría'].map((p,i)=>`
-        <div style="display:flex;gap:10px;margin-bottom:6px;font-size:.75rem;color:var(--sub)">
-          <span style="color:var(--amber);font-weight:700;width:18px">${i+1}.</span>${p}
-        </div>`).join('')}
-      </div>
-    </div>
-
-    <!-- INFORMACIÓN -->
-    <div class="tab-pane" id="tab-info">
-      <div class="alerta info" style="margin-bottom:10px">
-        <div><strong>Exclusión del Monotributo</strong> — Se produce cuando:
-        <br>· Superás el tope de ingresos de la categoría máxima
-        <br>· Realizás más de 3 operaciones con el mismo cliente en el año
-        <br>· Realizás importaciones de bienes o servicios
-        <br>· Emitís más de 3 facturas a 1 mismo cliente por más del 70% de tus ingresos
-        </div>
-      </div>
-      <div class="alerta warn">
-        <div><strong>Operaciones con IVA</strong> — Si sos monotributista no podés discriminar IVA en tus facturas. Emitís Facturas C.
-        </div>
-      </div>
-      <div class="alerta ok">
-        <div><strong>Obra Social</strong> — Como monotributista tenés derecho a obra social eligiendo entre las disponibles. El aporte de $6.660 o $13.320 cubre el servicio básico.
-        </div>
-      </div>
-    </div>
-    `;
+function setFiltro(f, btn){
+  filtroActual=f;
+  document.querySelectorAll('.fbtn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  render();
 }
 
-function swTab(id,btn){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tab-'+id).classList.add('active');
+function filtrar(){
+  busquedaActual = document.getElementById('buscar').value;
+  render();
 }
 
-// Init
-actualizarLimites();
+render();
 </script>
-<a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener"
-  style="position:fixed;bottom:16px;right:16px;z-index:999;
-    display:flex;align-items:center;gap:6px;
-    background:#FFDD00;color:#000;font-weight:800;font-size:.72rem;padding:8px 14px;border-radius:50px;text-decoration:none;box-shadow:0 3px 16px rgba(0,0,0,.25)" title="☕ ImpoBot — Invitarnos un café">☕</a>
-<a href="https://api.whatsapp.com/send?text=Calculá%20tu%20categoría%20de%20Monotributo%20A-K%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/monotributo.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
+
+<a href="https://api.whatsapp.com/send?text=Valores%20fiscales%20clave%202026:%20SMVyM,%20SIPA,%20GNI%20y%20más%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/valores.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
   style="position:fixed;bottom:76px;right:20px;z-index:998;background:#25D366;color:#fff;
     width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
     font-size:1.1rem;text-decoration:none;box-shadow:0 2px 12px rgba(37,211,102,.3);transition:all .2s"
@@ -499,7 +308,7 @@ actualizarLimites();
 </a>
 
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('../sw.js').catch(function(){});</script>
-<a href="mailto:impobot.ar@gmail.com?subject=Bug en ImpoBot&body=Herramienta: monotributo%0AProblema: " 
+<a href="mailto:impobot.ar@gmail.com?subject=Bug en ImpoBot&body=Herramienta: valores%0AProblema: " 
   title="Reportar un problema con esta herramienta"
   style="position:fixed;bottom:128px;right:20px;z-index:997;background:#35546f;border:1px solid #35546f;
     color:#7fa0be;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;

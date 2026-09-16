@@ -3,96 +3,58 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Monotributo 2026 — FiscalAR</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<title>Calculadora Indemnización por Despido — ImpoBot</title>
+<meta name="description" content="Calculá la indemnización por despido sin causa: Art. 245, preaviso, integración mes de despido, vacaciones proporcionales y SAC. Argentina 2026."/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
-:root{
-  --ink:#1e2f42;--navy:#111827;--navy-l:#1a2744;
-  --amber:#f59e0b;--amber-l:rgba(245,158,11,.12);
-  --cyan:#00c9b8;--green:#10b981;--red:#ef4444;--purple:#8b5cf6;
-  --border:#1e2d47;--text:#e8edf5;--sub:#8899b4;
-  --card:#25394f;--white:#fff;
-  --bg:#1e2f42;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
-
-/* NAV */
-.topnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,15,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 20px;height:54px}
-.back-btn{color:var(--sub);text-decoration:none;font-size:.78rem;font-weight:500;display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;transition:all .15s}
-.back-btn:hover{color:var(--text);background:var(--navy-l)}
-.nav-title{font-size:.88rem;font-weight:700;color:#fff}
-.nav-sub{font-size:.65rem;color:var(--sub)}
-.nav-badge{margin-left:auto;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);color:var(--amber);font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.06em}
-
-/* LAYOUT */
-.app{display:flex;min-height:calc(100vh - 54px);margin-top:54px}
-.panel-l{width:400px;flex-shrink:0;padding:18px;overflow-y:auto;border-right:1px solid var(--border);background:rgba(17,24,39,.4)}
-.panel-r{flex:1;padding:18px;overflow-y:auto}
-@media(max-width:900px){.app{flex-direction:column}.panel-l{width:100%;border-right:none;border-bottom:1px solid var(--border)}}
-
-/* CARD */
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
-.card-hd{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;font-size:.8rem;font-weight:700}
-.card-body{padding:14px}
-
-/* FORM */
-.field{margin-bottom:12px}
-.field label{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);margin-bottom:4px}
-.field input,.field select{width:100%;background:#1e2f42;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:.88rem;outline:none;font-family:'Inter',sans-serif;transition:border-color .15s}
-.field input:focus,.field select:focus{border-color:var(--amber)}
-.field .hint{font-size:.65rem;color:var(--sub);margin-top:3px}
+:root{--ink:#1e2f42;--card:#35546f;--card2:#35546f;--border:#35546f;--text:#eaf1f8;--sub:#7fa0be;--blue:#0b82f5;--blue-l:#60a5fa;--green:#10b981;--amber:#f59e0b;--red:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:60px}
+.shell{max-width:960px;margin:0 auto;padding:16px;display:grid;grid-template-columns:350px 1fr;gap:16px}
+@media(max-width:780px){.shell{grid-template-columns:1fr}}
+.panel-l{position:sticky;top:62px;align-self:start;max-height:calc(100vh - 80px);overflow-y:auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:12px}
+.card-title{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-l);margin-bottom:14px}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:.67rem;font-weight:600;color:var(--sub);margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select{width:100%;background:#162232;border:1.5px solid var(--border);color:var(--text);padding:8px 11px;border-radius:8px;font-size:.85rem;outline:none;font-family:'Inter',sans-serif}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.field select option{background:#25394f}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sep{font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);padding:8px 0 5px;border-bottom:1px solid var(--border);margin-bottom:10px}
-
-/* BOTÓN */
-.btn-calc{width:100%;background:linear-gradient(135deg,#d97706,var(--amber));color:#1e2f42;border:none;padding:11px;border-radius:9px;font-size:.9rem;font-weight:800;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px;font-family:'Inter',sans-serif}
-.btn-calc:hover{filter:brightness(1.08);transform:translateY(-1px)}
-
+.sep{font-size:.64rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);padding-bottom:4px;margin:12px 0 9px}
+.toggle-group{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.toggle-btn{flex:1;padding:7px;background:#162232;border:none;color:var(--sub);font-size:.78rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;text-align:center}
+.toggle-btn.on{background:var(--blue);color:#fff}
+.btn-calc{width:100%;background:linear-gradient(135deg,#0762c8,var(--blue));color:#fff;border:none;padding:11px;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:6px}
 /* RESULTADO */
-.cat-hero{background:linear-gradient(135deg,#1a1400,#2d1f00);border:1px solid rgba(245,158,11,.3);border-radius:14px;padding:22px;text-align:center;margin-bottom:16px}
-.cat-letter{font-size:5rem;font-weight:900;color:var(--amber);line-height:1;letter-spacing:-.05em}
-.cat-label{font-size:.75rem;color:rgba(245,158,11,.6);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
-.cat-desc{font-size:.8rem;color:var(--sub);margin-top:6px}
-
-.cuota-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.cuota-card{background:#1e2f42;border:1px solid var(--border);border-radius:9px;padding:11px;text-align:center}
-.cuota-card .lbl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--sub);margin-bottom:4px}
-.cuota-card .val{font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:600;color:#fff}
-.cuota-card.total{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2)}
-.cuota-card.total .val{color:var(--amber);font-size:1rem}
-
-.alerta{border-radius:9px;padding:10px 13px;font-size:.75rem;line-height:1.5;display:flex;gap:8px;margin-bottom:8px}
-.alerta.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#fbbf24}
-.alerta.ok{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);color:#34d399}
-.alerta.err{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
-.alerta.info{background:rgba(0,201,184,.06);border:1px solid rgba(0,201,184,.15);color:var(--cyan)}
-
-.table-cat{width:100%;border-collapse:collapse;font-size:.75rem}
-.table-cat th{background:rgba(255,255,255,.03);padding:7px 10px;text-align:left;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);border-bottom:1px solid var(--border)}
-.table-cat td{padding:7px 10px;border-bottom:1px solid rgba(30,45,71,.5);font-family:'JetBrains Mono',monospace;font-size:.72rem}
-.table-cat tr.active-row td{background:rgba(245,158,11,.06);color:#fff;font-weight:700}
-.table-cat tr.active-row td:first-child{color:var(--amber);font-size:.85rem}
-.table-cat tr:last-child td{border-bottom:none}
-
-.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:14px}
-.tab-btn{background:none;border:none;padding:8px 14px;font-size:.75rem;font-weight:600;color:var(--sub);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;transition:all .12s;font-family:'Inter',sans-serif}
-.tab-btn.active{color:var(--amber);border-bottom-color:var(--amber)}
-.tab-pane{display:none}.tab-pane.active{display:block}
-
-.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--sub);text-align:center;gap:12px}
-.empty-icon{font-size:3rem;opacity:.2}
-
-.recateg-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;background:#1e2f42;border:1px solid var(--border);margin-bottom:6px}
-.recateg-mes{font-size:.72rem;font-weight:700;color:var(--sub);width:70px}
-.recateg-fecha{font-size:.78rem;font-weight:600;color:#fff;flex:1}
-.recateg-estado{font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:5px}
-.estado-proximo{background:rgba(245,158,11,.15);color:var(--amber)}
-.estado-pasado{background:rgba(136,153,180,.1);color:var(--sub)}
-.estado-ahora{background:rgba(16,185,129,.15);color:#34d399}
-
-.progress-bar{height:6px;background:#1e2d47;border-radius:3px;overflow:hidden;margin-top:6px}
-.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#d97706,var(--amber));transition:width .6s ease}
+.empty{text-align:center;padding:60px 20px;color:var(--sub)}
+.empty-ico{font-size:2.5rem;margin-bottom:12px}
+.res-total{background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(239,68,68,.06));border:1px solid rgba(239,68,68,.25);border-radius:12px;padding:18px;text-align:center;margin-bottom:16px}
+.res-total .lbl{font-size:.7rem;color:#f87171;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.res-total .val{font-size:2rem;font-weight:900;color:#fff}
+.res-total .sub{font-size:.72rem;color:var(--sub);margin-top:4px}
+.tabla-sec{font-size:.7rem;font-weight:700;color:var(--blue-l);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);padding-bottom:5px;margin:14px 0 8px;display:flex;justify-content:space-between;align-items:center}
+.tabla{width:100%;border-collapse:collapse;font-size:.75rem}
+.tabla th{background:rgba(11,130,245,.08);color:var(--blue-l);font-size:.62rem;font-weight:700;text-transform:uppercase;padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)}
+.tabla td{padding:6px 8px;border-bottom:1px solid rgba(26,47,69,.35)}
+.tabla td.r{text-align:right;font-family:'Courier New',monospace;font-weight:600}
+.tabla td.green{color:var(--green)}
+.tabla td.amber{color:var(--amber)}
+.tabla td.red{color:var(--red)}
+.tabla tr.tot td{font-weight:800;color:#fff;background:rgba(255,255,255,.03);border-top:1px solid var(--border)}
+.alerta{border-radius:8px;padding:9px 12px;font-size:.73rem;line-height:1.5;margin-top:10px}
+.alerta-info{background:rgba(11,130,245,.07);border:1px solid rgba(11,130,245,.2);color:var(--blue-l)}
+.alerta-warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.alerta-ok{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);color:#6ee7b7}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(11,130,245,.1);border:1px solid rgba(11,130,245,.2);color:var(--blue-l)}
+/* PDF */
+#pdf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9998;overflow-y:auto;padding:20px}
+#pdf-cont{background:#fff;color:#000;max-width:800px;margin:0 auto;padding:24px;font-family:Arial,sans-serif;font-size:8.5pt}
+.pdf-bar{display:flex;gap:8px;justify-content:center;margin:12px 0}
+.pdf-btn{padding:8px 20px;border-radius:7px;border:none;cursor:pointer;font-weight:700;font-size:.82rem}
+.pdf-btn.print{background:var(--blue);color:#fff}
+.pdf-btn.close{background:#555;color:#fff}
+@media print{body>*:not(#pdf-overlay){display:none!important}#pdf-overlay{display:block!important;position:static!important;background:#fff!important;padding:0!important}.pdf-bar{display:none!important}#pdf-cont{max-width:100%!important}}
 </style>
 <link rel="manifest" href="../manifest.json"/>
 <meta name="theme-color" content="#0b82f5"/>
@@ -107,390 +69,342 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
     <span style="font-size:.88rem;font-weight:900;letter-spacing:-.03em"><span style="color:#eaf1f8">impo</span><span style="color:#0b82f5">bot</span></span>
   </a>
   <span style="color:#35546f">|</span>
-  <span id="tnav-title" style="color:#eaf1f8;font-size:.76rem;font-weight:700"></span>
+  <span style="color:#eaf1f8;font-size:.76rem;font-weight:700">⚖️ Indemnización por Despido</span>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
     <a href="https://www.buymeacoffee.com/impobot" target="_blank" style="font-size:.65rem;color:#000;background:#FFDD00;padding:3px 9px;border-radius:20px;text-decoration:none;font-weight:700">☕</a>
-    <span style="background:rgba(11,130,245,.1);border:1px solid rgba(11,130,245,.2);color:#60a5fa;font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:4px">ARCA 2026</span>
+    <span style="background:rgba(11,130,245,.1);border:1px solid rgba(11,130,245,.2);color:#60a5fa;font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:4px">LCT 2026</span>
   </div>
 </div>
 <div style="height:46px"></div>
-<script>var t=document.getElementById("tnav-title");if(t)t.textContent="📊 Monotributo";</script>
-<script>var tnav=document.getElementById("tnav-title");if(tnav)tnav.textContent="📊 Monotributo";</script>
-<script>document.getElementById("tool-nav-title").textContent="📊 Monotributo";</script>
 
-<!-- NAV -->
-<nav class="topnav">
-  <a class="back-btn" href="../index.html">← FiscalAR</a>
-  <div style="width:1px;height:24px;background:var(--border)"></div>
-  <div>
-    <div class="nav-title">📊 Monotributo</div>
-    <div class="nav-sub">Categorías · Cuotas · Recategorización 2026</div>
-  </div>
-  <div class="nav-badge">✓ ARCA 2026</div>
-</nav>
-
-<!-- APP -->
-<div class="app">
-
-<!-- PANEL IZQUIERDO: FORMULARIO -->
+<div class="shell">
+<!-- ─── FORMULARIO ─────────────────────────────────────── -->
 <div class="panel-l">
+<div class="card">
+  <div class="card-title">⚖️ Liquidación por Despido</div>
 
-  <div class="card">
-    <div class="card-hd">📋 Datos del monotributista</div>
-    <div class="card-body">
-      <div class="sep">Actividad</div>
-      <div class="field">
-        <label>Tipo de actividad</label>
-        <select id="sel-actividad" onchange="actualizarLimites()">
-          <option value="servicios">Locación de servicios / obras</option>
-          <option value="bienes">Venta de bienes muebles</option>
-          </select>
-      </div>
+  <div class="sep">Datos del trabajador</div>
+  <div class="field"><label>Apellido y Nombre</label><input type="text" id="inp-nombre" placeholder="GARCIA, JUAN CARLOS"/></div>
+  <div class="row2">
+    <div class="field"><label>CUIL</label><input type="text" id="inp-cuil" placeholder="20-12345678-9"/></div>
+    <div class="field"><label>Legajo</label><input type="text" id="inp-legajo" placeholder="001"/></div>
+  </div>
 
-      <div class="sep">Ingresos brutos anuales</div>
-      <div class="field">
-        <label>Ingresos brutos últimos 12 meses $</label>
-        <input type="number" id="inp-ingresos" placeholder="0" oninput="calcular()"/>
-        <div class="hint" id="hint-tope"></div>
-      </div>
+  <div class="sep">Empleador</div>
+  <div class="field"><label>Razón Social</label><input type="text" id="inp-empresa" placeholder="Empresa S.A."/></div>
+  <div class="field"><label>CUIT empleador</label><input type="text" id="inp-cuit-emp" placeholder="30-12345678-9"/></div>
 
-      <div class="sep">Superficie afectada</div>
-      <div class="field">
-        <label>Superficie del local (m²) — 0 si no tiene</label>
-        <input type="number" id="inp-sup" placeholder="0" value="0" oninput="calcular()"/>
-      </div>
+  <div class="sep">Período de la relación laboral</div>
+  <div class="row2">
+    <div class="field"><label>Fecha de ingreso</label><input type="date" id="inp-fing" onchange="calcular()"/></div>
+    <div class="field"><label>Fecha de egreso</label><input type="date" id="inp-feg" onchange="calcular()"/></div>
+  </div>
 
-      <div class="sep">Energía eléctrica</div>
-      <div class="field">
-        <label>Consumo eléctrico anual (KWh) — 0 si no aplica</label>
-        <input type="number" id="inp-kwh" placeholder="0" value="0" oninput="calcular()"/>
-      </div>
+  <div class="sep">Remuneración</div>
+  <div class="field"><label>Mejor remuneración mensual normal y habitual $</label>
+    <input type="number" id="inp-rem" placeholder="0" oninput="calcular()"/>
+  </div>
+  <div class="alerta alerta-info" style="margin-bottom:10px;font-size:.69rem">
+    💡 Art. 245 LCT: mejor remuneración mensual, normal y habitual del último año de prestación.
+  </div>
 
-      <div class="sep">Empleados</div>
-      <div class="field">
-        <label>Cantidad de empleados en relación de dependencia</label>
-        <select id="sel-empleados" onchange="calcular()">
-          <option value="0">Sin empleados</option>
-          <option value="1">1 empleado</option>
-          <option value="2">2 empleados</option>
-          <option value="3">3 o más empleados</option>
-        </select>
-      </div>
-
-      <div class="sep">Período</div>
-      <div class="row2">
-        <div class="field">
-          <label>Mes de inicio</label>
-          <select id="sel-mes-inicio" onchange="calcular()">
-            <option value="1">Enero</option><option value="2">Febrero</option>
-            <option value="3">Marzo</option><option value="4">Abril</option>
-            <option value="5">Mayo</option><option value="6" selected>Junio</option>
-            <option value="7">Julio</option><option value="8">Agosto</option>
-            <option value="9">Septiembre</option><option value="10">Octubre</option>
-            <option value="11">Noviembre</option><option value="12">Diciembre</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Año inicio actividad</label>
-          <input type="number" id="inp-anio" value="2020" min="2000" max="2026" oninput="calcular()"/>
-        </div>
-      </div>
-
-      <button class="btn-calc" onclick="calcular()">📊 Calcular categoría</button>
+  <div class="sep">Preaviso (Art. 231/232 LCT)</div>
+  <div class="field">
+    <div class="toggle-group">
+      <button class="toggle-btn on" id="pre-sust" onclick="setPre('sust')">Sustitutivo (no se dio)</button>
+      <button class="toggle-btn" id="pre-trab" onclick="setPre('trab')">Preaviso trabajado</button>
     </div>
   </div>
 
+  <div class="sep">Integración mes de despido (Art. 233 LCT)</div>
+  <div class="field" id="campo-integ">
+    <label>¿El despido fue antes del último día hábil del mes?</label>
+    <div class="toggle-group" style="margin-top:4px">
+      <button class="toggle-btn on" id="int-si" onclick="setInteg(true)">Sí — corresponde</button>
+      <button class="toggle-btn" id="int-no" onclick="setInteg(false)">No</button>
+    </div>
+  </div>
+  <div id="dias-integ-campo" class="field">
+    <label>Días del mes que restan (desde egreso al fin de mes)</label>
+    <input type="number" id="inp-dias-integ" placeholder="Ej: 15" min="0" max="31" oninput="calcular()"/>
+  </div>
+
+  <div class="sep">Vacaciones no gozadas (Art. 156 LCT)</div>
+  <div class="row2">
+    <div class="field"><label>Días trabajados en el año</label>
+      <input type="number" id="inp-dias-trab" placeholder="Ej: 180" oninput="calcular()"/>
+    </div>
+    <div class="field" id="campo-vac-auto">
+      <label>Días de vacaciones (auto)</label>
+      <input type="text" id="out-vac-dias" readonly style="color:var(--blue-l);font-weight:700"/>
+    </div>
+  </div>
+
+  <button class="btn-calc" onclick="calcular()">⚖️ Calcular liquidación</button>
 </div>
 
-<!-- PANEL DERECHO: RESULTADO -->
-<div class="panel-r" id="panel-r">
-  <div class="empty-state">
-    <div class="empty-icon">📊</div>
-    <div style="font-weight:700;font-size:.95rem;color:#fff">Calculá tu categoría</div>
-    <div style="font-size:.78rem;max-width:300px;line-height:1.55">Completá los datos de tu actividad y el sistema determina la categoría de Monotributo y las cuotas a pagar.</div>
+<div class="card">
+  <div class="card-title">📋 Referencia rápida LCT</div>
+  <div style="font-size:.7rem;color:var(--sub);line-height:1.7">
+    <b style="color:var(--blue-l)">Indemnización (Art. 245):</b><br/>
+    1 mes de remuneración por año (o fracción &gt; 3 meses). Mínimo: 2 meses.<br/><br/>
+    <b style="color:var(--blue-l)">Preaviso (Art. 231):</b><br/>
+    • Hasta 5 años de antigüedad: 1 mes<br/>
+    • Más de 5 años: 2 meses<br/><br/>
+    <b style="color:var(--blue-l)">Vacaciones proporcionales:</b><br/>
+    • 1–5 años: 14 días hábiles<br/>
+    • 5–10 años: 21 días<br/>
+    • 10–20 años: 28 días<br/>
+    • +20 años: 35 días<br/><br/>
+    <b style="color:var(--blue-l)">SAC proporcional:</b><br/>
+    Se calcula sobre preaviso, integración y vacaciones.<br/><br/>
+    <b style="color:var(--blue-l)">Tope Art. 245:</b><br/>
+    Según CSJN (Vizzoti 2004), el tope no puede reducir la base más del 33%.
   </div>
 </div>
+</div>
 
-</div><!-- /app -->
+<!-- ─── RESULTADO ──────────────────────────────────────── -->
+<div id="panel-r">
+  <div class="empty">
+    <div class="empty-ico">⚖️</div>
+    <div style="font-weight:700;font-size:1rem;color:#fff;margin-bottom:8px">Calculadora de Liquidación por Despido</div>
+    <div style="font-size:.82rem">Completá los datos del empleado y el sueldo para calcular la liquidación completa.</div>
+    <div style="margin-top:16px;font-size:.75rem;color:#3a4d63">Art. 245 LCT · Indemnización + Preaviso + Integración + Vacaciones + SAC</div>
+  </div>
+</div>
+</div>
+
+<!-- PDF -->
+<div id="pdf-overlay">
+  <div class="pdf-bar">
+    <button class="pdf-btn print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="pdf-btn close" onclick="document.getElementById('pdf-overlay').style.display='none'">✕ Cerrar</button>
+  </div>
+  <div id="pdf-cont"></div>
+</div>
+
+<a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener"
+  style="position:fixed;bottom:16px;right:16px;z-index:999;display:flex;align-items:center;gap:6px;
+    background:#FFDD00;color:#000;font-weight:800;font-size:.72rem;
+    padding:8px 14px;border-radius:50px;text-decoration:none;box-shadow:0 3px 16px rgba(0,0,0,.25)">☕</a>
 
 <script>
-// ══════════════════════════════════════════════════════════════
-// TABLAS MONOTRIBUTO 2026 — ARCA
-// Actualización RG 5.xxx/2026 — valores vigentes desde enero 2026
-// ══════════════════════════════════════════════════════════════
-const MESES = ["","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+var tipoPreaviso = 'sust';
+var tieneInteg   = true;
 
-// Categorías A–K (o J para servicios sin K)
-// Fuente: ARCA - valores vigentes 01/08/2026
-// ═══════════════════════════════════════════════════════════════
-// CATEGORÍAS MONOTRIBUTO — Vigentes desde 01/08/2026
-// Fuente oficial: https://www.afip.gob.ar/monotributo/categorias.asp
-// ═══════════════════════════════════════════════════════════════
-const CATEGORIAS = [
-  { cat:'A', ing:12009410.45, sup:30,  kwh:3300,  alq:2792886.15,  precioMax:716840.77 },
-  { cat:'B', ing:17595182.74, sup:45,  kwh:5000,  alq:2792886.15,  precioMax:716840.77 },
-  { cat:'C', ing:24670494.31, sup:60,  kwh:6700,  alq:3816944.41,  precioMax:716840.77 },
-  { cat:'D', ing:30628651.43, sup:85,  kwh:10000, alq:3816944.41,  precioMax:716840.77 },
-  { cat:'E', ing:36028231.33, sup:110, kwh:13000, alq:4841002.66,  precioMax:716840.77 },
-  { cat:'F', ing:45151659.41, sup:150, kwh:16500, alq:4841002.66,  precioMax:716840.77 },
-  { cat:'G', ing:53995798.87, sup:200, kwh:20000, alq:5771964.69,  precioMax:716840.77 },
-  { cat:'H', ing:81924660.37, sup:200, kwh:20000, alq:8378658.45,  precioMax:716840.77 },
-  { cat:'I', ing:91699761.90, sup:200, kwh:20000, alq:8378658.45,  precioMax:716840.77 },
-  { cat:'J', ing:105012519.20,sup:200, kwh:20000, alq:8378658.45,  precioMax:716840.77 },
-  { cat:'K', ing:126610838.75,sup:200, kwh:20000, alq:8378658.45,  precioMax:716840.77 },
-];
+function setPre(t){ tipoPreaviso=t; document.getElementById('pre-sust').classList.toggle('on',t==='sust'); document.getElementById('pre-trab').classList.toggle('on',t==='trab'); calcular(); }
+function setInteg(v){ tieneInteg=v; document.getElementById('int-si').classList.toggle('on',v); document.getElementById('int-no').classList.toggle('on',!v); document.getElementById('dias-integ-campo').style.display=v?'block':'none'; calcular(); }
 
-// Cuotas mensuales por categoría (impuesto + obra social + aporte jubilatorio)
-// Cuotas exactas ARCA vigentes desde 01/08/2026
-// Fuente: https://www.afip.gob.ar/monotributo/categorias.asp
-// Cuotas mensuales — valores exactos ARCA vigentes desde 01/08/2026
-// impServ = impuesto integrado locaciones/servicios
-// impVenta = impuesto integrado venta de cosas muebles
-// sipa = aportes al SIPA (jubilación)
-// os = aportes obra social (titular sin adherentes)
-// totalServ / totalVenta = total mensual a abonar
-const CUOTAS = {
-  A: { impServ:5585.77,    impVenta:5585.77,    sipa:18246.86, os:25694.55, totalServ:49527.18,    totalVenta:49527.18   },
-  B: { impServ:10612.98,   impVenta:10612.98,   sipa:20071.55, os:25694.55, totalServ:56379.08,    totalVenta:56379.08   },
-  C: { impServ:18246.86,   impVenta:16757.32,   sipa:22078.71, os:25694.55, totalServ:66020.12,    totalVenta:64530.58   },
-  D: { impServ:29790.79,   impVenta:27742.67,   sipa:24286.58, os:30535.56, totalServ:84612.93,    totalVenta:82564.81   },
-  E: { impServ:55857.73,   impVenta:44313.79,   sipa:26715.24, os:37238.48, totalServ:119811.45,   totalVenta:108267.51  },
-  F: { impServ:78573.20,   impVenta:57719.64,   sipa:29386.76, os:42824.25, totalServ:150784.21,   totalVenta:129930.65  },
-  G: { impServ:142995.76,  impVenta:71497.87,   sipa:41141.46, os:46175.72, totalServ:230312.94,   totalVenta:158815.05  },
-  H: { impServ:409623.31,  impVenta:204811.64,  sipa:57598.04, os:55485.33, totalServ:522706.68,   totalVenta:317895.01  },
-  I: { impServ:814591.79,  impVenta:325836.71,  sipa:80637.26, os:68518.81, totalServ:963747.86,   totalVenta:474992.78  },
-  J: { impServ:977510.14,  impVenta:391004.07,  sipa:112892.16,os:76897.46, totalServ:1167299.76,  totalVenta:580793.69  },
-  K: { impServ:1368514.20, impVenta:456171.40,  sipa:158049.02,os:87882.82, totalServ:1614446.04,  totalVenta:702103.24  },
-};
+function fmt(n){ n=Math.abs(parseFloat(n)||0); var s=n.toFixed(2).split('.'); s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.'); return '$ '+s[0]+','+s[1]; }
 
-const fmt = n => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',minimumFractionDigits:0,maximumFractionDigits:0}).format(n);
-const fmtN = n => new Intl.NumberFormat('es-AR').format(n);
-const v = id => parseFloat(document.getElementById(id)?.value)||0;
-const s = id => document.getElementById(id)?.value||'';
-
-function actualizarLimites(){
-  const act = s('sel-actividad');
-  const topeMax = act==='bienes' ? CATEGORIAS[10].ing : CATEGORIAS[10].ing;
-  document.getElementById('hint-tope').textContent = `Tope máximo para esta actividad: ${fmt(topeMax)}. Superado → responsable inscripto.`;
-  calcular();
-}
-
-function determinarCategoria(ingresos, superficie, kwh, actividad, empleados){
-  const esBienes = actividad === 'bienes';
-  for(const cat of CATEGORIAS){
-    // K está disponible para todos (ver ARCA) // K solo para bienes
-    const topeIng = esBienes ? cat.ing : cat.ing;
-    if(topeIng === null) continue;
-    if(ingresos > topeIng) continue;
-    if(cat.sup !== null){
-      const topeSup = esBienes ? cat.sup : cat.sup;
-      if(superficie > topeSup) continue;
-    }
-    if(cat.kwh !== null && kwh > cat.kwh) continue;
-    // Verificar empleados mínimos para categorías altas
-    if(['H','I','J','K'].includes(cat.cat) && empleados < 1) {
-      // No es un requisito de empleados para categorías altas, solo info
-    }
-    return cat.cat;
-  }
-  return 'EXCLUIDO';
+// Días de vacaciones según antigüedad
+function diasVac(anios){
+  if(anios < 5)  return 14;
+  if(anios < 10) return 21;
+  if(anios < 20) return 28;
+  return 35;
 }
 
 function calcular(){
-  const ingresos  = v('inp-ingresos');
-  const superficie= v('inp-sup');
-  const kwh       = v('inp-kwh');
-  const actividad = s('sel-actividad');
-  const empleados = parseInt(s('sel-empleados'))||0;
-  const mesInicio = parseInt(s('sel-mes-inicio'))||1;
-  const anio      = parseInt(document.getElementById('inp-anio')?.value)||2020;
+  var rem  = parseFloat(document.getElementById('inp-rem').value)||0;
+  var fing = document.getElementById('inp-fing').value;
+  var feg  = document.getElementById('inp-feg').value;
 
-  if(!ingresos) return;
-
-  const cat = determinarCategoria(ingresos, superficie, kwh, actividad, empleados);
-  const cuotas = CUOTAS[cat];
-  const esBienes = actividad==='bienes';
-  const topeMax = CATEGORIAS[10].ing;
-
-  // Advertencias
-  const alertas = [];
-  if(cat==='EXCLUIDO'){
-    alertas.push({tipo:'err', texto:'⚠ Tus ingresos superan el límite máximo del Monotributo. Debés inscribirte como Responsable Inscripto.'});
-  } else {
-    // Porcentaje del tope
-    const catObj = CATEGORIAS.find(c=>c.cat===cat);
-    const tope = esBienes ? catObj.ing : catObj.ing;
-    const pct = (ingresos/tope)*100;
-    if(pct > 85) alertas.push({tipo:'warn', texto:`⚠ Estás al ${pct.toFixed(0)}% del tope de la categoría ${cat}. Considerá recategorizar preventivamente.`});
-
-    // Empleados mínimos para categorías altas
-    if(['H','I','J','K'].includes(cat) && empleados < 1){
-      alertas.push({tipo:'warn', texto:`Las categorías ${cat} y superiores normalmente requieren empleados en relación de dependencia. Verificá con tu contador.`});
-    }
-
-    // Recategorización
-    const hoy = new Date();
-    const mesActual = hoy.getMonth()+1;
-    if(mesActual >= 4 && mesActual <= 6){
-      alertas.push({tipo:'ok', texto:'✓ Estás en período de recategorización semestral (Ene–Jun 2026). El vencimiento para recategorizarse es el 5 de agosto de 2026.'});
-    } else if(mesActual >= 10 && mesActual <= 12){
-      alertas.push({tipo:'ok', texto:'✓ Estás en período de recategorización semestral (Jul–Dic 2026). El vencimiento es el 28 de febrero de 2027.'});
-    }
+  if(!rem || !fing || !feg){
+    document.getElementById('panel-r').innerHTML =
+      '<div style="padding:40px;color:var(--amber);text-align:center;font-size:.88rem">⚠ Completá la remuneración y las fechas de ingreso y egreso.</div>';
+    return;
   }
 
-  // Próximas fechas de recategorización
-  const recategFechas = [
-    {mes:'Ene–Jun 2026', fecha:'5 de agosto 2026', estado: new Date() > new Date('2026-08-05') ? 'pasado' : 'proximo'},
-    {mes:'Jul–Dic 2026', fecha:'28 de febrero 2027', estado: new Date() > new Date('2027-02-28') ? 'pasado' : 'proximo'},
-  ];
+  var dIng = new Date(fing+'T12:00:00');
+  var dEg  = new Date(feg+'T12:00:00');
+  if(dEg <= dIng){ document.getElementById('panel-r').innerHTML='<div style="padding:40px;color:var(--red);text-align:center">⚠ La fecha de egreso debe ser posterior al ingreso.</div>'; return; }
 
-  // Tabla de categorías para comparar
-  const tablaCats = CATEGORIAS.filter(c=> !(!esBienes && c.cat==='K'));
+  // ─── Antigüedad ─────────────────────────────────────────────
+  var msAnio = 365.25 * 24 * 3600 * 1000;
+  var totalMs = dEg - dIng;
+  var totalAnios = totalMs / msAnio;
+  var aniosCompletos = Math.floor(totalAnios);
+  var mesesFracc = Math.floor((totalAnios - aniosCompletos) * 12);
+  var modulos = aniosCompletos + (mesesFracc >= 3 ? 1 : 0);
+  modulos = Math.max(modulos, 1); // mínimo 1 módulo
 
-  document.getElementById('panel-r').innerHTML = cat==='EXCLUIDO'
-    ? `<div class="cat-hero" style="border-color:rgba(239,68,68,.4);background:linear-gradient(135deg,#1a0000,#2d0000)">
-        <div style="font-size:1.1rem;font-weight:800;color:#ef4444;margin-bottom:8px">EXCLUIDO</div>
-        <div style="font-size:.8rem;color:#fca5a5">Tus ingresos superan el máximo del Monotributo</div>
-        <div style="font-size:.78rem;color:var(--sub);margin-top:8px">Debés inscribirte como Responsable Inscripto (IVA + Ganancias)</div>
-       </div>
-       ${alertas.map(a=>`<div class="alerta ${a.tipo}">${a.texto}</div>`).join('')}`
-    : `
-    <!-- CATEGORÍA HERO -->
-    <div class="cat-hero">
-      <div class="cat-label">Tu categoría</div>
-      <div class="cat-letter">${cat}</div>
-      <div class="cat-desc">${actividad==='bienes'?'Venta de bienes muebles':'Locación de servicios'} · ${fmtN(ingresos)} ingresos/año</div>
-    </div>
+  // Descripción de antigüedad
+  var antig = aniosCompletos + ' año' + (aniosCompletos!==1?'s':'');
+  if(mesesFracc) antig += ' y ' + mesesFracc + ' mes' + (mesesFracc!==1?'es':'');
 
-    <!-- ALERTAS -->
-    ${alertas.map(a=>`<div class="alerta ${a.tipo}">${a.texto}</div>`).join('')}
+  // ─── Art. 245 — Indemnización ───────────────────────────────
+  var indemBruta = rem * modulos;
+  var minimoIndem = rem * 2; // mínimo 2 meses (jurisprudencia mayoritaria)
+  var indem245 = Math.max(indemBruta, minimoIndem);
 
-    <!-- CUOTAS -->
-    <div class="cuota-grid">
-      <div class="cuota-card">
-        <div class="lbl">Impuesto</div>
-        <div class="val">${fmt(esBienes ? cuotas.impVenta : cuotas.impServ)}</div>
-      </div>
-      <div class="cuota-card">
-        <div class="lbl">Obra Social</div>
-        <div class="val">${fmt(cuotas.os)}</div>
-      </div>
-      <div class="cuota-card">
-        <div class="lbl">Jubilación (SIPA)</div>
-        <div class="val">${fmt(cuotas.sipa)}</div>
-      </div>
-    </div>
-    <div class="cuota-card total" style="padding:13px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <span style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(245,158,11,.7)">Cuota total mensual</span>
-      <span class="val">${fmt(esBienes ? cuotas.totalVenta : cuotas.totalServ)}</span>
-    </div>
-    <div class="alerta info" style="margin-bottom:14px">
-      💡 Cuota anual estimada: <strong>${fmt(cuotas.total*12)}</strong>
-      ${empleados>0?` · Con ${empleados} empleado${empleados>1?'s':''}: sumá aportes patronales adicionales.`:''}
-    </div>
+  // ─── Preaviso (Art. 231) ────────────────────────────────────
+  var mesesPreaviso = totalAnios <= 5 ? 1 : 2;
+  var preaviso = tipoPreaviso === 'sust' ? rem * mesesPreaviso : 0;
+  var sacPreaviso = preaviso / 12; // SAC s/preaviso
 
-    <!-- TABS -->
-    <div class="tabs">
-      <button class="tab-btn active" onclick="swTab('tabla',this)">📊 Todas las categorías</button>
-      <button class="tab-btn" onclick="swTab('recateg',this)">📅 Recategorización</button>
-      <button class="tab-btn" onclick="swTab('info',this)">ℹ Información</button>
-    </div>
+  // ─── Integración mes de despido (Art. 233) ──────────────────
+  var diasRestantes = parseInt(document.getElementById('inp-dias-integ')?.value)||0;
+  var integ = 0;
+  var sacInteg = 0;
+  if(tieneInteg && diasRestantes > 0){
+    integ = (rem / 30) * diasRestantes;
+    sacInteg = integ / 12;
+  }
 
-    <!-- TABLA CATEGORÍAS -->
-    <div class="tab-pane active" id="tab-tabla">
-      <div style="overflow-x:auto">
-      <table class="table-cat">
-        <thead>
-          <tr>
-            <th>Cat.</th>
-            <th>Ingresos máx.</th>
-            <th>Superficie</th>
-            <th>KWh/año</th>
-            <th>Impuesto</th>
-            <th>OS</th>
-            <th>Jub.</th>
-            <th>Total/mes</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${tablaCats.map(c=>{
-            const cu = CUOTAS[c.cat];
-            const ing = esBienes ? c.ing : c.ing;
-            const sup = esBienes ? c.sup : c.sup;
-            return `<tr class="${c.cat===cat?'active-row':''}">
-              <td>${c.cat}</td>
-              <td>${fmt(ing||0)}</td>
-              <td>${sup!==null?sup+' m²':'—'}</td>
-              <td>${c.kwh!==null?fmtN(c.kwh):'—'}</td>
-              <td>${fmt(esBienes ? cu.impVenta : cu.impServ)}</td>
-              <td>${fmt(cu.os)}</td>
-              <td>${fmt(cu.sipa)}</td>
-              <td style="color:var(--amber)">${fmt(esBienes ? cu.totalVenta : cu.totalServ)}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table></div>
-      <div style="font-size:.67rem;color:var(--sub);margin-top:8px">* Valores vigentes desde enero 2026 según ARCA. Fila resaltada = tu categoría actual.</div>
-    </div>
+  // ─── Vacaciones proporcionales (Art. 156) ───────────────────
+  var diasVacTotal = diasVac(aniosCompletos);
+  document.getElementById('out-vac-dias').value = diasVacTotal + ' días hábiles';
+  var diasTrabEnAnio = parseInt(document.getElementById('inp-dias-trab')?.value)||0;
+  var vacDiasProp = diasTrabEnAnio > 0
+    ? (diasVacTotal / 365) * diasTrabEnAnio
+    : diasVacTotal; // Si no se ingresaron días, calcular completo
+  var vacMonto = (rem / 25) * vacDiasProp; // Art. 155: vacaciones = rem/25 × días
+  var sacVac = vacMonto / 12;
 
-    <!-- RECATEGORIZACIÓN -->
-    <div class="tab-pane" id="tab-recateg">
-      <div class="alerta info" style="margin-bottom:14px">
-        La cuota mensual vence el <strong>día 20 de cada mes</strong> (o el primer día hábil siguiente). La recategorización semestral: enero–junio vence el <strong>5 de agosto</strong>; julio–diciembre vence el <strong>28 de febrero</strong> del año siguiente.
-        También hay recategorización de oficio si ARCA detecta inconsistencias.
-      </div>
-      ${recategFechas.map(r=>`
-      <div class="recateg-item">
-        <span class="recateg-mes">${r.mes}</span>
-        <span class="recateg-fecha">Vence: ${r.fecha}</span>
-        <span class="recateg-estado estado-${r.estado}">${r.estado==='proximo'?'Próxima':'Pasada'}</span>
-      </div>`).join('')}
-      <div style="margin-top:14px;background:#1e2f42;border:1px solid var(--border);border-radius:9px;padding:13px">
-        <div style="font-size:.72rem;font-weight:700;color:#fff;margin-bottom:8px">Cómo recategorizarte</div>
-        ${['Ingresá a ARCA con clave fiscal','Accedé a Monotributo → Adhesión/Recategorización','El sistema calcula la categoría según tus ingresos declarados','Confirmá y pagá la diferencia si subiste de categoría'].map((p,i)=>`
-        <div style="display:flex;gap:10px;margin-bottom:6px;font-size:.75rem;color:var(--sub)">
-          <span style="color:var(--amber);font-weight:700;width:18px">${i+1}.</span>${p}
-        </div>`).join('')}
-      </div>
-    </div>
+  // ─── SAC proporcional sobre haberes del mes de egreso ───────
+  // SAC del semestre en curso (proporcional)
+  var today = dEg;
+  var semInicio = today.getMonth() < 6
+    ? new Date(today.getFullYear(),0,1)
+    : new Date(today.getFullYear(),6,1);
+  var diasSem    = today.getMonth() < 6 ? 181 : 184;
+  var diasEnSem  = Math.round((today - semInicio)/(1000*60*60*24)) + 1;
+  var sacHaberes = (rem / 2) * (diasEnSem / diasSem);
 
-    <!-- INFORMACIÓN -->
-    <div class="tab-pane" id="tab-info">
-      <div class="alerta info" style="margin-bottom:10px">
-        <div><strong>Exclusión del Monotributo</strong> — Se produce cuando:
-        <br>· Superás el tope de ingresos de la categoría máxima
-        <br>· Realizás más de 3 operaciones con el mismo cliente en el año
-        <br>· Realizás importaciones de bienes o servicios
-        <br>· Emitís más de 3 facturas a 1 mismo cliente por más del 70% de tus ingresos
-        </div>
-      </div>
-      <div class="alerta warn">
-        <div><strong>Operaciones con IVA</strong> — Si sos monotributista no podés discriminar IVA en tus facturas. Emitís Facturas C.
-        </div>
-      </div>
-      <div class="alerta ok">
-        <div><strong>Obra Social</strong> — Como monotributista tenés derecho a obra social eligiendo entre las disponibles. El aporte de $6.660 o $13.320 cubre el servicio básico.
-        </div>
-      </div>
-    </div>
-    `;
+  // ─── Totales ────────────────────────────────────────────────
+  var totalSAC  = sacPreaviso + sacInteg + sacVac + sacHaberes;
+  var totalLiq  = indem245 + preaviso + integ + vacMonto + totalSAC;
+
+  // ─── Render ─────────────────────────────────────────────────
+  var html = '';
+  html += '<div class="res-total"><div class="lbl">Total liquidación</div>';
+  html += '<div class="val">'+fmt(totalLiq)+'</div>';
+  html += '<div class="sub">'+antiq_str(dIng,dEg)+' · '+modulos+' módulo'+(modulos!==1?'s':'')+' · Antigüedad: '+antig+'</div></div>';
+
+  // Tabla resumen
+  html += '<div class="tabla-sec">Resumen de conceptos</div>';
+  html += '<table class="tabla"><thead><tr><th>Concepto</th><th>Norma</th><th style="text-align:right">Importe</th></tr></thead><tbody>';
+  html += '<tr><td><b>Indemnización por despido</b></td><td>Art. 245 LCT</td><td class="r green">'+fmt(indem245)+'</td></tr>';
+  if(preaviso)     html += '<tr><td>Preaviso sustitutivo ('+mesesPreaviso+' mes'+( mesesPreaviso>1?'es':'')+')</td><td>Art. 232 LCT</td><td class="r amber">'+fmt(preaviso)+'</td></tr>';
+  if(integ)        html += '<tr><td>Integración mes de despido ('+diasRestantes+' días)</td><td>Art. 233 LCT</td><td class="r amber">'+fmt(integ)+'</td></tr>';
+  html += '<tr><td>Vacaciones proporcionales ('+vacDiasProp.toFixed(0)+' días)</td><td>Art. 156 LCT</td><td class="r amber">'+fmt(vacMonto)+'</td></tr>';
+  html += '<tr><td colspan="3" style="padding:2px 8px;font-size:.65rem;color:var(--sub)">— SAC sobre conceptos —</td></tr>';
+  if(sacPreaviso)  html += '<tr><td style="padding-left:16px">SAC s/ preaviso</td><td>Art. 123 LCT</td><td class="r">'+fmt(sacPreaviso)+'</td></tr>';
+  if(sacInteg)     html += '<tr><td style="padding-left:16px">SAC s/ integración</td><td>Art. 123 LCT</td><td class="r">'+fmt(sacInteg)+'</td></tr>';
+  html += '<tr><td style="padding-left:16px">SAC s/ vacaciones</td><td>Art. 123 LCT</td><td class="r">'+fmt(sacVac)+'</td></tr>';
+  html += '<tr><td style="padding-left:16px">SAC proporcional s/ haberes ('+diasEnSem+' días)</td><td>Art. 121 LCT</td><td class="r">'+fmt(sacHaberes)+'</td></tr>';
+  html += '<tr class="tot"><td colspan="2">TOTAL LIQUIDACIÓN</td><td class="r" style="color:var(--red)">'+fmt(totalLiq)+'</td></tr>';
+  html += '</tbody></table>';
+
+  // Detalle indemnización
+  html += '<div class="tabla-sec">Detalle Art. 245 LCT <span class="chip">'+modulos+' módulo'+(modulos>1?'s':'')+'</span></div>';
+  html += '<table class="tabla"><tbody>';
+  html += '<tr><td>Mejor remuneración mensual</td><td class="r">'+fmt(rem)+'</td></tr>';
+  html += '<tr><td>× módulos (años + fracc. &gt; 3 meses)</td><td class="r">× '+modulos+'</td></tr>';
+  html += '<tr><td>Cálculo base</td><td class="r">'+fmt(rem*modulos)+'</td></tr>';
+  if(indemBruta < minimoIndem){
+    html += '<tr><td style="color:var(--amber)">Mínimo 2 meses aplicado</td><td class="r amber">'+fmt(minimoIndem)+'</td></tr>';
+  }
+  html += '<tr class="tot"><td>Indemnización Art. 245</td><td class="r green">'+fmt(indem245)+'</td></tr>';
+  html += '</tbody></table>';
+
+  html += '<div class="alerta alerta-warn">⚠ Esta liquidación es <strong>orientativa</strong>. La base de cálculo, el tope convencional y los módulos pueden variar según el CCT y la jurisprudencia aplicable. Verificar con asesoría legal.</div>';
+  html += '<div class="alerta alerta-info" style="margin-top:8px">📌 La indemnización por despido <strong>no está sujeta a aportes ni contribuciones</strong> (art. 245 LCT). El preaviso y la integración SÍ generan aportes y contribuciones patronales.</div>';
+
+  html += '<button onclick="generarPDF()" style="width:100%;margin-top:14px;background:linear-gradient(135deg,#0762c8,#0b82f5);color:#fff;border:none;padding:11px;border-radius:10px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">📄 Generar liquidación final (PDF)</button>';
+
+  // Guardar datos para PDF
+  window._liqData = {
+    nombre: document.getElementById('inp-nombre').value||'Empleado',
+    cuil:   document.getElementById('inp-cuil').value||'—',
+    legajo: document.getElementById('inp-legajo').value||'—',
+    empresa:document.getElementById('inp-empresa').value||'',
+    cuitEmp:document.getElementById('inp-cuit-emp').value||'',
+    fing: fing, feg: feg, antig, modulos,
+    rem, indem245, preaviso, mesesPreaviso, integ, diasRestantes,
+    vacMonto, vacDiasProp: vacDiasProp.toFixed(0),
+    sacPreaviso, sacInteg, sacVac, sacHaberes, totalSAC, totalLiq,
+    tipoPreaviso, tieneInteg,
+  };
+
+  document.getElementById('panel-r').innerHTML = html;
 }
 
-function swTab(id,btn){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tab-'+id).classList.add('active');
+function antiq_str(dI,dE){
+  var ms = dE-dI;
+  var a=Math.floor(ms/(365.25*864e5));
+  var m=Math.floor((ms%(365.25*864e5))/(30.44*864e5));
+  var res=[];
+  if(a) res.push(a+' año'+(a>1?'s':''));
+  if(m) res.push(m+' mes'+(m>1?'es':''));
+  return res.join(' y ')||'Menos de 1 mes';
+}
+
+function generarPDF(){
+  var d = window._liqData;
+  if(!d){ alert('Calculá primero.'); return; }
+  var fechaHoy = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  function fP(n){n=Math.abs(n||0);var s=n.toFixed(2).split('.');s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.');return '$ '+s[0]+','+s[1];}
+  function TR(c,n,m,cls){return '<tr><td style="padding:3px 6px;border-bottom:1px solid #ddd">'+c+'</td><td style="padding:3px 6px;border-bottom:1px solid #ddd;text-align:center">'+n+'</td><td style="padding:3px 6px;border-bottom:1px solid #ddd;text-align:right;'+(cls?'font-weight:bold':'')+'">'+m+'</td></tr>';}
+
+  var html='';
+  // Encabezado
+  html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;font-size:8.5pt"><tr>';
+  html+='<td style="width:58%;border-right:1px solid #000;padding:6px;vertical-align:top">';
+  html+='<b style="font-size:10pt">'+(d.empresa||'(Razón Social)')+'</b><br/><span style="font-size:7.5pt">Empleador'+(d.cuitEmp?' · CUIT: '+d.cuitEmp:'')+'</span>';
+  html+='</td><td style="padding:6px;vertical-align:top;font-size:7.5pt">';
+  html+='<b>LIQUIDACIÓN FINAL POR DESPIDO SIN CAUSA</b><br/>Decreto 407/2026 · Ley 27.802 · Art. 245 LCT<br/>';
+  html+='Fecha: <b>'+fechaHoy+'</b></td></tr></table>';
+
+  // Datos empleado
+  html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:7.5pt">';
+  html+='<tr><td style="padding:3px 6px;border-right:1px solid #000;width:50%"><b>Apellido y Nombre:</b> '+d.nombre+'</td><td style="padding:3px 6px"><b>CUIL:</b> '+d.cuil+'</td></tr>';
+  html+='<tr style="border-top:1px solid #000"><td style="padding:3px 6px;border-right:1px solid #000"><b>Legajo:</b> '+d.legajo+'</td><td style="padding:3px 6px"><b>Antigüedad:</b> '+d.antig+'</td></tr>';
+  html+='<tr style="border-top:1px solid #000"><td style="padding:3px 6px;border-right:1px solid #000"><b>Fecha ingreso:</b> '+d.fing+'</td><td style="padding:3px 6px"><b>Fecha egreso:</b> '+d.feg+'</td></tr>';
+  html+='<tr style="border-top:1px solid #000"><td colspan="2" style="padding:3px 6px"><b>Mejor remuneración mensual normal y habitual:</b> '+fP(d.rem)+'</td></tr>';
+  html+='</table>';
+
+  // Tabla conceptos
+  html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:7.5pt">';
+  html+='<thead><tr style="background:#e0e0e0"><th style="padding:4px 6px;border-right:1px solid #000;text-align:left">Concepto</th><th style="padding:4px 6px;border-right:1px solid #000;width:80px;text-align:center">Norma</th><th style="padding:4px 6px;width:110px;text-align:right">Importe</th></tr></thead>';
+  html+='<tbody>';
+  html+=TR('<b>Indemnización por despido</b> ('+d.modulos+' módulo'+(d.modulos>1?'s':'')+ ')','Art. 245',fP(d.indem245),true);
+  if(d.preaviso)   html+=TR('Preaviso sustitutivo ('+d.mesesPreaviso+' mes'+(d.mesesPreaviso>1?'es':'')+')'  ,'Art. 232',fP(d.preaviso),false);
+  if(d.integ)      html+=TR('Integración mes de despido ('+d.diasRestantes+' días)','Art. 233',fP(d.integ),false);
+  html+=TR('Vacaciones proporcionales ('+d.vacDiasProp+' días)','Art. 156',fP(d.vacMonto),false);
+  html+='<tr><td colspan="3" style="padding:2px 6px;font-style:italic;font-size:7pt;background:#f9f9f9">SAC sobre conceptos no remunerativos</td></tr>';
+  if(d.sacPreaviso) html+=TR('SAC s/ preaviso','Art. 123',fP(d.sacPreaviso),false);
+  if(d.sacInteg)    html+=TR('SAC s/ integración','Art. 123',fP(d.sacInteg),false);
+  html+=TR('SAC s/ vacaciones','Art. 123',fP(d.sacVac),false);
+  html+=TR('SAC proporcional s/ haberes del mes','Art. 121',fP(d.sacHaberes),false);
+  html+='<tr style="background:#e8e8e8"><td colspan="2" style="padding:5px 6px;font-weight:bold;font-size:9pt">TOTAL LIQUIDACIÓN</td><td style="padding:5px 6px;text-align:right;font-weight:bold;font-size:9pt">'+fP(d.totalLiq)+'</td></tr>';
+  html+='</tbody></table>';
+
+  // Nota
+  html+='<div style="border:1.5px solid #000;border-top:0;padding:5px 8px;font-size:6.5pt;color:#333">';
+  html+='La indemnización por despido (Art. 245 LCT) no está sujeta a aportes ni contribuciones. El preaviso sustitutivo y la integración del mes de despido sí generan aportes y contribuciones a cargo del empleador. Liquidación orientativa — verificar con asesoría legal.';
+  html+='</div>';
+
+  // Firmas
+  html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:7.5pt">';
+  html+='<tr><td style="width:50%;border-right:1px solid #000;padding:28px 6px 6px;text-align:center;vertical-align:bottom">';
+  html+='<div style="border-top:1px solid #000;padding-top:4px">Firma del empleado</div><div style="font-size:6.5pt;color:#444">Aclaración / CUIL</div></td>';
+  html+='<td style="width:50%;padding:28px 6px 6px;text-align:center;vertical-align:bottom">';
+  html+='<div style="border-top:1px solid #000;padding-top:4px">Firma empleador</div><div style="font-size:6.5pt;color:#444">'+(d.empresa||'Razón Social')+'</div></td></tr>';
+  html+='</table>';
+  html+='<div style="font-size:6.5pt;color:#666;text-align:center;margin-top:6px">Generado con ImpoBot — impobot.com.ar · Uso orientativo</div>';
+
+  document.getElementById('pdf-cont').innerHTML=html;
+  document.getElementById('pdf-overlay').style.display='block';
+  window.scrollTo(0,0);
 }
 
 // Init
-actualizarLimites();
+setInteg(true);
 </script>
-<a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener"
-  style="position:fixed;bottom:16px;right:16px;z-index:999;
-    display:flex;align-items:center;gap:6px;
-    background:#FFDD00;color:#000;font-weight:800;font-size:.72rem;padding:8px 14px;border-radius:50px;text-decoration:none;box-shadow:0 3px 16px rgba(0,0,0,.25)" title="☕ ImpoBot — Invitarnos un café">☕</a>
-<a href="https://api.whatsapp.com/send?text=Calculá%20tu%20categoría%20de%20Monotributo%20A-K%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/monotributo.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
+<a href="https://api.whatsapp.com/send?text=Calculadora%20de%20liquidación%20por%20despido%20Art.%20245%20LCT%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/indemnizacion.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
   style="position:fixed;bottom:76px;right:20px;z-index:998;background:#25D366;color:#fff;
     width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
     font-size:1.1rem;text-decoration:none;box-shadow:0 2px 12px rgba(37,211,102,.3);transition:all .2s"
@@ -499,7 +413,7 @@ actualizarLimites();
 </a>
 
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('../sw.js').catch(function(){});</script>
-<a href="mailto:impobot.ar@gmail.com?subject=Bug en ImpoBot&body=Herramienta: monotributo%0AProblema: " 
+<a href="mailto:impobot.ar@gmail.com?subject=Bug en ImpoBot&body=Herramienta: indemnizacion%0AProblema: " 
   title="Reportar un problema con esta herramienta"
   style="position:fixed;bottom:128px;right:20px;z-index:997;background:#35546f;border:1px solid #35546f;
     color:#7fa0be;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;

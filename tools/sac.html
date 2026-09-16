@@ -1,93 +1,61 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Sueldos 2026 — FiscalAR</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Calculadora SAC / Aguinaldo 2026 — ImpoBot</title>
+<meta name="description" content="Calculá el SAC (Sueldo Anual Complementario) proporcional o completo. Período, base de cálculo y descuentos automáticos. Argentina 2026."/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
-:root{--ink:#1e2f42;--card:#25394f;--border:#1e2d47;--text:#e8edf5;--sub:#8899b4;--cyan:#00c9b8;--amber:#f59e0b;--green:#10b981;--red:#ef4444;--purple:#8b5cf6}
+:root{--ink:#1e2f42;--card:#35546f;--card2:#35546f;--border:#35546f;--text:#eaf1f8;--sub:#7fa0be;--blue:#0b82f5;--blue-l:#60a5fa;--green:#10b981;--amber:#f59e0b;--red:#ef4444}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
-.topnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,15,26,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 20px;height:54px}
-.back-btn{color:var(--sub);text-decoration:none;font-size:.78rem;font-weight:500;padding:5px 10px;border-radius:7px;transition:all .15s}
-.back-btn:hover{color:var(--text);background:#1a2744}
-.nav-title{font-size:.88rem;font-weight:700;color:#fff}
-.nav-sub{font-size:.65rem;color:var(--sub)}
-.nav-badge{margin-left:auto;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);color:var(--purple);font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:5px;text-transform:uppercase}
-.app{margin-top:54px;display:grid;grid-template-columns:360px 1fr;height:calc(100vh - 54px);overflow:hidden}
-.panel-l{padding:14px;overflow-y:auto;border-right:1px solid var(--border);background:rgba(17,24,39,.4)}
-.panel-r{padding:16px;overflow-y:auto}
-@media(max-width:800px){.app{flex-direction:column}.panel-l{width:100%;border-right:none;border-bottom:1px solid var(--border)}}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
-.card-hd{padding:10px 14px;border-bottom:1px solid var(--border);font-size:.8rem;font-weight:700;display:flex;align-items:center;gap:7px}
-.card-body{padding:14px}
-.field{margin-bottom:12px}
-.field label{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);margin-bottom:4px}
-.field select,.field input{width:100%;background:#1e2f42;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:.88rem;outline:none;font-family:'Inter',sans-serif;transition:border-color .15s}
-.field select:focus,.field input:focus{border-color:var(--purple)}
-.field .hint{font-size:.65rem;color:var(--sub);margin-top:3px}
-.sep{font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);padding:8px 0 5px;border-bottom:1px solid var(--border);margin-bottom:10px}
+body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:60px}
+.shell{max-width:900px;margin:0 auto;padding:16px;display:grid;grid-template-columns:340px 1fr;gap:16px}
+@media(max-width:750px){.shell{grid-template-columns:1fr}}
+.panel-l{position:sticky;top:62px;align-self:start}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px}
+.card-title{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-l);margin-bottom:14px}
+.field{margin-bottom:11px}
+.field label{display:block;font-size:.68rem;font-weight:600;color:var(--sub);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select{width:100%;background:#162232;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:.88rem;outline:none;font-family:'Inter',sans-serif}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.field select option{background:#25394f}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btn-calc{width:100%;background:linear-gradient(135deg,#3b0764,var(--purple));color:#fff;border:none;padding:11px;border-radius:9px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:filter .15s}
-.btn-calc:hover{filter:brightness(1.08)}
-.recibo{background:#1e2f42;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.recibo-hd{background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(79,142,247,.08));border-bottom:1px solid var(--border);padding:16px 20px}
-.recibo-empresa{font-size:.7rem;color:var(--sub);text-transform:uppercase;letter-spacing:.08em}
-.recibo-emp{font-size:1rem;font-weight:800;color:#fff;margin-top:2px}
-.recibo-body{padding:0}
-.linea{display:flex;justify-content:space-between;align-items:center;padding:9px 20px;border-bottom:1px solid rgba(30,45,71,.4);font-size:.8rem}
-.linea:last-child{border-bottom:none}
-.linea .concepto{color:var(--sub)}
-.linea .monto{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--text)}
-.linea.subtotal{background:rgba(255,255,255,.02)}
-.linea.subtotal .concepto{font-weight:700;color:var(--text)}
-.linea.neto{background:rgba(16,185,129,.05);border-top:2px solid rgba(16,185,129,.3);border-bottom:none}
-.linea.neto .concepto{font-weight:800;color:#fff;font-size:.88rem}
-.linea.neto .monto{color:var(--green);font-size:1.1rem;font-weight:800}
-.linea.descuento .monto{color:var(--red)}
-.linea.contribu .monto{color:var(--amber)}
-.sep-recibo{background:rgba(255,255,255,.03);padding:6px 20px;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--sub);border-bottom:1px solid var(--border)}
-.total-costo{display:flex;justify-content:space-between;padding:14px 20px;background:rgba(245,158,11,.05);border-top:1px solid rgba(245,158,11,.2)}
-.total-costo .lbl{font-size:.8rem;font-weight:700;color:var(--amber)}
-.total-costo .val{font-size:1rem;font-weight:800;color:var(--amber);font-family:'JetBrains Mono',monospace}
-.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--sub);text-align:center;gap:12px}
-.empty-ico{font-size:3rem;opacity:.2}
-
-.cards-resumen{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
-.res-card{background:var(--card2,#35546f);border:1px solid var(--border,#35546f);border-radius:10px;padding:12px;text-align:center}
-.res-card .rl{font-size:.65rem;color:var(--sub,#7fa0be);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
-.res-card .rv{font-size:1rem;font-weight:800;color:#fff}
-.res-card.red .rv{color:#ef4444}
-.res-card.green .rv{color:#10b981}
-.res-card.amber .rv{color:#f59e0b}
-.tabla-sec{font-size:.7rem;font-weight:700;color:var(--blue-l,#60a5fa);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border,#35546f);padding-bottom:5px;margin:14px 0 8px}
-.tabla-detalle{width:100%;border-collapse:collapse;font-size:.74rem}
-.tabla-detalle th{background:rgba(11,130,245,.1);color:var(--blue-l,#60a5fa);font-size:.63rem;font-weight:700;text-transform:uppercase;padding:5px 7px;text-align:left;border-bottom:1px solid var(--border,#35546f)}
-.tabla-detalle td{padding:5px 7px;border-bottom:1px solid rgba(26,47,69,.35);color:var(--text,#eaf1f8);font-size:.73rem}
-.tabla-detalle td.r{text-align:right}
-.tabla-detalle td.c{text-align:center}
-.tabla-detalle td.red{color:#ef4444;font-weight:600}
-.tabla-detalle td.amber{color:#f59e0b;font-weight:600}
-.tabla-detalle tr.subtotal td{font-weight:700;color:#fff;background:rgba(255,255,255,.03);border-top:1px solid var(--border,#35546f)}
-.neto-box{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:10px 14px;font-size:.88rem;color:#6ee7b7;text-align:center;margin:10px 0}
-.costo-box{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:10px 14px;font-size:.88rem;color:#fcd34d;text-align:center;margin:10px 0}
-.alerta-tope{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:8px 12px;font-size:.74rem;color:#fcd34d;margin-bottom:12px}
-@media(max-width:600px){.cards-resumen{grid-template-columns:1fr 1fr}}
-
-/* ═══ RECIBO PDF ═══ */
-#recibo-pdf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9998;overflow-y:auto;padding:20px}
-#recibo-pdf-container{background:#fff;color:#000;max-width:800px;margin:0 auto;padding:24px;font-family:Arial,sans-serif;font-size:9pt;position:relative}
-.pdf-close{position:absolute;top:10px;right:14px;font-size:1.4rem;cursor:pointer;color:#666;background:none;border:none;font-weight:bold}
-.pdf-btn-bar{display:flex;gap:8px;justify-content:center;margin:12px 0}
+.sep{font-size:.65rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);padding-bottom:5px;margin:12px 0 10px}
+.toggle-group{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.toggle-btn{flex:1;padding:8px;background:#162232;border:none;color:var(--sub);font-size:.8rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.toggle-btn.on{background:var(--blue);color:#fff}
+.btn-calc{width:100%;background:linear-gradient(135deg,#0762c8,var(--blue));color:#fff;border:none;padding:12px;border-radius:10px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:4px}
+/* RESULTADO */
+.empty{text-align:center;padding:50px 20px;color:var(--sub)}
+.empty-ico{font-size:2.5rem;margin-bottom:12px}
+.res-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.res-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.res-card .rl{font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.res-card .rv{font-size:1.05rem;font-weight:800;color:#fff}
+.res-card.green .rv{color:var(--green)}
+.res-card.red .rv{color:var(--red)}
+.res-card.amber .rv{color:var(--amber)}
+.tabla-sec{font-size:.7rem;font-weight:700;color:var(--blue-l);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);padding-bottom:5px;margin:14px 0 8px}
+.tabla{width:100%;border-collapse:collapse;font-size:.76rem}
+.tabla th{background:rgba(11,130,245,.08);color:var(--blue-l);font-size:.64rem;font-weight:700;text-transform:uppercase;padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)}
+.tabla td{padding:6px 8px;border-bottom:1px solid rgba(26,47,69,.35)}
+.tabla td.r{text-align:right;font-family:'Courier New',monospace}
+.tabla td.red{color:var(--red);font-weight:600}
+.tabla td.green{color:var(--green);font-weight:600}
+.tabla tr.tot td{font-weight:700;color:#fff;background:rgba(255,255,255,.03);border-top:1px solid var(--border)}
+.alerta{border-radius:8px;padding:10px 13px;font-size:.74rem;line-height:1.5;margin-top:12px}
+.alerta-info{background:rgba(11,130,245,.07);border:1px solid rgba(11,130,245,.2);color:var(--blue-l)}
+.alerta-warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.neto-box{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:12px;text-align:center;margin:12px 0;font-size:.95rem;color:#6ee7b7}
+/* PDF */
+#pdf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9998;overflow-y:auto;padding:20px}
+#pdf-cont{background:#fff;color:#000;max-width:800px;margin:0 auto;padding:24px;font-family:Arial,sans-serif;font-size:9pt}
+.pdf-bar{display:flex;gap:8px;justify-content:center;margin:12px 0}
 .pdf-btn{padding:8px 20px;border-radius:7px;border:none;cursor:pointer;font-weight:700;font-size:.82rem}
-.pdf-btn.print{background:#0b82f5;color:#fff}
-.pdf-btn.close{background:#666;color:#fff}
-@media print{
-  body>*:not(#recibo-pdf-overlay){display:none!important}
-  #recibo-pdf-overlay{display:block!important;position:static!important;background:#fff!important;padding:0!important}
-  .pdf-close,.pdf-btn-bar{display:none!important}
-  #recibo-pdf-container{box-shadow:none!important;max-width:100%!important}
-}
+.pdf-btn.print{background:var(--blue);color:#fff}
+.pdf-btn.close{background:#555;color:#fff}
+@media print{body>*:not(#pdf-overlay){display:none!important}#pdf-overlay{display:block!important;position:static!important;background:#fff!important;padding:0!important}.pdf-bar{display:none!important}#pdf-cont{box-shadow:none!important;max-width:100%!important}}
 </style>
 <link rel="manifest" href="../manifest.json"/>
 <meta name="theme-color" content="#0b82f5"/>
@@ -102,416 +70,340 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
     <span style="font-size:.88rem;font-weight:900;letter-spacing:-.03em"><span style="color:#eaf1f8">impo</span><span style="color:#0b82f5">bot</span></span>
   </a>
   <span style="color:#35546f">|</span>
-  <span id="tnav-title" style="color:#eaf1f8;font-size:.76rem;font-weight:700"></span>
+  <span style="color:#eaf1f8;font-size:.76rem;font-weight:700">💰 Calculadora SAC / Aguinaldo</span>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
     <a href="https://www.buymeacoffee.com/impobot" target="_blank" style="font-size:.65rem;color:#000;background:#FFDD00;padding:3px 9px;border-radius:20px;text-decoration:none;font-weight:700">☕</a>
     <span style="background:rgba(11,130,245,.1);border:1px solid rgba(11,130,245,.2);color:#60a5fa;font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:4px">ARCA 2026</span>
   </div>
 </div>
 <div style="height:46px"></div>
-<script>var t=document.getElementById("tnav-title");if(t)t.textContent="💰 Liquidador de Sueldos";</script>
-<script>var tnav=document.getElementById("tnav-title");if(tnav)tnav.textContent="💰 Liquidador de Sueldos";</script>
-<script>document.getElementById("tool-nav-title").textContent="💰 Liquidador de Sueldos";</script>
-<nav class="topnav">
-  <a class="back-btn" href="#" onclick="window.location='../index.html';return false">← FiscalAR</a>
-  <div style="width:1px;height:24px;background:var(--border)"></div>
-  <div><div class="nav-title">💰 Liquidador de Sueldos</div><div class="nav-sub">Recibo básico · Aportes y contribuciones 2026</div></div>
-  <div class="nav-badge">✓ 2026</div>
-</nav>
-<div class="app">
+
+<div class="shell">
+
+<!-- ─── PANEL IZQUIERDO ─────────────────────────────────────── -->
 <div class="panel-l">
-  <button onclick="calcular()" style="width:100%;background:linear-gradient(135deg,#3b0764,var(--purple));color:#fff;border:none;padding:10px;border-radius:9px;font-size:.88rem;font-weight:800;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:12px;position:sticky;top:0;z-index:10">
-    💰 Calcular recibo
-  </button>
+
   <div class="card">
-    <div class="card-hd">👤 Datos del empleado</div>
-    <div class="card-body">
-      <div class="sep">Datos de la empresa</div>
-      <div class="field"><label>Razón Social</label><input type="text" id="inp-empresa" placeholder="Empresa S.A."/></div>
-      <div class="field"><label>CUIT del empleador</label><input type="text" id="inp-cuit-emp" placeholder="30-12345678-9"/></div>
-      <div class="sep">Datos del empleado</div>
-      <div class="field"><label>Apellido y Nombre</label><input type="text" id="inp-nombre" placeholder="GARCIA, JUAN CARLOS"/></div>
+    <div class="card-title">💰 Calculadora SAC / Aguinaldo</div>
+
+    <div class="sep">Tipo de cálculo</div>
+    <div class="field">
+      <div class="toggle-group">
+        <button class="toggle-btn on" id="t-prop" onclick="setTipo('prop')">Proporcional</button>
+        <button class="toggle-btn" id="t-comp" onclick="setTipo('comp')">Cuota completa</button>
+      </div>
+    </div>
+
+    <div class="sep">Datos del período</div>
+    <div class="field">
+      <label>Semestre</label>
+      <select id="sel-sem" onchange="calcular()">
+        <option value="1">1° semestre (enero–junio 2026)</option>
+        <option value="2" selected>2° semestre (julio–diciembre 2026)</option>
+      </select>
+    </div>
+
+    <div id="bloque-prop">
+      <div class="field">
+        <label>Fecha de ingreso (si es en el semestre)</label>
+        <input type="date" id="inp-fing" onchange="calcular()"/>
+      </div>
+      <div class="field">
+        <label>Fecha de egreso (si corresponde)</label>
+        <input type="date" id="inp-feg" onchange="calcular()"/>
+      </div>
+    </div>
+
+    <div class="sep">Remuneraciones</div>
+    <div class="alerta alerta-info" style="margin-bottom:10px;font-size:.7rem">
+      📌 Ingresá la <strong>mejor remuneración mensual devengada</strong> en cada mes del semestre (Art. 122 LCT). Si no trabajó el mes completo, dejarlo en 0.
+    </div>
+
+    <div id="campos-meses"></div>
+
+    <div class="sep">Datos del empleado (para el PDF)</div>
+    <div class="row2">
+      <div class="field"><label>Apellido y Nombre</label><input type="text" id="inp-nombre" placeholder="GARCIA, JUAN"/></div>
       <div class="field"><label>CUIL</label><input type="text" id="inp-cuil" placeholder="20-12345678-9"/></div>
-      <div class="row2">
-        <div class="field"><label>Legajo</label><input type="text" id="inp-legajo" placeholder="001"/></div>
-        <div class="field"><label>Categoría</label><input type="text" id="inp-categ" placeholder="B1"/></div>
-      </div>
-      <div class="field"><label>Fecha de ingreso</label><input type="text" id="inp-fing" placeholder="dd/mm/aaaa"/></div>
-      <div class="sep">Remuneración</div>
-      <div class="field"><label>Sueldo bruto mensual $</label><input type="number" id="inp-bruto" placeholder="0" oninput="calcular()" onchange="calcular()"/></div>
-      <div class="row2">
-        <div class="field"><label>Período</label>
-          <select id="sel-periodo">
-            <option>Septiembre 2026</option><option>Agosto 2026</option><option>Julio 2026</option><option>Junio 2026</option><option>Mayo 2026</option><option>Abril 2026</option>
-          </select>
-        </div>
-        <div class="field"><label>Categoría CCT</label><input type="text" id="inp-cct" placeholder="Ej: Categoría C"/></div>
-      </div>
-      <div class="sep">Adicionales</div>
-      <div class="field"><label>Horas extras 50% $</label><input type="number" id="inp-he50" placeholder="0" oninput="calcular()"/></div>
-      <div class="field"><label>Horas extras 100% $</label><input type="number" id="inp-he100" placeholder="0" oninput="calcular()"/></div>
-      <div class="field"><label>Presentismo $</label><input type="number" id="inp-pres" placeholder="0" oninput="calcular()"/></div>
-      <div class="field"><label>Otros haberes $</label><input type="number" id="inp-otros" placeholder="0" oninput="calcular()"/></div>
-      <div class="sep">Descuentos</div>
-      <div class="field"><label>Embargo / Otros desc. $</label><input type="number" id="inp-embargo" placeholder="0" oninput="calcular()"/></div>
-      <div class="row2">
-        <div class="field"><label>Sindicato %</label><input type="number" id="inp-sind" placeholder="2" value="2" step="0.1" oninput="calcular()"/></div>
-        <div class="field"><label>Retención Ganancias $</label><input type="number" id="inp-gan" placeholder="0" oninput="calcular()"/></div>
-      </div>
-      <button class="btn-calc" onclick="calcular()">💰 Calcular recibo</button>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Razón Social empleador</label><input type="text" id="inp-empresa" placeholder="Empresa S.A."/></div>
+      <div class="field"><label>CUIT empleador</label><input type="text" id="inp-cuit-emp" placeholder="30-12345678-9"/></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Legajo</label><input type="text" id="inp-legajo" placeholder="001"/></div>
+      <div class="field"><label>Categoría/CCT</label><input type="text" id="inp-categ" placeholder="B1"/></div>
+    </div>
+
+    <button class="btn-calc" onclick="calcular()">💰 Calcular SAC</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 ¿Cómo se calcula el SAC?</div>
+    <div style="font-size:.72rem;color:var(--sub);line-height:1.65">
+      <b style="color:var(--blue-l)">Art. 121 y 122 LCT:</b><br/>
+      El SAC es igual a la <b>mitad de la mejor remuneración mensual</b> devengada en el semestre.<br/><br/>
+      <b style="color:var(--blue-l)">Proporcional:</b><br/>
+      Si el empleado no trabajó el semestre completo (ingresó o egresó a mitad del semestre), el SAC se calcula proporcionalmente a los días trabajados.<br/><br/>
+      <b style="color:var(--blue-l)">Vencimiento:</b><br/>
+      • 1° semestre → 30 de junio<br/>
+      • 2° semestre → 31 de diciembre<br/><br/>
+      <b style="color:var(--blue-l)">Aportes sobre el SAC:</b><br/>
+      Jubilación 11%, PAMI 3%, Obra Social 3%, Sindicato 2% (sobre la base topada al SIPA).
     </div>
   </div>
+
 </div>
-<div class="panel-r" id="panel-r">
-  <div class="empty"><div class="empty-ico">💰</div>
-    <div style="font-weight:700;font-size:.95rem;color:#fff">Completá los datos</div>
-    <div style="font-size:.78rem;max-width:300px;line-height:1.55">Ingresá el sueldo bruto y los adicionales para generar el recibo con aportes y contribuciones calculados automáticamente.</div>
+
+<!-- ─── PANEL DERECHO ───────────────────────────────────────── -->
+<div id="panel-r">
+  <div class="empty">
+    <div class="empty-ico">💰</div>
+    <div style="font-weight:700;font-size:1rem;color:#fff;margin-bottom:8px">Calculadora SAC / Aguinaldo</div>
+    <div style="font-size:.82rem">Completá los datos y hacé clic en <b>Calcular SAC</b></div>
+    <div style="margin-top:16px;font-size:.75rem;color:#3a4d63">Art. 121 y 122 LCT · ½ de la mejor remuneración mensual del semestre</div>
   </div>
 </div>
+
+</div><!-- shell -->
+
+<!-- PDF -->
+<div id="pdf-overlay">
+  <div class="pdf-bar">
+    <button class="pdf-btn print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="pdf-btn close" onclick="document.getElementById('pdf-overlay').style.display='none'">✕ Cerrar</button>
+  </div>
+  <div id="pdf-cont"></div>
 </div>
+
+<a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener"
+  style="position:fixed;bottom:16px;right:16px;z-index:999;display:flex;align-items:center;gap:6px;
+    background:#FFDD00;color:#000;font-weight:800;font-size:.72rem;
+    padding:8px 14px;border-radius:50px;text-decoration:none;box-shadow:0 3px 16px rgba(0,0,0,.25)">☕</a>
+
 <script>
-// Formatter sin Intl (más compatible en iframes)
-function fmt(n){
-  n = parseFloat(n)||0;
-  return '$ ' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-}
+var TOPE_SIPA = 4594798.23;
+var tipo = 'prop'; // 'prop' | 'comp'
 
-const TOPE_SIPA = 4691748.47; // Agosto 2026 — Res. ANSES 257/2026
-
-// Aportes del empleado (sobre base topada al SIPA)
-const AP_EMP = { jub:0.11, pami:0.03, os:0.03, sind:0.02 };
-
-// Contribuciones patronales — valores exactos 2026
-const AP_PATRO = {
-  prev: 0.1077,  // 890000 — Previsional SIPA (sobre base topada)
-  pami: 0.0159,  // 890001 — PAMI Ley 19.032 (sobre base topada)
-  os:   0.051,   // 890004 — Obra Social empleador (sobre bruto)
-  fsr:  0.009,   // 890005 — FSR ex ANSSAL (sobre bruto)
-  fne:  0.0094,  // 890006 — Fondo Nacional de Empleo (sobre base topada)
-  asig: 0.047,   // 890010 — Asignaciones Familiares (sobre base topada)
-  scvo: 424.62,  // 890007 — SCVO Seguro Vida Obligatorio (fijo Dec.590/97)
-  art:  1905.00, // 890017 — ART Suma Fija (fija Dec.590/97)
+var SEMESTRES = {
+  1: { meses: ['Enero','Febrero','Marzo','Abril','Mayo','Junio'],
+       inicio: '2026-01-01', fin: '2026-06-30', dias: 181,
+       vcto: '30 de junio 2026' },
+  2: { meses: ['Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+       inicio: '2026-07-01', fin: '2026-12-31', dias: 184,
+       vcto: '18 de diciembre 2026' }
 };
 
+function setTipo(t){
+  tipo = t;
+  document.getElementById('t-prop').classList.toggle('on', t==='prop');
+  document.getElementById('t-comp').classList.toggle('on', t==='comp');
+  document.getElementById('bloque-prop').style.display = t==='prop' ? 'block' : 'none';
+  calcular();
+}
+
+function renderCamposMeses(){
+  var sem = parseInt(document.getElementById('sel-sem').value);
+  var info = SEMESTRES[sem];
+  var html = '';
+  info.meses.forEach(function(mes, i){
+    html += '<div class="row2" style="margin-bottom:8px">';
+    html += '<div style="display:flex;align-items:center;font-size:.75rem;font-weight:600;color:var(--text)">'+mes+'</div>';
+    html += '<div class="field" style="margin-bottom:0"><input type="number" id="rem-'+i+'" placeholder="$ 0" oninput="calcular()" style="font-size:.82rem"/></div>';
+    html += '</div>';
+  });
+  document.getElementById('campos-meses').innerHTML = html;
+}
+
+document.getElementById('sel-sem').addEventListener('change', function(){
+  renderCamposMeses();
+  calcular();
+});
+renderCamposMeses();
+
 function calcular(){
-  var bruto    = parseFloat(document.getElementById('inp-bruto').value)||0;
-  if(!bruto){
+  var sem = parseInt(document.getElementById('sel-sem').value);
+  var info = SEMESTRES[sem];
+
+  // Leer remuneraciones
+  var rems = [];
+  for(var i=0; i<6; i++){
+    var v = parseFloat(document.getElementById('rem-'+i)?.value)||0;
+    rems.push(v);
+  }
+
+  var mejorRem = Math.max.apply(null, rems);
+  if(!mejorRem){
     document.getElementById('panel-r').innerHTML =
-      '<div style="padding:40px;color:#f59e0b;text-align:center;font-size:.9rem">⚠ Ingresá el sueldo bruto para calcular.</div>';
+      '<div style="padding:40px;color:var(--amber);text-align:center;font-size:.88rem">⚠ Ingresá al menos una remuneración del semestre.</div>';
     return;
   }
 
-  var nombre   = document.getElementById('inp-nombre').value||'Empleado';
-  var cuil     = document.getElementById('inp-cuil').value||'—';
-  var periodo  = document.getElementById('sel-periodo').value;
-  var cct      = document.getElementById('inp-cct').value;
-  var categ    = document.getElementById('inp-categ')?.value||'';
-  var empresa  = document.getElementById('inp-empresa')?.value||'';
-  var cuitEmp  = document.getElementById('inp-cuit-emp')?.value||'';
-  var legajo   = document.getElementById('inp-legajo')?.value||'';
-  var fing     = document.getElementById('inp-fing')?.value||'';
-  var he50     = parseFloat(document.getElementById('inp-he50').value)||0;
-  var he100    = parseFloat(document.getElementById('inp-he100').value)||0;
-  var pres     = parseFloat(document.getElementById('inp-pres').value)||0;
-  var otros    = parseFloat(document.getElementById('inp-otros').value)||0;
-  var embargo  = parseFloat(document.getElementById('inp-embargo').value)||0;
-  var ganRet   = parseFloat(document.getElementById('inp-gan')?.value)||0;
-  var sindPct  = (v=>isNaN(v)?2:v)(parseFloat(document.getElementById('inp-sind')?.value));
+  // Calcular días trabajados (para proporcional)
+  var diasSem = info.dias;
+  var diasTrab = diasSem;
+  var esProp = tipo === 'prop';
+  var fechaIng = document.getElementById('inp-fing')?.value;
+  var fechaEg  = document.getElementById('inp-feg')?.value;
 
-  var totalBruto = bruto + he50 + he100 + pres + otros;
-  var base       = Math.min(totalBruto, TOPE_SIPA);
-  var topado     = totalBruto > TOPE_SIPA;
+  if(esProp){
+    var dInicio = new Date(info.inicio);
+    var dFin    = new Date(info.fin);
+    var dIng    = fechaIng ? new Date(fechaIng) : null;
+    var dEg     = fechaEg  ? new Date(fechaEg)  : null;
 
-  // ─── Descuentos empleado ───────────────────────────────────
-  var dJub  = base * AP_EMP.jub;                     // 11%
-  var dPami = base * AP_EMP.pami;                    // 3%
-  var dOS   = base * AP_EMP.os;                      // 3%
-  var dSind = base * (sindPct/100);                  // 2% (configurable)
-  var dGan  = ganRet;                                // retención Ganancias
-  var totalDesc = dJub + dPami + dOS + dSind + dGan + embargo;
-  var neto  = totalBruto - totalDesc;
+    var desde = (dIng && dIng > dInicio) ? dIng : dInicio;
+    var hasta = (dEg  && dEg  < dFin)    ? dEg  : dFin;
 
-  // ─── Contribuciones patronales ─────────────────────────────
-  var cPrev = base * AP_PATRO.prev;    // 10.77% s/base
-  var cPami = base * AP_PATRO.pami;   // 1.59%  s/base
-  var cOS   = totalBruto * AP_PATRO.os; // 5.10% s/bruto (sin tope)
-  var cFSR  = totalBruto * AP_PATRO.fsr; // 0.90% s/bruto (sin tope)
-  var cFNE  = base * AP_PATRO.fne;    // 0.94%  s/base
-  var cAsig = base * AP_PATRO.asig;   // 4.70%  s/base
-  var cSCVO = AP_PATRO.scvo;          // $ 424,62 fijo
-  var cART  = AP_PATRO.art;           // $ 1.905,00 fijo
-  var totalContrib = cPrev+cPami+cOS+cFSR+cFNE+cAsig+cSCVO+cART;
-  var costoTotal   = totalBruto + totalContrib;
+    if(desde > hasta){
+      document.getElementById('panel-r').innerHTML =
+        '<div style="padding:40px;color:var(--red);text-align:center">⚠ Las fechas no son válidas para este semestre.</div>';
+      return;
+    }
+    diasTrab = Math.round((hasta - desde)/(1000*60*60*24)) + 1;
+  }
 
-  // ─── HTML del resultado ────────────────────────────────────
-  var topMsg = topado ? '<div class="alerta-tope">⚠ Sueldo supera el tope SIPA ('+fmt(TOPE_SIPA)+'). Aportes y contribuciones calculados sobre el tope.</div>' : '';
+  // SAC bruto
+  var sacBruto = (mejorRem / 2) * (diasTrab / diasSem);
 
-  var html = topMsg;
-  html += '<div class="cards-resumen">';
-  html += '<div class="res-card"><div class="rl">Bruto</div><div class="rv">'+fmt(totalBruto)+'</div></div>';
+  // Aportes sobre el SAC (base topada)
+  var baseSac  = Math.min(sacBruto, TOPE_SIPA);
+  var dJub     = baseSac * 0.11;
+  var dPami    = baseSac * 0.03;
+  var dOS      = baseSac * 0.03;
+  var dSind    = baseSac * 0.02;
+  var totalDesc = dJub + dPami + dOS + dSind;
+  var sacNeto  = sacBruto - totalDesc;
+
+  var html = '';
+
+  // Cards resumen
+  html += '<div class="res-cards">';
+  html += '<div class="res-card"><div class="rl">Mejor remuneración</div><div class="rv">'+fmt(mejorRem)+'</div></div>';
+  html += '<div class="res-card"><div class="rl">Días trabajados / Semestre</div><div class="rv">'+diasTrab+' / '+diasSem+'</div></div>';
+  html += '<div class="res-card amber"><div class="rl">SAC bruto</div><div class="rv">'+fmt(sacBruto)+'</div></div>';
   html += '<div class="res-card red"><div class="rl">Descuentos</div><div class="rv">'+fmt(totalDesc)+'</div></div>';
-  html += '<div class="res-card green"><div class="rl">NETO</div><div class="rv">'+fmt(neto)+'</div></div>';
-  html += '<div class="res-card amber"><div class="rl">Costo empleador</div><div class="rv">'+fmt(costoTotal)+'</div></div>';
   html += '</div>';
+  html += '<div class="neto-box">💰 SAC NETO A PAGAR: <strong>'+fmt(sacNeto)+'</strong></div>';
 
-  // Tabla haberes
-  html += '<div class="tabla-sec">Haberes</div>';
-  html += '<table class="tabla-detalle">';
-  html += '<tr><th>Concepto</th><th>Importe</th></tr>';
-  html += '<tr><td>Sueldo básico</td><td class="r">'+fmt(bruto)+'</td></tr>';
-  if(he50)  html += '<tr><td>Horas extras 50%</td><td class="r">'+fmt(he50)+'</td></tr>';
-  if(he100) html += '<tr><td>Horas extras 100%</td><td class="r">'+fmt(he100)+'</td></tr>';
-  if(pres)  html += '<tr><td>Presentismo</td><td class="r">'+fmt(pres)+'</td></tr>';
-  if(otros) html += '<tr><td>Otros haberes</td><td class="r">'+fmt(otros)+'</td></tr>';
-  html += '<tr class="subtotal"><td>Total bruto</td><td class="r">'+fmt(totalBruto)+'</td></tr>';
-  html += '</table>';
+  // Detalle de cálculo
+  html += '<div class="tabla-sec">Cálculo del SAC bruto</div>';
+  html += '<table class="tabla"><tbody>';
+  html += '<tr><td>Mejor remuneración del semestre</td><td class="r">'+fmt(mejorRem)+'</td></tr>';
+  html += '<tr><td>÷ 2 (Art. 121 LCT)</td><td class="r">'+fmt(mejorRem/2)+'</td></tr>';
+  if(esProp){
+    html += '<tr><td>× '+diasTrab+' días trabajados ÷ '+diasSem+' días del semestre</td><td class="r">× '+(diasTrab/diasSem).toFixed(4)+'</td></tr>';
+  }
+  html += '<tr class="tot"><td>SAC bruto</td><td class="r amber">'+fmt(sacBruto)+'</td></tr>';
+  html += '</tbody></table>';
 
-  // Tabla descuentos
-  html += '<div class="tabla-sec">Descuentos del empleado</div>';
-  html += '<table class="tabla-detalle">';
+  // Descuentos
+  html += '<div class="tabla-sec">Descuentos sobre el SAC</div>';
+  html += '<table class="tabla">';
   html += '<tr><th>Concepto</th><th>Base</th><th>%</th><th>Importe</th></tr>';
-  html += '<tr><td>590000 — Jubilación (SIPA)</td><td class="r">'+fmt(base)+'</td><td class="c">11%</td><td class="r red">'+fmt(dJub)+'</td></tr>';
-  html += '<tr><td>590009 — PAMI (Ley 19.032)</td><td class="r">'+fmt(base)+'</td><td class="c">3%</td><td class="r red">'+fmt(dPami)+'</td></tr>';
-  html += '<tr><td>590003 — Obra Social empleado</td><td class="r">'+fmt(base)+'</td><td class="c">3%</td><td class="r red">'+fmt(dOS)+'</td></tr>';
-  html += '<tr><td>590019 — Sindicato</td><td class="r">'+fmt(base)+'</td><td class="c">'+sindPct+'%</td><td class="r red">'+fmt(dSind)+'</td></tr>';
-  if(dGan)    html += '<tr><td>810008 — Retención Ganancias</td><td class="r">—</td><td class="c">—</td><td class="r red">'+fmt(dGan)+'</td></tr>';
-  if(embargo) html += '<tr><td>Embargo / Otros</td><td class="r">—</td><td class="c">—</td><td class="r red">'+fmt(embargo)+'</td></tr>';
-  html += '<tr class="subtotal"><td colspan="3">Total descuentos</td><td class="r red">'+fmt(totalDesc)+'</td></tr>';
+  var topMsg = sacBruto > TOPE_SIPA ? ' <span style="color:var(--amber);font-size:.65rem">(topado)</span>' : '';
+  html += '<tr><td>Jubilación (SIPA)'+topMsg+'</td><td class="r">'+fmt(baseSac)+'</td><td style="text-align:center">11%</td><td class="r red">'+fmt(dJub)+'</td></tr>';
+  html += '<tr><td>PAMI (Ley 19.032)</td><td class="r">'+fmt(baseSac)+'</td><td style="text-align:center">3%</td><td class="r red">'+fmt(dPami)+'</td></tr>';
+  html += '<tr><td>Obra Social empleado</td><td class="r">'+fmt(baseSac)+'</td><td style="text-align:center">3%</td><td class="r red">'+fmt(dOS)+'</td></tr>';
+  html += '<tr><td>Sindicato</td><td class="r">'+fmt(baseSac)+'</td><td style="text-align:center">2%</td><td class="r red">'+fmt(dSind)+'</td></tr>';
+  html += '<tr class="tot"><td colspan="3">Total descuentos</td><td class="r red">'+fmt(totalDesc)+'</td></tr>';
   html += '</table>';
-  html += '<div class="neto-box">NETO A PAGAR: <strong>'+fmt(neto)+'</strong></div>';
+  html += '<div class="neto-box">SAC NETO A PAGAR: <strong>'+fmt(sacNeto)+'</strong></div>';
 
-  // Tabla contribuciones patronales
-  html += '<div class="tabla-sec">Contribuciones patronales (a cargo del empleador)</div>';
-  html += '<table class="tabla-detalle">';
-  html += '<tr><th>Código</th><th>Concepto</th><th>Base</th><th>%/Fijo</th><th>Importe</th></tr>';
-  html += '<tr><td>890000</td><td>Previsional SIPA</td><td class="r">'+fmt(base)+'</td><td class="c">10.77%</td><td class="r amber">'+fmt(cPrev)+'</td></tr>';
-  html += '<tr><td>890001</td><td>PAMI Ley 19.032</td><td class="r">'+fmt(base)+'</td><td class="c">1.59%</td><td class="r amber">'+fmt(cPami)+'</td></tr>';
-  html += '<tr><td>890004</td><td>Obra Social empleador</td><td class="r">'+fmt(totalBruto)+'</td><td class="c">5.10%</td><td class="r amber">'+fmt(cOS)+'</td></tr>';
-  html += '<tr><td>890005</td><td>FSR ex ANSSAL</td><td class="r">'+fmt(totalBruto)+'</td><td class="c">0.90%</td><td class="r amber">'+fmt(cFSR)+'</td></tr>';
-  html += '<tr><td>890006</td><td>Fondo Nacional de Empleo</td><td class="r">'+fmt(base)+'</td><td class="c">0.94%</td><td class="r amber">'+fmt(cFNE)+'</td></tr>';
-  html += '<tr><td>890007</td><td>SCVO — Seguro de Vida Obligatorio</td><td class="r">—</td><td class="c">Fijo</td><td class="r amber">'+fmt(cSCVO)+'</td></tr>';
-  html += '<tr><td>890010</td><td>Asignaciones Familiares</td><td class="r">'+fmt(base)+'</td><td class="c">4.70%</td><td class="r amber">'+fmt(cAsig)+'</td></tr>';
-  html += '<tr><td>890017</td><td>ART — Suma Fija Dec. 590/97</td><td class="r">—</td><td class="c">Fijo</td><td class="r amber">'+fmt(cART)+'</td></tr>';
-  html += '<tr class="subtotal"><td colspan="4">Total contribuciones</td><td class="r amber">'+fmt(totalContrib)+'</td></tr>';
-  html += '</table>';
-  html += '<div class="costo-box">💼 Costo total para el empleador: <strong>'+fmt(costoTotal)+'</strong></div>';
-  html += '<div class="pct-box" style="font-size:.7rem;color:#7fa0be;margin-top:8px">Las contribuciones sobre base no topada (OS 5.10%, FSR 0.90%) se calculan sobre el bruto total.</div>';
+  var vctoStr = (sem===1)?'30 de junio 2026':'18 de diciembre 2026';
+  html += '<div class="alerta alerta-info">📅 Vencimiento de pago: <strong>'+vctoStr+'</strong></div>';
+  html += '<div class="alerta alerta-warn" style="margin-top:8px">⚠ Los aportes sobre el SAC se calculan por separado de los aportes del salario mensual. Tope SIPA agosto 2026: '+fmt(TOPE_SIPA)+'</div>';
 
-  // Botón generar recibo PDF
-  html += '<button onclick="generarReciboPDF()" style="width:100%;margin-top:16px;background:linear-gradient(135deg,#0762c8,#0b82f5);color:#fff;border:none;padding:11px;border-radius:10px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">📄 Generar recibo (Decreto 407/2026)</button>';
-
-  // Guardar datos para el recibo PDF
-  window._reciboData = {
-    empresa, cuitEmp, nombre, cuil, legajo, periodo, cct, categ, fing,
-    bruto, he50, he100, pres, otros, totalBruto, base, topado,
-    dJub, dPami, dOS, dSind, dGan, embargo, sindPct, totalDesc, neto,
-    cPrev, cPami, cOS, cFSR, cFNE, cSCVO, cAsig, cART, totalContrib, costoTotal,
-  };
+  html += '<button onclick="generarPDF('+JSON.stringify({mejorRem,diasTrab,diasSem,sacBruto,baseSac,dJub,dPami,dOS,dSind,totalDesc,sacNeto,sem,esProp}).replace(/"/g,"'")+
+    ')" style="width:100%;margin-top:14px;background:linear-gradient(135deg,#0762c8,#0b82f5);color:#fff;border:none;padding:11px;border-radius:10px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">📄 Generar recibo SAC (Decreto 407/2026)</button>';
 
   document.getElementById('panel-r').innerHTML = html;
 }
 
+function generarPDF(d){
+  var sem = parseInt(document.getElementById('sel-sem').value);
+  var semNom = sem===1?'1° Semestre 2026':'2° Semestre 2026';
+  var vcto   = sem===1?'30 de junio 2026':'18 de diciembre 2026';
+  var nombre  = document.getElementById('inp-nombre')?.value||'Empleado';
+  var cuil    = document.getElementById('inp-cuil')?.value||'—';
+  var empresa = document.getElementById('inp-empresa')?.value||'';
+  var cuitEmp = document.getElementById('inp-cuit-emp')?.value||'';
+  var legajo  = document.getElementById('inp-legajo')?.value||'—';
+  var categ   = document.getElementById('inp-categ')?.value||'—';
+  var fechaHoy= new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
 
-function generarReciboPDF(){
-  var d = window._reciboData;
-  if(!d){alert('Calculá el sueldo primero.'); return;}
+  function fP(n){n=Math.abs(n||0);var s=n.toFixed(2).split('.');s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.');return '$ '+s[0]+','+s[1];}
 
-  var meses = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var html='';
+  html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;font-size:8pt">';
+  html+='<tr><td style="width:60%;border-right:1px solid #000;padding:6px;vertical-align:top">';
+  html+='<div style="font-weight:bold;font-size:10pt">'+(empresa||'(Razón Social)')+'</div>';
+  html+='<div style="font-size:7.5pt;margin-top:2px">Empleador</div>';
+  html+='</td><td style="padding:6px;vertical-align:top;font-size:7.5pt">';
+  html+='<b>RECIBO DE SAC</b> — Sueldo Anual Complementario<br/>Decreto 407/2026 · Ley 27.802 · Art. 121/122 LCT<br/>';
+  html+='Período: <b>'+semNom+'</b><br/>';
+  html+=(cuitEmp?'CUIT: '+cuitEmp+'<br/>':'');
+  html+='Fecha emisión: '+fechaHoy;
+  html+='</td></tr></table>';
 
-  function fmtP(n){
-    n=Math.abs(parseFloat(n)||0);
-    var s=n.toFixed(2).split('.');
-    s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-    return '$ '+s[0]+','+s[1];
-  }
-  function TR(concepto,unidad,base,monto){
-    return '<tr><td>'+concepto+'</td><td style="text-align:center">'+unidad+'</td><td style="text-align:right">'+base+'</td><td style="text-align:right">'+monto+'</td></tr>';
-  }
-  function numLetras(n){
-    n=Math.round(Math.abs(n));
-    if(n===0) return 'CERO';
-    var U=['','UN','DOS','TRES','CUATRO','CINCO','SEIS','SIETE','OCHO','NUEVE','DIEZ','ONCE','DOCE','TRECE','CATORCE','QUINCE','DIECISÉIS','DIECISIETE','DIECIOCHO','DIECINUEVE'];
-    var D=['','','VEINTE','TREINTA','CUARENTA','CINCUENTA','SESENTA','SETENTA','OCHENTA','NOVENTA'];
-    var C=['','CIEN','DOSCIENTOS','TRESCIENTOS','CUATROCIENTOS','QUINIENTOS','SEISCIENTOS','SETECIENTOS','OCHOCIENTOS','NOVECIENTOS'];
-    function g2(x){
-      if(x===100) return 'CIEN';
-      var h=Math.floor(x/100),t=Math.floor((x%100)/10),u=x%10,r='';
-      if(h) r+=C[h]+' ';
-      if(t===1) r+=U[10+u];
-      else if(t>1) r+=D[t]+(u?' Y '+U[u]:'');
-      else if(u) r+=U[u];
-      return r.trim();
-    }
-    var mill=Math.floor(n/1000000),mil=Math.floor((n%1000000)/1000),cen=n%1000,r='';
-    if(mill){ r+=(mill===1?'UN MILLÓN':g2(mill)+' MILLONES')+' '; }
-    if(mil){  r+=(mil===1?'MIL':g2(mil)+' MIL')+' '; }
-    if(cen)   r+=g2(cen);
-    return r.trim();
-  }
+  html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:7.5pt">';
+  html+='<tr><td style="padding:4px 6px;border-right:1px solid #000;width:50%"><b>Apellido y Nombre:</b> '+nombre+'</td>';
+  html+='<td style="padding:4px 6px"><b>CUIL:</b> '+cuil+'</td></tr>';
+  html+='<tr><td style="padding:4px 6px;border-right:1px solid #000;border-top:1px solid #000"><b>Legajo:</b> '+legajo+'</td>';
+  html+='<td style="padding:4px 6px;border-top:1px solid #000"><b>Categoría:</b> '+categ+'</td></tr>';
+  html+='</table>';
 
-  var per = d.periodo||'';
-  // per viene como "Agosto 2026" desde el select — extraer mes y año directo
-  var mesesNombres = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  var perLow = per.toLowerCase();
-  var mesNom = per.split(' ')[0]||'';    // "Agosto"
-  var anioN  = (per.match(/\d{4}/)||[])[0]||new Date().getFullYear();
-  var mesIdx = mesesNombres.findIndex(function(m){return perLow.indexOf(m)>=0;});
-  var mesN   = mesIdx >= 0 ? ('0'+(mesIdx+1)).slice(-2) : '01';
-  var fechaHoy = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:7.5pt">';
+  html+='<thead><tr style="background:#e0e0e0"><th style="padding:3px 5px;border-right:1px solid #000;text-align:left">Concepto</th>';
+  html+='<th style="padding:3px 5px;border-right:1px solid #000;width:60px;text-align:center">%/Días</th>';
+  html+='<th style="padding:3px 5px;border-right:1px solid #000;width:100px;text-align:right">Base</th>';
+  html+='<th style="padding:3px 5px;width:100px;text-align:right">Importe</th></tr></thead>';
+  html+='<tbody>';
 
-  var netoEnt = Math.floor(d.neto);
-  var netoDec = Math.round((d.neto - netoEnt)*100);
-  var netoLetras = numLetras(netoEnt)+' PESOS CON '+('0'+netoDec).slice(-2)+'/100';
+  function TR(c,u,b,m){return '<tr><td style="padding:3px 5px;border-bottom:1px solid #ddd">'+c+'</td><td style="text-align:center;padding:3px 5px;border-bottom:1px solid #ddd">'+u+'</td><td style="text-align:right;padding:3px 5px;border-bottom:1px solid #ddd">'+b+'</td><td style="text-align:right;padding:3px 5px;border-bottom:1px solid #ddd">'+m+'</td></tr>';}
 
-  var html = '';
+  html+='<tr style="background:#f5f5f5"><td colspan="4" style="padding:2px 5px;font-weight:bold;font-size:7pt">HABER — SAC '+semNom+'</td></tr>';
+  html+=TR('Mejor remuneración mensual devengada','','',fP(d.mejorRem));
+  html+=TR('Cálculo: ½ × '+d.diasTrab+' días / '+d.diasSem+' días semestre','','',fP(d.sacBruto));
+  html+='<tr style="background:#e8e8e8"><td colspan="3" style="padding:3px 5px;font-weight:bold">SAC bruto</td><td style="text-align:right;padding:3px 5px;font-weight:bold">'+fP(d.sacBruto)+'</td></tr>';
 
-  // Encabezado empresa
-  html += '<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;font-size:8pt">';
-  html += '<tr>';
-  html += '<td style="width:60%;border-right:1px solid #000;padding:6px;vertical-align:top">';
-  html += '<div style="font-weight:bold;font-size:10pt">'+(d.empresa||'(Razón Social del empleador)')+'</div>';
-  html += '<div style="font-size:7.5pt;margin-top:2px">Empleador</div>';
-  html += '</td>';
-  html += '<td style="padding:6px;vertical-align:top;font-size:7.5pt">';
-  html += '<b>RECIBO DE HABERES</b><br/>';
-  html += 'Decreto 407/2026 · Ley 27.802<br/>';
-  html += 'Período: <b>'+mesNom+' '+anioN+'</b><br/>';
-  html += (d.cuitEmp?'CUIT: '+d.cuitEmp+'<br/>':'');
-  html += 'Fecha emisión: '+fechaHoy;
-  html += '</td>';
-  html += '</tr>';
-  html += '</table>';
+  html+='<tr style="background:#f5f5f5"><td colspan="4" style="padding:2px 5px;font-weight:bold;font-size:7pt">DESCUENTOS</td></tr>';
+  html+=TR('Jubilación (SIPA)','11%',fP(d.baseSac),fP(d.dJub));
+  html+=TR('PAMI (Ley 19.032)','3%',fP(d.baseSac),fP(d.dPami));
+  html+=TR('Obra Social empleado','3%',fP(d.baseSac),fP(d.dOS));
+  html+=TR('Sindicato','2%',fP(d.baseSac),fP(d.dSind));
+  html+='<tr style="background:#e8e8e8"><td colspan="3" style="padding:3px 5px;font-weight:bold">Total descuentos</td><td style="text-align:right;padding:3px 5px;font-weight:bold">'+fP(d.totalDesc)+'</td></tr>';
+  html+='</tbody></table>';
 
-  // Datos del empleado
+  html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:8pt">';
+  html+='<tr><td style="padding:5px 6px;border-right:1px solid #000;font-weight:bold">NETO A PAGAR (SAC):</td>';
+  html+='<td style="padding:5px 6px;font-weight:bold;font-size:9.5pt">'+fP(d.sacNeto)+'</td></tr>';
+  html+='<tr style="border-top:1px solid #000"><td colspan="2" style="padding:4px 6px;font-size:7pt">Vencimiento: '+vcto+'</td></tr>';
+  html+='</table>';
 
-  // ─── Gráfico de distribución salarial ─────────────
-  function piePath(pct, startAngle, cx, cy, r){
-    if(pct>=1) pct=0.9999;
-    var endAngle = startAngle + pct*2*Math.PI;
-    var x1=cx+r*Math.sin(startAngle), y1=cy-r*Math.cos(startAngle);
-    var x2=cx+r*Math.sin(endAngle),   y2=cy-r*Math.cos(endAngle);
-    var large=pct>0.5?1:0;
-    return 'M'+cx+','+cy+' L'+x1.toFixed(1)+','+y1.toFixed(1)+' A'+r+','+r+' 0 '+large+',1 '+x2.toFixed(1)+','+y2.toFixed(1)+' Z';
-  }
-  var pNeto  = d.neto/d.totalBruto;
-  var pAp    = (d.dJub+d.dPami+d.dOS+d.dSind)/d.totalBruto;
-  var pGan   = d.dGan/d.totalBruto;
-  var pEmb   = d.embargo/d.totalBruto;
-  var pDesc  = 1-pNeto;
-  var a0=0, a1=pNeto*2*Math.PI, a2=(pNeto+pAp)*2*Math.PI, a3=(pNeto+pAp+pGan)*2*Math.PI;
-  var svgPie = '<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">'
-    +'<path d="'+piePath(pNeto,0,60,60,54)+'" fill="#1e7e34"/>'
-    +'<path d="'+piePath(pAp,a1,60,60,54)+'" fill="#cc5500"/>'
-    +(d.dGan?'<path d="'+piePath(pGan,a2,60,60,54)+'" fill="#8B0000"/>':'')
-    +(d.embargo?'<path d="'+piePath(pEmb,a3,60,60,54)+'" fill="#444"/>':'')
-    +'<circle cx="60" cy="60" r="28" fill="white"/>'
-    +'<text x="60" y="57" text-anchor="middle" font-size="9" font-family="Arial" font-weight="bold">NETO</text>'
-    +'<text x="60" y="68" text-anchor="middle" font-size="8" font-family="Arial">'+Math.round(pNeto*100)+'%</text>'
-    +'</svg>';
+  html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:7.5pt">';
+  html+='<tr><td style="width:50%;border-right:1px solid #000;padding:28px 6px 6px;text-align:center;vertical-align:bottom">';
+  html+='<div style="border-top:1px solid #000;padding-top:4px">Firma del empleado</div>';
+  html+='<div style="font-size:6.5pt;color:#444">Aclaración / CUIL</div></td>';
+  html+='<td style="width:50%;padding:28px 6px 6px;text-align:center;vertical-align:bottom">';
+  html+='<div style="border-top:1px solid #000;padding-top:4px">Firma empleador</div>';
+  html+='<div style="font-size:6.5pt;color:#444">'+(empresa||'Razón Social')+'</div></td></tr>';
+  html+='</table>';
+  html+='<div style="font-size:6.5pt;color:#666;text-align:center;margin-top:6px">SAC calculado según Art. 121/122 LCT. Aportes sobre la base topada al SIPA ($'+fP(4594798.23)+'). Generado con ImpoBot — impobot.com.ar</div>';
 
-  var pieSection = '<table style="width:100%;border-collapse:collapse;border:0;margin-bottom:6px"><tr>'
-    +'<td style="width:130px;vertical-align:middle;padding:4px">'+svgPie+'</td>'
-    +'<td style="vertical-align:middle;padding:4px;font-size:7pt">'
-    +'<div style="margin:2px 0"><span style="display:inline-block;width:10px;height:10px;background:#1e7e34;margin-right:4px"></span>Neto: '+fmtP(d.neto)+' ('+Math.round(pNeto*100)+'%)</div>'
-    +'<div style="margin:2px 0"><span style="display:inline-block;width:10px;height:10px;background:#cc5500;margin-right:4px"></span>Aportes empleado: '+fmtP(d.dJub+d.dPami+d.dOS+d.dSind)+' ('+Math.round(pAp*100)+'%)</div>'
-    +(d.dGan?'<div style="margin:2px 0"><span style="display:inline-block;width:10px;height:10px;background:#8B0000;margin-right:4px"></span>Retención Ganancias: '+fmtP(d.dGan)+'</div>':'')
-    +'<div style="margin-top:4px;font-size:6.5pt;color:#666">Tope SIPA agosto 2026: $ 4.691.748,47'+(d.topado?' — Aplicado ⚠':'')+' </div>'
-    +'</td></tr></table>';
-
-  html += pieSection;
-  html += '<div style="height:1px;background:#ccc;margin:4px 0"></div>';
-
-    html += '<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:7.5pt">';
-  html += '<tr><td style="padding:4px 6px;border-right:1px solid #000;width:50%"><b>Apellido y Nombre:</b> '+(d.nombre||'—')+'</td>';
-  html += '<td style="padding:4px 6px;width:50%"><b>CUIL:</b> '+(d.cuil||'—')+'</td></tr>';
-  html += '<tr><td style="padding:4px 6px;border-right:1px solid #000;border-top:1px solid #000"><b>Legajo:</b> '+(d.legajo||'—')+'</td>';
-  html += '<td style="padding:4px 6px;border-top:1px solid #000"><b>Categoría/CCT:</b> '+((d.categ||d.cct)||'—')+'</td></tr>';
-  html += '<tr><td style="padding:4px 6px;border-right:1px solid #000;border-top:1px solid #000"><b>F. Ingreso:</b> '+(d.fing||'—')+'</td>';
-  html += '<td style="padding:4px 6px;border-top:1px solid #000"><b>Remuneración:</b> '+fmtP(d.totalBruto)+'</td></tr>';
-  html += '</table>';
-
-  // Tabla de conceptos
-  html += '<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:7.5pt">';
-  html += '<thead><tr style="background:#e0e0e0"><th style="padding:3px 5px;border-right:1px solid #000;text-align:left">Concepto</th>';
-  html += '<th style="padding:3px 5px;border-right:1px solid #000;width:60px;text-align:center">Unid.</th>';
-  html += '<th style="padding:3px 5px;border-right:1px solid #000;width:100px;text-align:right">Base</th>';
-  html += '<th style="padding:3px 5px;width:100px;text-align:right">Importe</th></tr></thead>';
-  html += '<tbody>';
-
-  // Haberes
-  html += '<tr style="background:#f5f5f5"><td colspan="4" style="padding:2px 5px;font-weight:bold;font-size:7pt">HABERES</td></tr>';
-  html += TR('Sueldo básico','','',fmtP(d.bruto));
-  if(d.he50)  html += TR('Horas extras 50%','','',fmtP(d.he50));
-  if(d.he100) html += TR('Horas extras 100%','','',fmtP(d.he100));
-  if(d.pres)  html += TR('Presentismo','','',fmtP(d.pres));
-  if(d.otros) html += TR('Otros haberes','','',fmtP(d.otros));
-  html += '<tr style="background:#e8e8e8"><td colspan="3" style="padding:3px 5px;font-weight:bold">Total bruto</td><td style="text-align:right;padding:3px 5px;font-weight:bold">'+fmtP(d.totalBruto)+'</td></tr>';
-
-  // Descuentos
-  html += '<tr style="background:#f5f5f5"><td colspan="4" style="padding:2px 5px;font-weight:bold;font-size:7pt">DESCUENTOS</td></tr>';
-  html += TR('Jubilación (SIPA)','11%',fmtP(d.base),fmtP(d.dJub));
-  html += TR('PAMI (Ley 19.032)','3%',fmtP(d.base),fmtP(d.dPami));
-  html += TR('Obra Social empleado','3%',fmtP(d.base),fmtP(d.dOS));
-  html += TR('Sindicato',d.sindPct+'%',fmtP(d.base),fmtP(d.dSind));
-  if(d.dGan)    html += TR('Retención Ganancias','','',fmtP(d.dGan));
-  if(d.embargo) html += TR('Embargo / Otros descuentos','','',fmtP(d.embargo));
-  html += '<tr style="background:#e8e8e8"><td colspan="3" style="padding:3px 5px;font-weight:bold">Total descuentos</td><td style="text-align:right;padding:3px 5px;font-weight:bold">'+fmtP(d.totalDesc)+'</td></tr>';
-
-  // Contribuciones patronales
-  html += '<tr style="background:#f5f5f5"><td colspan="4" style="padding:2px 5px;font-weight:bold;font-size:7pt">CONTRIBUCIONES PATRONALES</td></tr>';
-  html += TR('Contribución Previsional','10.77%',fmtP(d.base),fmtP(d.cPrev));
-  html += TR('PAMI (Ley 19.032 INSSJP)','1.59%',fmtP(d.base),fmtP(d.cPami));
-  html += TR('Obra Social (empleador)','5.10%',fmtP(d.totalBruto),fmtP(d.cOS));
-  html += TR('FSR ex ANSSAL','0.90%',fmtP(d.totalBruto),fmtP(d.cFSR));
-  html += TR('Fondo Nacional de Empleo','0.94%',fmtP(d.base),fmtP(d.cFNE));
-  html += TR('Seguro de Vida Obligatorio','Fijo','$ 424,62','$ 424,62');
-  html += TR('Asignaciones Familiares','4.70%',fmtP(d.base),fmtP(d.cAsig));
-  html += TR('ART (suma fija Dec. 590/97)','Fijo','$ 1.905,00','$ 1.905,00');
-  html += '<tr style="background:#e8e8e8"><td colspan="3" style="padding:3px 5px;font-weight:bold">Total contribuciones</td><td style="text-align:right;padding:3px 5px;font-weight:bold">'+fmtP(d.totalContrib)+'</td></tr>';
-  html += '</tbody></table>';
-
-  // Neto y costo total
-  html += '<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:8pt">';
-  html += '<tr><td style="padding:5px 6px;border-right:1px solid #000;font-weight:bold">NETO A PAGAR:</td>';
-  html += '<td style="padding:5px 6px;font-weight:bold;font-size:9pt">'+fmtP(d.neto)+'</td></tr>';
-  html += '<tr style="border-top:1px solid #000"><td colspan="2" style="padding:4px 6px;font-size:7.5pt">';
-  html += '<b>Son:</b> '+netoLetras+'</td></tr>';
-  html += '</table>';
-
-  // Firmas
-  html += '<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:7.5pt;margin-top:0">';
-  html += '<tr>';
-  html += '<td style="width:50%;border-right:1px solid #000;padding:28px 6px 6px;text-align:center;vertical-align:bottom">';
-  html += '<div style="border-top:1px solid #000;padding-top:4px">Firma del empleado</div>';
-  html += '<div style="font-size:6.5pt;color:#444">Aclaración / CUIL</div></td>';
-  html += '<td style="width:50%;padding:28px 6px 6px;text-align:center;vertical-align:bottom">';
-  html += '<div style="border-top:1px solid #000;padding-top:4px">Firma empleador</div>';
-  html += '<div style="font-size:6.5pt;color:#444">'+(d.empresa||'Razón Social')+'</div></td>';
-  html += '</tr>';
-  html += '</table>';
-  html += '<div style="font-size:6.5pt;color:#666;text-align:center;margin-top:6px">Seg. social del empleador incluye SIPA, Fondo Nac. de Empleo y Asig. Fam. SCVO $424,62 y ART $1.905,00 son montos fijos (Dec. 590/97). Generado con ImpoBot — impobot.com.ar</div>';
-
-  document.getElementById('recibo-pdf-container').innerHTML = html;
-  document.getElementById('recibo-pdf-overlay').style.display = 'block';
+  document.getElementById('pdf-cont').innerHTML=html;
+  document.getElementById('pdf-overlay').style.display='block';
   window.scrollTo(0,0);
 }
 
+function fmt(n){
+  n=Math.abs(parseFloat(n)||0);
+  var s=n.toFixed(2).split('.');
+  s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  return '$ '+s[0]+','+s[1];
+}
 </script>
-<a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener"
-  style="position:fixed;bottom:16px;right:16px;z-index:999;
-    display:flex;align-items:center;gap:6px;
-    background:#FFDD00;color:#000;font-weight:800;font-size:.72rem;padding:8px 14px;border-radius:50px;text-decoration:none;box-shadow:0 3px 16px rgba(0,0,0,.25)" title="☕ ImpoBot — Invitarnos un café">☕</a>
-
-<!-- ═══ OVERLAY RECIBO PDF Decreto 407/2026 ═══ -->
-<div id="recibo-pdf-overlay">
-  <div class="pdf-btn-bar">
-    <button class="pdf-btn print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
-    <button class="pdf-btn close" onclick="document.getElementById('recibo-pdf-overlay').style.display='none'">✕ Cerrar</button>
-  </div>
-  <div id="recibo-pdf-container"></div>
-</div>
-
-<a href="https://api.whatsapp.com/send?text=Liquidador%20de%20sueldos%20con%20contribuciones%20patronales%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/sueldos.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
+<a href="https://api.whatsapp.com/send?text=Calculadora%20de%20SAC%20/%20Aguinaldo%202026%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/sac.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
   style="position:fixed;bottom:76px;right:20px;z-index:998;background:#25D366;color:#fff;
     width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
     font-size:1.1rem;text-decoration:none;box-shadow:0 2px 12px rgba(37,211,102,.3);transition:all .2s"
@@ -520,7 +412,7 @@ function generarReciboPDF(){
 </a>
 
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('../sw.js').catch(function(){});</script>
-<a href="mailto:impobot.ar@gmail.com?subject=Bug en ImpoBot&body=Herramienta: sueldos%0AProblema: " 
+<a href="mailto:impobot.ar@gmail.com?subject=Bug en ImpoBot&body=Herramienta: sac%0AProblema: " 
   title="Reportar un problema con esta herramienta"
   style="position:fixed;bottom:128px;right:20px;z-index:997;background:#35546f;border:1px solid #35546f;
     color:#7fa0be;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;

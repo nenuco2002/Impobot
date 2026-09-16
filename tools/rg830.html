@@ -3,96 +3,47 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Monotributo 2026 — FiscalAR</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<title>Simulador Retenciones RG 830 — ImpoBot</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
-:root{
-  --ink:#1e2f42;--navy:#111827;--navy-l:#1a2744;
-  --amber:#f59e0b;--amber-l:rgba(245,158,11,.12);
-  --cyan:#00c9b8;--green:#10b981;--red:#ef4444;--purple:#8b5cf6;
-  --border:#1e2d47;--text:#e8edf5;--sub:#8899b4;
-  --card:#25394f;--white:#fff;
-  --bg:#1e2f42;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
-
-/* NAV */
-.topnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,15,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 20px;height:54px}
-.back-btn{color:var(--sub);text-decoration:none;font-size:.78rem;font-weight:500;display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;transition:all .15s}
-.back-btn:hover{color:var(--text);background:var(--navy-l)}
-.nav-title{font-size:.88rem;font-weight:700;color:#fff}
-.nav-sub{font-size:.65rem;color:var(--sub)}
-.nav-badge{margin-left:auto;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);color:var(--amber);font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.06em}
-
-/* LAYOUT */
-.app{display:flex;min-height:calc(100vh - 54px);margin-top:54px}
-.panel-l{width:400px;flex-shrink:0;padding:18px;overflow-y:auto;border-right:1px solid var(--border);background:rgba(17,24,39,.4)}
-.panel-r{flex:1;padding:18px;overflow-y:auto}
-@media(max-width:900px){.app{flex-direction:column}.panel-l{width:100%;border-right:none;border-bottom:1px solid var(--border)}}
-
-/* CARD */
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
-.card-hd{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;font-size:.8rem;font-weight:700}
-.card-body{padding:14px}
-
-/* FORM */
+:root{--ink:#1e2f42;--card:#35546f;--card2:#35546f;--border:#35546f;--text:#eaf1f8;--sub:#7fa0be;--blue:#0b82f5;--blue-l:#60a5fa;--green:#10b981;--amber:#f59e0b;--red:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:60px}
+.shell{max-width:960px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:16px}
+.card-title{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-l);margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .field{margin-bottom:12px}
-.field label{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);margin-bottom:4px}
-.field input,.field select{width:100%;background:#1e2f42;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:.88rem;outline:none;font-family:'Inter',sans-serif;transition:border-color .15s}
-.field input:focus,.field select:focus{border-color:var(--amber)}
-.field .hint{font-size:.65rem;color:var(--sub);margin-top:3px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sep{font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);padding:8px 0 5px;border-bottom:1px solid var(--border);margin-bottom:10px}
-
-/* BOTÓN */
-.btn-calc{width:100%;background:linear-gradient(135deg,#d97706,var(--amber));color:#1e2f42;border:none;padding:11px;border-radius:9px;font-size:.9rem;font-weight:800;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px;font-family:'Inter',sans-serif}
-.btn-calc:hover{filter:brightness(1.08);transform:translateY(-1px)}
-
-/* RESULTADO */
-.cat-hero{background:linear-gradient(135deg,#1a1400,#2d1f00);border:1px solid rgba(245,158,11,.3);border-radius:14px;padding:22px;text-align:center;margin-bottom:16px}
-.cat-letter{font-size:5rem;font-weight:900;color:var(--amber);line-height:1;letter-spacing:-.05em}
-.cat-label{font-size:.75rem;color:rgba(245,158,11,.6);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
-.cat-desc{font-size:.8rem;color:var(--sub);margin-top:6px}
-
-.cuota-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.cuota-card{background:#1e2f42;border:1px solid var(--border);border-radius:9px;padding:11px;text-align:center}
-.cuota-card .lbl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--sub);margin-bottom:4px}
-.cuota-card .val{font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:600;color:#fff}
-.cuota-card.total{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2)}
-.cuota-card.total .val{color:var(--amber);font-size:1rem}
-
-.alerta{border-radius:9px;padding:10px 13px;font-size:.75rem;line-height:1.5;display:flex;gap:8px;margin-bottom:8px}
-.alerta.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#fbbf24}
-.alerta.ok{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);color:#34d399}
-.alerta.err{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
-.alerta.info{background:rgba(0,201,184,.06);border:1px solid rgba(0,201,184,.15);color:var(--cyan)}
-
-.table-cat{width:100%;border-collapse:collapse;font-size:.75rem}
-.table-cat th{background:rgba(255,255,255,.03);padding:7px 10px;text-align:left;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);border-bottom:1px solid var(--border)}
-.table-cat td{padding:7px 10px;border-bottom:1px solid rgba(30,45,71,.5);font-family:'JetBrains Mono',monospace;font-size:.72rem}
-.table-cat tr.active-row td{background:rgba(245,158,11,.06);color:#fff;font-weight:700}
-.table-cat tr.active-row td:first-child{color:var(--amber);font-size:.85rem}
-.table-cat tr:last-child td{border-bottom:none}
-
-.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:14px}
-.tab-btn{background:none;border:none;padding:8px 14px;font-size:.75rem;font-weight:600;color:var(--sub);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;transition:all .12s;font-family:'Inter',sans-serif}
-.tab-btn.active{color:var(--amber);border-bottom-color:var(--amber)}
-.tab-pane{display:none}.tab-pane.active{display:block}
-
-.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--sub);text-align:center;gap:12px}
-.empty-icon{font-size:3rem;opacity:.2}
-
-.recateg-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;background:#1e2f42;border:1px solid var(--border);margin-bottom:6px}
-.recateg-mes{font-size:.72rem;font-weight:700;color:var(--sub);width:70px}
-.recateg-fecha{font-size:.78rem;font-weight:600;color:#fff;flex:1}
-.recateg-estado{font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:5px}
-.estado-proximo{background:rgba(245,158,11,.15);color:var(--amber)}
-.estado-pasado{background:rgba(136,153,180,.1);color:var(--sub)}
-.estado-ahora{background:rgba(16,185,129,.15);color:#34d399}
-
-.progress-bar{height:6px;background:#1e2d47;border-radius:3px;overflow:hidden;margin-top:6px}
-.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#d97706,var(--amber));transition:width .6s ease}
+.field label{display:block;font-size:.68rem;font-weight:600;color:var(--sub);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select{width:100%;background:#162232;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:.88rem;outline:none;font-family:'Inter',sans-serif}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.field select option{background:#25394f}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.toggle-group{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.toggle-btn{flex:1;padding:9px;background:#162232;border:none;color:var(--sub);font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.toggle-btn.on{background:var(--blue);color:#fff}
+.btn-calc{width:100%;background:linear-gradient(135deg,#0762c8,var(--blue));color:#fff;border:none;padding:12px;border-radius:10px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:4px}
+.btn-calc:hover{filter:brightness(1.1)}
+.result-box{display:none}.result-box.show{display:block}
+.r-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.r-item{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.r-label{font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.r-val{font-size:1rem;font-weight:800;color:#fff}
+.r-val.big{font-size:1.5rem;color:var(--red)}
+.alerta{border-radius:8px;padding:10px 13px;font-size:.75rem;line-height:1.5;margin-bottom:12px}
+.alerta-warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.alerta-info{background:rgba(11,130,245,.07);border:1px solid rgba(11,130,245,.2);color:var(--blue-l)}
+.alerta-ok{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);color:#6ee7b7}
+.sec-title{font-size:.72rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border);padding-bottom:6px;margin:16px 0 10px}
+.ct{width:100%;border-collapse:collapse;font-size:.76rem}
+.ct th{background:rgba(11,130,245,.08);color:var(--blue-l);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:7px 9px;text-align:left;border-bottom:1px solid var(--border)}
+.ct td{padding:6px 9px;border-bottom:1px solid rgba(26,47,69,.4);color:var(--text)}
+.ct tr:hover td{background:rgba(11,130,245,.03)}
+.ct .cod{font-family:'Courier New',monospace;font-weight:700;color:var(--blue-l)}
+.ct .rate{font-weight:700;color:var(--amber)}
+.ct .mni{font-weight:700;color:var(--green)}
+.ct .escala{font-size:.68rem;color:#818cf8;font-style:italic}
+.badge-norm{display:inline-block;font-size:.6rem;padding:1px 6px;border-radius:4px;background:rgba(11,130,245,.1);border:1px solid rgba(11,130,245,.2);color:var(--blue-l);margin-left:4px}
+@media(max-width:600px){.row2,.r-grid{grid-template-columns:1fr}}
 </style>
 <link rel="manifest" href="../manifest.json"/>
 <meta name="theme-color" content="#0b82f5"/>
@@ -107,390 +58,347 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
     <span style="font-size:.88rem;font-weight:900;letter-spacing:-.03em"><span style="color:#eaf1f8">impo</span><span style="color:#0b82f5">bot</span></span>
   </a>
   <span style="color:#35546f">|</span>
-  <span id="tnav-title" style="color:#eaf1f8;font-size:.76rem;font-weight:700"></span>
+  <span id="tnav-title" style="color:#eaf1f8;font-size:.76rem;font-weight:700">📋 Simulador Retenciones RG 830</span>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
     <a href="https://www.buymeacoffee.com/impobot" target="_blank" style="font-size:.65rem;color:#000;background:#FFDD00;padding:3px 9px;border-radius:20px;text-decoration:none;font-weight:700">☕</a>
     <span style="background:rgba(11,130,245,.1);border:1px solid rgba(11,130,245,.2);color:#60a5fa;font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:4px">ARCA 2026</span>
   </div>
 </div>
 <div style="height:46px"></div>
-<script>var t=document.getElementById("tnav-title");if(t)t.textContent="📊 Monotributo";</script>
-<script>var tnav=document.getElementById("tnav-title");if(tnav)tnav.textContent="📊 Monotributo";</script>
-<script>document.getElementById("tool-nav-title").textContent="📊 Monotributo";</script>
 
-<!-- NAV -->
-<nav class="topnav">
-  <a class="back-btn" href="../index.html">← FiscalAR</a>
-  <div style="width:1px;height:24px;background:var(--border)"></div>
-  <div>
-    <div class="nav-title">📊 Monotributo</div>
-    <div class="nav-sub">Categorías · Cuotas · Recategorización 2026</div>
+<div style="height:46px"></div>
+
+<div class="shell">
+  <div style="margin-bottom:16px">
+    <h1 style="font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:5px">Simulador Retenciones RG 830/2000</h1>
+    <p style="font-size:.82rem;color:var(--sub)">Retenciones de Impuesto a las Ganancias sobre pagos a proveedores. Misma lógica que la calculadora oficial de ARCA.<br/>
+    Fuentes: <strong>Anexo VIII RG 4525/2019</strong> (valores exactos) · <strong>RG 5423/2023</strong> (profesionales liberales).</p>
   </div>
-  <div class="nav-badge">✓ ARCA 2026</div>
-</nav>
 
-<!-- APP -->
-<div class="app">
-
-<!-- PANEL IZQUIERDO: FORMULARIO -->
-<div class="panel-l">
+  <div class="alerta alerta-info">
+    💡 Los montos no sujetos a retención son <strong>valores exactos</strong> de la normativa vigente (RG 830 y sus modificatorias). La <strong>retención mínima</strong> es $240 (inscriptos) y $1.020 para alquileres de inmuebles urbanos a no inscriptos.
+    Verificar siempre en <a href="https://servicioscf.afip.gob.ar/calc-rg830/" target="_blank" style="color:inherit;font-weight:600">calculadora oficial ARCA</a>.
+  </div>
 
   <div class="card">
-    <div class="card-hd">📋 Datos del monotributista</div>
-    <div class="card-body">
-      <div class="sep">Actividad</div>
-      <div class="field">
-        <label>Tipo de actividad</label>
-        <select id="sel-actividad" onchange="actualizarLimites()">
-          <option value="servicios">Locación de servicios / obras</option>
-          <option value="bienes">Venta de bienes muebles</option>
-          </select>
-      </div>
+    <div class="card-title">⚙️ Datos del pago</div>
 
-      <div class="sep">Ingresos brutos anuales</div>
+    <div class="row2">
       <div class="field">
-        <label>Ingresos brutos últimos 12 meses $</label>
-        <input type="number" id="inp-ingresos" placeholder="0" oninput="calcular()"/>
-        <div class="hint" id="hint-tope"></div>
+        <label>Situación frente a Ganancias</label>
+        <div class="toggle-group">
+          <button class="toggle-btn on" id="si-insc" onclick="setSit('insc')">Inscripto</button>
+          <button class="toggle-btn" id="si-noinsc" onclick="setSit('noinsc')">No Inscripto</button>
+        </div>
       </div>
-
-      <div class="sep">Superficie afectada</div>
       <div class="field">
-        <label>Superficie del local (m²) — 0 si no tiene</label>
-        <input type="number" id="inp-sup" placeholder="0" value="0" oninput="calcular()"/>
+        <label>Tipo de persona</label>
+        <div class="toggle-group">
+          <button class="toggle-btn on" id="tp-hum" onclick="setTp('hum')">Humana</button>
+          <button class="toggle-btn" id="tp-jur" onclick="setTp('jur')">Jurídica</button>
+        </div>
       </div>
+    </div>
 
-      <div class="sep">Energía eléctrica</div>
+    <div class="field" id="campo-concepto">
+      <label>El pago corresponde a (régimen)</label>
+      <select id="concepto" onchange="calcular()">
+        <option value="">— Seleccioná el régimen —</option>
+        <optgroup label="Intereses">
+          <option value="19">19 — Intereses en entidades financieras, bolsa o mercado abierto</option>
+          <option value="21">21 — Intereses (otros, no comprendidos en código 19)</option>
+        </optgroup>
+        <optgroup label="Alquileres y arrendamientos">
+          <option value="31">31 — Bienes inmuebles urbanos y suburbanos (incl. leasing)</option>
+          <option value="32">32 — Bienes inmuebles rurales y subrurales (incl. leasing)</option>
+        </optgroup>
+        <optgroup label="Locaciones y servicios">
+          <option value="94">94 — Locaciones de obra y/o servicios (no en relación de dependencia)</option>
+          <option value="95">95 — Transporte de carga nacional e internacional</option>
+        </optgroup>
+        <optgroup label="Comisiones y honorarios (con escala)">
+          <option value="25">25 — Comisiones, corretajes, consignatarios, auxiliares de comercio</option>
+          <option value="116">116 — Honor. directores SA, síndicos, fiduciarios, soc. administradores</option>
+          <option value="119">119 — Profesionales liberales, oficios, albacea, mandatario, gestor</option>
+          <option value="124">124 — Corredor, viajante de comercio, despachante de aduana</option>
+        </optgroup>
+        <optgroup label="Derechos">
+          <option value="110">110 — Explotación derechos de autor (Ley 11.723)</option>
+          <option value="111">111 — Cesión o locación de derechos (otros)</option>
+        </optgroup>
+        <optgroup label="Subsidios estatales">
+          <option value="779">779 — Subsidios por enajenación de bienes muebles o de cambio</option>
+          <option value="780">780 — Subsidios por locaciones de obra y/o servicios</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="row2">
       <div class="field">
-        <label>Consumo eléctrico anual (KWh) — 0 si no aplica</label>
-        <input type="number" id="inp-kwh" placeholder="0" value="0" oninput="calcular()"/>
+        <label>Importe a pagar (neto de IVA) $</label>
+        <input type="number" id="importe" placeholder="0" oninput="calcular()"/>
       </div>
-
-      <div class="sep">Empleados</div>
       <div class="field">
-        <label>Cantidad de empleados en relación de dependencia</label>
-        <select id="sel-empleados" onchange="calcular()">
-          <option value="0">Sin empleados</option>
-          <option value="1">1 empleado</option>
-          <option value="2">2 empleados</option>
-          <option value="3">3 o más empleados</option>
-        </select>
+        <label>Cantidad de meses abonados</label>
+        <input type="number" id="meses" value="1" min="1" oninput="calcular()"/>
       </div>
+    </div>
 
-      <div class="sep">Período</div>
+    <div class="field">
+      <label>¿Hubo pagos anteriores en el mes al mismo sujeto por el mismo concepto?</label>
+      <div class="toggle-group" style="max-width:200px">
+        <button class="toggle-btn on" id="pa-no" onclick="setPagAnt(false)">No</button>
+        <button class="toggle-btn" id="pa-si" onclick="setPagAnt(true)">Sí</button>
+      </div>
+    </div>
+
+    <div id="campos-ant" style="display:none">
       <div class="row2">
         <div class="field">
-          <label>Mes de inicio</label>
-          <select id="sel-mes-inicio" onchange="calcular()">
-            <option value="1">Enero</option><option value="2">Febrero</option>
-            <option value="3">Marzo</option><option value="4">Abril</option>
-            <option value="5">Mayo</option><option value="6" selected>Junio</option>
-            <option value="7">Julio</option><option value="8">Agosto</option>
-            <option value="9">Septiembre</option><option value="10">Octubre</option>
-            <option value="11">Noviembre</option><option value="12">Diciembre</option>
-          </select>
+          <label>Pagos anteriores en el mes (neto de IVA) $</label>
+          <input type="number" id="pago-ant" placeholder="0" oninput="calcular()"/>
         </div>
         <div class="field">
-          <label>Año inicio actividad</label>
-          <input type="number" id="inp-anio" value="2020" min="2000" max="2026" oninput="calcular()"/>
+          <label>Retenciones ya practicadas en el mes $</label>
+          <input type="number" id="ret-ant" placeholder="0" oninput="calcular()"/>
         </div>
       </div>
-
-      <button class="btn-calc" onclick="calcular()">📊 Calcular categoría</button>
     </div>
+
+    <button class="btn-calc" onclick="calcular()">📋 Calcular retención</button>
   </div>
 
-</div>
+  <!-- RESULTADO -->
+  <div class="result-box card" id="result-box">
+    <div class="card-title">📊 Resultado de la simulación</div>
+    <div class="r-grid">
+      <div class="r-item">
+        <div class="r-label">Cód. de Régimen</div>
+        <div class="r-val" id="res-reg">—</div>
+      </div>
+      <div class="r-item">
+        <div class="r-label">Alícuota aplicada</div>
+        <div class="r-val" id="res-alic">—</div>
+      </div>
+      <div class="r-item">
+        <div class="r-label">Monto no sujeto a retención</div>
+        <div class="r-val" id="res-mni">—</div>
+      </div>
+    </div>
+    <div class="r-grid">
+      <div class="r-item">
+        <div class="r-label">Monto imponible</div>
+        <div class="r-val" id="res-imponible">—</div>
+      </div>
+      <div class="r-item">
+        <div class="r-label">Retención del período</div>
+        <div class="r-val" id="res-ret">—</div>
+      </div>
+      <div class="r-item">
+        <div class="r-label">Ya retenido</div>
+        <div class="r-val" id="res-ya-ret">—</div>
+      </div>
+    </div>
+    <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:16px;text-align:center;margin-bottom:12px">
+      <div style="font-size:.68rem;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">MONTO A RETENER</div>
+      <div style="font-size:2rem;font-weight:900;color:var(--red)" id="res-a-retener">—</div>
+    </div>
+    <div id="res-nota" class="alerta alerta-ok" style="display:none"></div>
+    <div id="res-escala-det" style="display:none;font-size:.72rem;color:var(--sub);margin-bottom:10px"></div>
+    <div class="alerta alerta-warn">⚠ Uso orientativo. Verificar con la <a href="https://servicioscf.afip.gob.ar/calc-rg830/" target="_blank" style="color:inherit;font-weight:600">calculadora oficial de ARCA</a>. No aplica a sujetos exentos ni a conceptos excluidos.</div>
+  </div>
 
-<!-- PANEL DERECHO: RESULTADO -->
-<div class="panel-r" id="panel-r">
-  <div class="empty-state">
-    <div class="empty-icon">📊</div>
-    <div style="font-weight:700;font-size:.95rem;color:#fff">Calculá tu categoría</div>
-    <div style="font-size:.78rem;max-width:300px;line-height:1.55">Completá los datos de tu actividad y el sistema determina la categoría de Monotributo y las cuotas a pagar.</div>
+  <!-- TABLA REFERENCIA RÁPIDA -->
+  <div class="card">
+    <div class="card-title">📋 Tabla completa RG 830 — valores exactos (Anexo VIII)</div>
+    <div class="alerta alerta-ok" style="margin-bottom:10px">✓ Valores exactos de la normativa. Fuente: <strong>Anexo VIII RG 4525/2019</strong> y <strong>RG 5423/2023</strong> para profesionales liberales.</div>
+
+    <div class="sec-title">Alícuotas fijas</div>
+    <table class="ct">
+      <thead><tr><th>Cód.</th><th>Concepto</th><th>Alícuota inscripto</th><th>Alícuota no inscripto</th><th>MNI (inscripto)</th></tr></thead>
+      <tbody>
+        <tr><td class="cod">19</td><td>Intereses en entidades financieras, bolsa o mercado abierto</td><td class="rate">3%</td><td>10%</td><td class="mni">Sin MNI</td></tr>
+        <tr><td class="cod">21</td><td>Intereses (otros)</td><td class="rate">6%</td><td>25% PJ / 28% PH</td><td class="mni">$7.870</td></tr>
+        <tr><td class="cod">31</td><td>Alquiler inmuebles urbanos y suburbanos (incl. leasing)</td><td class="rate">6%</td><td>25% PJ / 28% PH</td><td class="mni">$11.200</td></tr>
+        <tr><td class="cod">32</td><td>Alquiler inmuebles rurales y subrurales (incl. leasing)</td><td class="rate">6%</td><td>25% PJ / 28% PH</td><td class="mni">$7.870</td></tr>
+        <tr><td class="cod">94</td><td>Locaciones de obra y/o servicios (no en rel. de dependencia)</td><td class="rate">2%</td><td>25% PJ / 28% PH</td><td class="mni">$67.170</td></tr>
+        <tr><td class="cod">95</td><td>Transporte de carga nacional e internacional</td><td class="rate">0,25%</td><td>25% PJ / 28% PH</td><td class="mni">$67.170</td></tr>
+        <tr><td class="cod">111</td><td>Cesión o locación de derechos (otros, excepto 110)</td><td class="rate">0,50%</td><td>2%</td><td class="mni">Sin MNI</td></tr>
+        <tr><td class="cod">779</td><td>Subsidios estatales — enajenación bienes muebles/de cambio</td><td class="rate">2%</td><td>10%</td><td class="mni">$76.140</td></tr>
+        <tr><td class="cod">780</td><td>Subsidios estatales — locaciones de obra y/o servicios</td><td class="rate">2%</td><td>25% PJ / 28% PH</td><td class="mni">$31.460</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-title">Alícuotas progresivas (escala)</div>
+    <table class="ct">
+      <thead><tr><th>Cód.</th><th>Concepto</th><th>Alícuota inscripto</th><th>No inscripto</th><th>MNI (inscripto)</th></tr></thead>
+      <tbody>
+        <tr><td class="cod">25</td><td>Comisiones, corretajes, consignatarios y auxiliares de comercio</td><td class="escala">Escala (5% al 31%)</td><td>28% PH / 25% PJ</td><td class="mni">$16.830</td></tr>
+        <tr><td class="cod">110</td><td>Explotación derechos de autor (Ley 11.723)</td><td class="escala">Escala (5% al 31%)</td><td>28%</td><td class="mni">$10.000</td></tr>
+        <tr><td class="cod">116</td><td>Honor. directores SA, síndicos, fiduciarios, socios administradores</td><td class="escala">Escala (5% al 31%)</td><td>28%</td><td class="mni">$67.170</td></tr>
+        <tr><td class="cod">119</td><td>Profesionales liberales y oficios <span class="badge-norm">RG 5423/2023</span></td><td class="escala">Escala propia (5% al 31%)</td><td>28%</td><td class="mni">$160.000</td></tr>
+        <tr><td class="cod">124</td><td>Corredor, viajante de comercio, despachante de aduana</td><td class="escala">Escala (5% al 31%)</td><td>28% PH / 25% PJ</td><td class="mni">$16.830</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-title">Escala progresiva (general — códigos 25, 110, 116, 119, 124)</div>
+    <table class="ct">
+      <thead><tr><th>Más de $</th><th>A $</th><th>Suma fija $</th><th>Más el %</th><th>S/excedente de $</th></tr></thead>
+      <tbody>
+        <tr><td>—</td><td>8.000</td><td>—</td><td class="rate">5%</td><td>—</td></tr>
+        <tr><td>8.000</td><td>16.000</td><td>400</td><td class="rate">9%</td><td>8.000</td></tr>
+        <tr><td>16.000</td><td>24.000</td><td>1.120</td><td class="rate">12%</td><td>16.000</td></tr>
+        <tr><td>24.000</td><td>32.000</td><td>2.080</td><td class="rate">15%</td><td>24.000</td></tr>
+        <tr><td>32.000</td><td>48.000</td><td>3.280</td><td class="rate">19%</td><td>32.000</td></tr>
+        <tr><td>48.000</td><td>64.000</td><td>6.320</td><td class="rate">23%</td><td>48.000</td></tr>
+        <tr><td>64.000</td><td>96.000</td><td>10.000</td><td class="rate">27%</td><td>64.000</td></tr>
+        <tr><td>96.000</td><td>en adelante</td><td>18.640</td><td class="rate">31%</td><td>96.000</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:.68rem;color:var(--sub);margin-top:8px">Escala del Anexo VIII RG 4525/2019. Para no inscriptos: no se aplica escala ni MNI (excepto códigos 112/113). Retención mínima: $240 (general) / $1.020 (inmuebles urbanos, NI).</p>
   </div>
 </div>
-
-</div><!-- /app -->
 
 <script>
-// ══════════════════════════════════════════════════════════════
-// TABLAS MONOTRIBUTO 2026 — ARCA
-// Actualización RG 5.xxx/2026 — valores vigentes desde enero 2026
-// ══════════════════════════════════════════════════════════════
-const MESES = ["","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+var sit='insc', tp='hum', pagAnt=false;
 
-// Categorías A–K (o J para servicios sin K)
-// Fuente: ARCA - valores vigentes 01/08/2026
-// ═══════════════════════════════════════════════════════════════
-// CATEGORÍAS MONOTRIBUTO — Vigentes desde 01/08/2026
-// Fuente oficial: https://www.afip.gob.ar/monotributo/categorias.asp
-// ═══════════════════════════════════════════════════════════════
-const CATEGORIAS = [
-  { cat:'A', ing:12009410.45, sup:30,  kwh:3300,  alq:2792886.15,  precioMax:716840.77 },
-  { cat:'B', ing:17595182.74, sup:45,  kwh:5000,  alq:2792886.15,  precioMax:716840.77 },
-  { cat:'C', ing:24670494.31, sup:60,  kwh:6700,  alq:3816944.41,  precioMax:716840.77 },
-  { cat:'D', ing:30628651.43, sup:85,  kwh:10000, alq:3816944.41,  precioMax:716840.77 },
-  { cat:'E', ing:36028231.33, sup:110, kwh:13000, alq:4841002.66,  precioMax:716840.77 },
-  { cat:'F', ing:45151659.41, sup:150, kwh:16500, alq:4841002.66,  precioMax:716840.77 },
-  { cat:'G', ing:53995798.87, sup:200, kwh:20000, alq:5771964.69,  precioMax:716840.77 },
-  { cat:'H', ing:81924660.37, sup:200, kwh:20000, alq:8378658.45,  precioMax:716840.77 },
-  { cat:'I', ing:91699761.90, sup:200, kwh:20000, alq:8378658.45,  precioMax:716840.77 },
-  { cat:'J', ing:105012519.20,sup:200, kwh:20000, alq:8378658.45,  precioMax:716840.77 },
-  { cat:'K', ing:126610838.75,sup:200, kwh:20000, alq:8378658.45,  precioMax:716840.77 },
-];
-
-// Cuotas mensuales por categoría (impuesto + obra social + aporte jubilatorio)
-// Cuotas exactas ARCA vigentes desde 01/08/2026
-// Fuente: https://www.afip.gob.ar/monotributo/categorias.asp
-// Cuotas mensuales — valores exactos ARCA vigentes desde 01/08/2026
-// impServ = impuesto integrado locaciones/servicios
-// impVenta = impuesto integrado venta de cosas muebles
-// sipa = aportes al SIPA (jubilación)
-// os = aportes obra social (titular sin adherentes)
-// totalServ / totalVenta = total mensual a abonar
-const CUOTAS = {
-  A: { impServ:5585.77,    impVenta:5585.77,    sipa:18246.86, os:25694.55, totalServ:49527.18,    totalVenta:49527.18   },
-  B: { impServ:10612.98,   impVenta:10612.98,   sipa:20071.55, os:25694.55, totalServ:56379.08,    totalVenta:56379.08   },
-  C: { impServ:18246.86,   impVenta:16757.32,   sipa:22078.71, os:25694.55, totalServ:66020.12,    totalVenta:64530.58   },
-  D: { impServ:29790.79,   impVenta:27742.67,   sipa:24286.58, os:30535.56, totalServ:84612.93,    totalVenta:82564.81   },
-  E: { impServ:55857.73,   impVenta:44313.79,   sipa:26715.24, os:37238.48, totalServ:119811.45,   totalVenta:108267.51  },
-  F: { impServ:78573.20,   impVenta:57719.64,   sipa:29386.76, os:42824.25, totalServ:150784.21,   totalVenta:129930.65  },
-  G: { impServ:142995.76,  impVenta:71497.87,   sipa:41141.46, os:46175.72, totalServ:230312.94,   totalVenta:158815.05  },
-  H: { impServ:409623.31,  impVenta:204811.64,  sipa:57598.04, os:55485.33, totalServ:522706.68,   totalVenta:317895.01  },
-  I: { impServ:814591.79,  impVenta:325836.71,  sipa:80637.26, os:68518.81, totalServ:963747.86,   totalVenta:474992.78  },
-  J: { impServ:977510.14,  impVenta:391004.07,  sipa:112892.16,os:76897.46, totalServ:1167299.76,  totalVenta:580793.69  },
-  K: { impServ:1368514.20, impVenta:456171.40,  sipa:158049.02,os:87882.82, totalServ:1614446.04,  totalVenta:702103.24  },
+// Datos exactos del Anexo VIII RG 4525/2019 y RG 5423/2023
+// tipo: 'fijo' | 'escala'
+var REGS = {
+  '19':  {nombre:'Intereses financieras/bolsa', tipo:'fijo',  alic:0.03,  ni_hum:0.10, ni_jur:0.10, mni:0},
+  '21':  {nombre:'Intereses (otros)',            tipo:'fijo',  alic:0.06,  ni_hum:0.28, ni_jur:0.25, mni:7870},
+  '31':  {nombre:'Inmuebles urbanos',            tipo:'fijo',  alic:0.06,  ni_hum:0.28, ni_jur:0.25, mni:11200},
+  '32':  {nombre:'Inmuebles rurales',            tipo:'fijo',  alic:0.06,  ni_hum:0.28, ni_jur:0.25, mni:7870},
+  '94':  {nombre:'Locaciones obra/servicios',    tipo:'fijo',  alic:0.02,  ni_hum:0.28, ni_jur:0.25, mni:67170},
+  '95':  {nombre:'Transporte de carga',          tipo:'fijo',  alic:0.0025,ni_hum:0.28, ni_jur:0.25, mni:67170},
+  '111': {nombre:'Cesión/loc. derechos',         tipo:'fijo',  alic:0.005, ni_hum:0.02, ni_jur:0.02, mni:0},
+  '779': {nombre:'Subsidios (enajenación)',       tipo:'fijo',  alic:0.02,  ni_hum:0.10, ni_jur:0.10, mni:76140},
+  '780': {nombre:'Subsidios (locaciones)',        tipo:'fijo',  alic:0.02,  ni_hum:0.28, ni_jur:0.25, mni:31460},
+  '25':  {nombre:'Comisiones/corretajes',        tipo:'escala',           ni_hum:0.28, ni_jur:0.25, mni:16830},
+  '110': {nombre:'Derechos de autor',            tipo:'escala',           ni_hum:0.28, ni_jur:0.28, mni:10000},
+  '116': {nombre:'Honor. directores/síndicos',   tipo:'escala',           ni_hum:0.28, ni_jur:0.28, mni:67170},
+  '119': {nombre:'Profesionales liberales',      tipo:'escala',           ni_hum:0.28, ni_jur:0.28, mni:160000},
+  '124': {nombre:'Corredor/viajante/despachante',tipo:'escala',           ni_hum:0.28, ni_jur:0.25, mni:16830},
 };
 
-const fmt = n => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',minimumFractionDigits:0,maximumFractionDigits:0}).format(n);
-const fmtN = n => new Intl.NumberFormat('es-AR').format(n);
-const v = id => parseFloat(document.getElementById(id)?.value)||0;
-const s = id => document.getElementById(id)?.value||'';
+// Escala progresiva (Anexo VIII RG 4525/2019)
+var ESCALA = [
+  {hasta:8000,    fija:0,     pct:0.05, exc:0},
+  {hasta:16000,   fija:400,   pct:0.09, exc:8000},
+  {hasta:24000,   fija:1120,  pct:0.12, exc:16000},
+  {hasta:32000,   fija:2080,  pct:0.15, exc:24000},
+  {hasta:48000,   fija:3280,  pct:0.19, exc:32000},
+  {hasta:64000,   fija:6320,  pct:0.23, exc:48000},
+  {hasta:96000,   fija:10000, pct:0.27, exc:64000},
+  {hasta:Infinity,fija:18640, pct:0.31, exc:96000},
+];
 
-function actualizarLimites(){
-  const act = s('sel-actividad');
-  const topeMax = act==='bienes' ? CATEGORIAS[10].ing : CATEGORIAS[10].ing;
-  document.getElementById('hint-tope').textContent = `Tope máximo para esta actividad: ${fmt(topeMax)}. Superado → responsable inscripto.`;
-  calcular();
+function aplicarEscala(imponible){
+  for(var i=0; i<ESCALA.length; i++){
+    if(imponible <= ESCALA[i].hasta){
+      return ESCALA[i].fija + (imponible - ESCALA[i].exc) * ESCALA[i].pct;
+    }
+  }
+  return 0;
 }
 
-function determinarCategoria(ingresos, superficie, kwh, actividad, empleados){
-  const esBienes = actividad === 'bienes';
-  for(const cat of CATEGORIAS){
-    // K está disponible para todos (ver ARCA) // K solo para bienes
-    const topeIng = esBienes ? cat.ing : cat.ing;
-    if(topeIng === null) continue;
-    if(ingresos > topeIng) continue;
-    if(cat.sup !== null){
-      const topeSup = esBienes ? cat.sup : cat.sup;
-      if(superficie > topeSup) continue;
-    }
-    if(cat.kwh !== null && kwh > cat.kwh) continue;
-    // Verificar empleados mínimos para categorías altas
-    if(['H','I','J','K'].includes(cat.cat) && empleados < 1) {
-      // No es un requisito de empleados para categorías altas, solo info
-    }
-    return cat.cat;
-  }
-  return 'EXCLUIDO';
+function setSit(s){ sit=s; document.getElementById('si-insc').classList.toggle('on',s==='insc'); document.getElementById('si-noinsc').classList.toggle('on',s==='noinsc'); document.getElementById('campo-concepto').style.display=s==='insc'?'block':'none'; calcular(); }
+function setTp(t){ tp=t; document.getElementById('tp-hum').classList.toggle('on',t==='hum'); document.getElementById('tp-jur').classList.toggle('on',t==='jur'); calcular(); }
+function setPagAnt(v){ pagAnt=v; document.getElementById('pa-no').classList.toggle('on',!v); document.getElementById('pa-si').classList.toggle('on',v); document.getElementById('campos-ant').style.display=v?'block':'none'; calcular(); }
+
+function fmt(n){
+  n=Math.max(0,parseFloat(n)||0);
+  var s=n.toFixed(2).split('.'); s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.'); return '$ '+s[0]+','+s[1];
 }
 
 function calcular(){
-  const ingresos  = v('inp-ingresos');
-  const superficie= v('inp-sup');
-  const kwh       = v('inp-kwh');
-  const actividad = s('sel-actividad');
-  const empleados = parseInt(s('sel-empleados'))||0;
-  const mesInicio = parseInt(s('sel-mes-inicio'))||1;
-  const anio      = parseInt(document.getElementById('inp-anio')?.value)||2020;
+  var importe = parseFloat(document.getElementById('importe').value)||0;
+  var meses   = parseInt(document.getElementById('meses').value)||1;
+  if(!importe){ document.getElementById('result-box').classList.remove('show'); return; }
 
-  if(!ingresos) return;
+  var regNombre, alic, mni, ret, alcPct, nota='', escalaDet='';
 
-  const cat = determinarCategoria(ingresos, superficie, kwh, actividad, empleados);
-  const cuotas = CUOTAS[cat];
-  const esBienes = actividad==='bienes';
-  const topeMax = CATEGORIAS[10].ing;
-
-  // Advertencias
-  const alertas = [];
-  if(cat==='EXCLUIDO'){
-    alertas.push({tipo:'err', texto:'⚠ Tus ingresos superan el límite máximo del Monotributo. Debés inscribirte como Responsable Inscripto.'});
+  if(sit==='noinsc'){
+    regNombre = 'No Inscripto';
+    alic = tp==='hum' ? 0.28 : 0.25;
+    mni  = 0;
+    ret  = importe * meses * alic;
+    alcPct = (alic*100).toFixed(0)+'%';
   } else {
-    // Porcentaje del tope
-    const catObj = CATEGORIAS.find(c=>c.cat===cat);
-    const tope = esBienes ? catObj.ing : catObj.ing;
-    const pct = (ingresos/tope)*100;
-    if(pct > 85) alertas.push({tipo:'warn', texto:`⚠ Estás al ${pct.toFixed(0)}% del tope de la categoría ${cat}. Considerá recategorizar preventivamente.`});
+    var cod = document.getElementById('concepto').value;
+    if(!cod){ document.getElementById('result-box').classList.remove('show'); return; }
+    var r = REGS[cod];
+    regNombre = cod + ' — ' + r.nombre;
+    mni = r.mni;
 
-    // Empleados mínimos para categorías altas
-    if(['H','I','J','K'].includes(cat) && empleados < 1){
-      alertas.push({tipo:'warn', texto:`Las categorías ${cat} y superiores normalmente requieren empleados en relación de dependencia. Verificá con tu contador.`});
+    var pagoAnt = pagAnt ? (parseFloat(document.getElementById('pago-ant').value)||0) : 0;
+    var retAnt  = pagAnt ? (parseFloat(document.getElementById('ret-ant').value)||0) : 0;
+
+    // Base imponible acumulada del mes
+    var totalMes = (pagoAnt + importe) * meses;
+    var imponibleAcum = Math.max(0, totalMes - mni);
+
+    if(r.tipo === 'fijo'){
+      ret = imponibleAcum * r.alic;
+      alcPct = (r.alic*100) < 1 ? (r.alic*100).toFixed(2)+'%' : (r.alic*100).toFixed(0)+'%';
+    } else {
+      // Escala progresiva
+      ret = aplicarEscala(imponibleAcum);
+      alcPct = 'Escala (5%–31%)';
+      // Detalle de tramo
+      for(var i=0; i<ESCALA.length; i++){
+        if(imponibleAcum <= ESCALA[i].hasta){
+          var pct = (ESCALA[i].pct*100).toFixed(0);
+          escalaDet = 'Tramo aplicado: hasta $'+ESCALA[i].hasta.toLocaleString('es-AR')+' → $'+ESCALA[i].fija.toFixed(2)+' + '+pct+'% s/exc $'+ESCALA[i].exc.toLocaleString('es-AR');
+          break;
+        }
+      }
     }
 
-    // Recategorización
-    const hoy = new Date();
-    const mesActual = hoy.getMonth()+1;
-    if(mesActual >= 4 && mesActual <= 6){
-      alertas.push({tipo:'ok', texto:'✓ Estás en período de recategorización semestral (Ene–Jun 2026). El vencimiento para recategorizarse es el 5 de agosto de 2026.'});
-    } else if(mesActual >= 10 && mesActual <= 12){
-      alertas.push({tipo:'ok', texto:'✓ Estás en período de recategorización semestral (Jul–Dic 2026). El vencimiento es el 28 de febrero de 2027.'});
+    var retARetener = Math.max(0, ret - retAnt);
+
+    // Retención mínima
+    var retMin = (cod==='31' && sit==='noinsc') ? 1020 : 240;
+    if(retARetener < retMin && retARetener > 0){
+      nota = 'El importe calculado ($'+retARetener.toFixed(2)+') es inferior a la retención mínima de $'+retMin+'. No corresponde practicar retención.';
+      retARetener = 0;
     }
+
+    document.getElementById('res-reg').textContent        = regNombre;
+    document.getElementById('res-alic').textContent       = alcPct;
+    document.getElementById('res-mni').textContent        = mni>0?fmt(mni):'Sin MNI';
+    document.getElementById('res-imponible').textContent  = fmt(imponibleAcum);
+    document.getElementById('res-ret').textContent        = fmt(ret);
+    document.getElementById('res-ya-ret').textContent     = fmt(retAnt);
+    document.getElementById('res-a-retener').textContent  = fmt(retARetener);
+    document.getElementById('res-nota').style.display     = nota?'block':'none';
+    document.getElementById('res-nota').textContent       = nota;
+    document.getElementById('res-escala-det').style.display = escalaDet?'block':'none';
+    document.getElementById('res-escala-det').textContent = escalaDet;
+    document.getElementById('result-box').classList.add('show');
+    return;
   }
 
-  // Próximas fechas de recategorización
-  const recategFechas = [
-    {mes:'Ene–Jun 2026', fecha:'5 de agosto 2026', estado: new Date() > new Date('2026-08-05') ? 'pasado' : 'proximo'},
-    {mes:'Jul–Dic 2026', fecha:'28 de febrero 2027', estado: new Date() > new Date('2027-02-28') ? 'pasado' : 'proximo'},
-  ];
+  // No inscripto
+  var pagoAnt = pagAnt ? (parseFloat(document.getElementById('pago-ant').value)||0) : 0;
+  var retAnt  = pagAnt ? (parseFloat(document.getElementById('ret-ant').value)||0) : 0;
+  var retTotal = (pagoAnt + importe) * meses * alic;
+  var aRetener = Math.max(0, retTotal - retAnt);
 
-  // Tabla de categorías para comparar
-  const tablaCats = CATEGORIAS.filter(c=> !(!esBienes && c.cat==='K'));
-
-  document.getElementById('panel-r').innerHTML = cat==='EXCLUIDO'
-    ? `<div class="cat-hero" style="border-color:rgba(239,68,68,.4);background:linear-gradient(135deg,#1a0000,#2d0000)">
-        <div style="font-size:1.1rem;font-weight:800;color:#ef4444;margin-bottom:8px">EXCLUIDO</div>
-        <div style="font-size:.8rem;color:#fca5a5">Tus ingresos superan el máximo del Monotributo</div>
-        <div style="font-size:.78rem;color:var(--sub);margin-top:8px">Debés inscribirte como Responsable Inscripto (IVA + Ganancias)</div>
-       </div>
-       ${alertas.map(a=>`<div class="alerta ${a.tipo}">${a.texto}</div>`).join('')}`
-    : `
-    <!-- CATEGORÍA HERO -->
-    <div class="cat-hero">
-      <div class="cat-label">Tu categoría</div>
-      <div class="cat-letter">${cat}</div>
-      <div class="cat-desc">${actividad==='bienes'?'Venta de bienes muebles':'Locación de servicios'} · ${fmtN(ingresos)} ingresos/año</div>
-    </div>
-
-    <!-- ALERTAS -->
-    ${alertas.map(a=>`<div class="alerta ${a.tipo}">${a.texto}</div>`).join('')}
-
-    <!-- CUOTAS -->
-    <div class="cuota-grid">
-      <div class="cuota-card">
-        <div class="lbl">Impuesto</div>
-        <div class="val">${fmt(esBienes ? cuotas.impVenta : cuotas.impServ)}</div>
-      </div>
-      <div class="cuota-card">
-        <div class="lbl">Obra Social</div>
-        <div class="val">${fmt(cuotas.os)}</div>
-      </div>
-      <div class="cuota-card">
-        <div class="lbl">Jubilación (SIPA)</div>
-        <div class="val">${fmt(cuotas.sipa)}</div>
-      </div>
-    </div>
-    <div class="cuota-card total" style="padding:13px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <span style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(245,158,11,.7)">Cuota total mensual</span>
-      <span class="val">${fmt(esBienes ? cuotas.totalVenta : cuotas.totalServ)}</span>
-    </div>
-    <div class="alerta info" style="margin-bottom:14px">
-      💡 Cuota anual estimada: <strong>${fmt(cuotas.total*12)}</strong>
-      ${empleados>0?` · Con ${empleados} empleado${empleados>1?'s':''}: sumá aportes patronales adicionales.`:''}
-    </div>
-
-    <!-- TABS -->
-    <div class="tabs">
-      <button class="tab-btn active" onclick="swTab('tabla',this)">📊 Todas las categorías</button>
-      <button class="tab-btn" onclick="swTab('recateg',this)">📅 Recategorización</button>
-      <button class="tab-btn" onclick="swTab('info',this)">ℹ Información</button>
-    </div>
-
-    <!-- TABLA CATEGORÍAS -->
-    <div class="tab-pane active" id="tab-tabla">
-      <div style="overflow-x:auto">
-      <table class="table-cat">
-        <thead>
-          <tr>
-            <th>Cat.</th>
-            <th>Ingresos máx.</th>
-            <th>Superficie</th>
-            <th>KWh/año</th>
-            <th>Impuesto</th>
-            <th>OS</th>
-            <th>Jub.</th>
-            <th>Total/mes</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${tablaCats.map(c=>{
-            const cu = CUOTAS[c.cat];
-            const ing = esBienes ? c.ing : c.ing;
-            const sup = esBienes ? c.sup : c.sup;
-            return `<tr class="${c.cat===cat?'active-row':''}">
-              <td>${c.cat}</td>
-              <td>${fmt(ing||0)}</td>
-              <td>${sup!==null?sup+' m²':'—'}</td>
-              <td>${c.kwh!==null?fmtN(c.kwh):'—'}</td>
-              <td>${fmt(esBienes ? cu.impVenta : cu.impServ)}</td>
-              <td>${fmt(cu.os)}</td>
-              <td>${fmt(cu.sipa)}</td>
-              <td style="color:var(--amber)">${fmt(esBienes ? cu.totalVenta : cu.totalServ)}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table></div>
-      <div style="font-size:.67rem;color:var(--sub);margin-top:8px">* Valores vigentes desde enero 2026 según ARCA. Fila resaltada = tu categoría actual.</div>
-    </div>
-
-    <!-- RECATEGORIZACIÓN -->
-    <div class="tab-pane" id="tab-recateg">
-      <div class="alerta info" style="margin-bottom:14px">
-        La cuota mensual vence el <strong>día 20 de cada mes</strong> (o el primer día hábil siguiente). La recategorización semestral: enero–junio vence el <strong>5 de agosto</strong>; julio–diciembre vence el <strong>28 de febrero</strong> del año siguiente.
-        También hay recategorización de oficio si ARCA detecta inconsistencias.
-      </div>
-      ${recategFechas.map(r=>`
-      <div class="recateg-item">
-        <span class="recateg-mes">${r.mes}</span>
-        <span class="recateg-fecha">Vence: ${r.fecha}</span>
-        <span class="recateg-estado estado-${r.estado}">${r.estado==='proximo'?'Próxima':'Pasada'}</span>
-      </div>`).join('')}
-      <div style="margin-top:14px;background:#1e2f42;border:1px solid var(--border);border-radius:9px;padding:13px">
-        <div style="font-size:.72rem;font-weight:700;color:#fff;margin-bottom:8px">Cómo recategorizarte</div>
-        ${['Ingresá a ARCA con clave fiscal','Accedé a Monotributo → Adhesión/Recategorización','El sistema calcula la categoría según tus ingresos declarados','Confirmá y pagá la diferencia si subiste de categoría'].map((p,i)=>`
-        <div style="display:flex;gap:10px;margin-bottom:6px;font-size:.75rem;color:var(--sub)">
-          <span style="color:var(--amber);font-weight:700;width:18px">${i+1}.</span>${p}
-        </div>`).join('')}
-      </div>
-    </div>
-
-    <!-- INFORMACIÓN -->
-    <div class="tab-pane" id="tab-info">
-      <div class="alerta info" style="margin-bottom:10px">
-        <div><strong>Exclusión del Monotributo</strong> — Se produce cuando:
-        <br>· Superás el tope de ingresos de la categoría máxima
-        <br>· Realizás más de 3 operaciones con el mismo cliente en el año
-        <br>· Realizás importaciones de bienes o servicios
-        <br>· Emitís más de 3 facturas a 1 mismo cliente por más del 70% de tus ingresos
-        </div>
-      </div>
-      <div class="alerta warn">
-        <div><strong>Operaciones con IVA</strong> — Si sos monotributista no podés discriminar IVA en tus facturas. Emitís Facturas C.
-        </div>
-      </div>
-      <div class="alerta ok">
-        <div><strong>Obra Social</strong> — Como monotributista tenés derecho a obra social eligiendo entre las disponibles. El aporte de $6.660 o $13.320 cubre el servicio básico.
-        </div>
-      </div>
-    </div>
-    `;
+  document.getElementById('res-reg').textContent        = regNombre;
+  document.getElementById('res-alic').textContent       = alcPct;
+  document.getElementById('res-mni').textContent        = 'Sin MNI';
+  document.getElementById('res-imponible').textContent  = fmt((pagoAnt+importe)*meses);
+  document.getElementById('res-ret').textContent        = fmt(retTotal);
+  document.getElementById('res-ya-ret').textContent     = fmt(retAnt);
+  document.getElementById('res-a-retener').textContent  = fmt(aRetener);
+  document.getElementById('res-nota').style.display     = 'none';
+  document.getElementById('res-escala-det').style.display = 'none';
+  document.getElementById('result-box').classList.add('show');
 }
-
-function swTab(id,btn){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tab-'+id).classList.add('active');
-}
-
-// Init
-actualizarLimites();
 </script>
-<a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener"
-  style="position:fixed;bottom:16px;right:16px;z-index:999;
-    display:flex;align-items:center;gap:6px;
-    background:#FFDD00;color:#000;font-weight:800;font-size:.72rem;padding:8px 14px;border-radius:50px;text-decoration:none;box-shadow:0 3px 16px rgba(0,0,0,.25)" title="☕ ImpoBot — Invitarnos un café">☕</a>
-<a href="https://api.whatsapp.com/send?text=Calculá%20tu%20categoría%20de%20Monotributo%20A-K%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/monotributo.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
+
+<a href="https://api.whatsapp.com/send?text=Simulador%20de%20retenciones%20RG%20830/2000%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/rg830.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
   style="position:fixed;bottom:76px;right:20px;z-index:998;background:#25D366;color:#fff;
     width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
     font-size:1.1rem;text-decoration:none;box-shadow:0 2px 12px rgba(37,211,102,.3);transition:all .2s"
@@ -499,7 +407,7 @@ actualizarLimites();
 </a>
 
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('../sw.js').catch(function(){});</script>
-<a href="mailto:impobot.ar@gmail.com?subject=Bug en ImpoBot&body=Herramienta: monotributo%0AProblema: " 
+<a href="mailto:impobot.ar@gmail.com?subject=Bug en ImpoBot&body=Herramienta: RG 830%0AProblema: " 
   title="Reportar un problema con esta herramienta"
   style="position:fixed;bottom:128px;right:20px;z-index:997;background:#35546f;border:1px solid #35546f;
     color:#7fa0be;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;
