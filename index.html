@@ -23,8 +23,8 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"ImpoBot","url":"https://www.impobot.com.ar"}</script>
 <style>
 :root{
-  --ink:#253d52;--navy:#080f1c;--card:#0c1626;--card-h:#101d30;
-  --border:#3a6080;--text:#eaf1f8;--sub:#7fa0be;
+  --ink:#2d4f68;--navy:#080f1c;--card:#0c1626;--card-h:#101d30;
+  --border:#4d7a96;--text:#f0f6fb;--sub:#9dbdd6;
   --blue:#0b82f5;--blue-d:#0762c8;--blue-l:#60a5fa;
   --cyan:#38bdf8;--green:#10b981;--amber:#f59e0b;--red:#ef4444;
 }
@@ -132,7 +132,7 @@ footer{background:var(--navy);border-top:1px solid var(--border);padding:50px 28
 .newsletter-wrap{max-width:1280px;margin:0 auto;padding:0 28px 20px}
 .newsletter-inner{background:linear-gradient(135deg,rgba(11,130,245,.1),rgba(56,189,248,.07));border:1px solid rgba(11,130,245,.2);border-radius:16px;padding:28px}
 .nl-form{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.nl-form input{background:#162232;border:1.5px solid var(--border);color:var(--text);padding:10px 14px;border-radius:9px;font-size:.84rem;font-family:'Inter',sans-serif;outline:none;min-width:240px;flex:1}
+.nl-form input{background:#1e3a4e;border:1.5px solid var(--border);color:var(--text);padding:10px 14px;border-radius:9px;font-size:.84rem;font-family:'Inter',sans-serif;outline:none;min-width:240px;flex:1}
 .nl-form input:focus{border-color:var(--blue)}
 .nl-form button{background:var(--blue);color:#fff;border:none;padding:10px 20px;border-radius:9px;font-size:.84rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap}
 .nl-form button:hover{filter:brightness(1.1)}
@@ -457,7 +457,7 @@ footer{background:var(--navy);border-top:1px solid var(--border);padding:50px 28
 </footer>
 
 <a href="https://api.whatsapp.com/send?phone=5491155985886&text=Hola!%20Quiero%20consultar%20sobre%20los%20servicios%20de%20ImpoBot%20%F0%9F%87%A6%F0%9F%87%B7" target="_blank" rel="noopener"
-  style="position:fixed;bottom:68px;right:20px;z-index:999;background:#25D366;color:#fff;
+  style="position:fixed;bottom:72px;right:20px;z-index:999;background:#25D366;color:#fff;
     font-weight:800;font-size:.78rem;padding:10px 16px;border-radius:50px;text-decoration:none;
     box-shadow:0 4px 20px rgba(37,211,102,.3);transition:all .2s;display:flex;align-items:center;gap:6px"
   onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
@@ -472,14 +472,14 @@ footer{background:var(--navy);border-top:1px solid var(--border);padding:50px 28
 function suscribir(e){
   e.preventDefault();
   var email = document.getElementById('nl-email').value;
-  // Reemplazá esta URL con tu endpoint de Brevo o Mailchimp
-  var endpoint = 'https://app.brevo.com/api/...'; // ← configurar
-  // Fallback: mailto (funciona sin backend)
   var msg = document.getElementById('nl-msg');
+  // Enviar email de notificación al admin
+  var subject = encodeURIComponent('Nueva suscripción ImpoBot: ' + email);
+  var body = encodeURIComponent('Nuevo suscriptor: ' + email + '\n\nAgregar a la lista de novedades.');
+  window.open('mailto:impobot.ar@gmail.com?subject=' + subject + '&body=' + body);
   msg.style.display = 'block';
-  msg.textContent = '✓ ¡Gracias! Te enviaremos las novedades a ' + email;
+  msg.textContent = '✓ ¡Gracias! Te agregamos a las novedades de ImpoBot.';
   document.getElementById('nl-email').value = '';
-  // TODO: conectar con Brevo API
 }
 
 // ── PWA Service Worker ────────────────────────────────────
@@ -529,7 +529,7 @@ function enviarBug(e){
     <form onsubmit="enviarBug(event)">
       <div style="margin-bottom:10px">
         <label style="display:block;font-size:.67rem;font-weight:600;color:#7fa0be;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Herramienta afectada</label>
-        <select id="bug-tool" style="width:100%;background:#1e2f42;border:1.5px solid #35546f;color:#eaf1f8;padding:8px 11px;border-radius:8px;font-size:.84rem;font-family:Inter,sans-serif">
+        <select id="bug-tool" style="width:100%;background:#2d4f68;border:1.5px solid #35546f;color:#eaf1f8;padding:8px 11px;border-radius:8px;font-size:.84rem;font-family:Inter,sans-serif">
           <option>Ganancias 4ª Categoría</option>
           <option>Recibos de Sueldo LSD</option>
           <option>Monotributo</option>
@@ -548,11 +548,11 @@ function enviarBug(e){
       </div>
       <div style="margin-bottom:10px">
         <label style="display:block;font-size:.67rem;font-weight:600;color:#7fa0be;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Descripción del problema *</label>
-        <textarea id="bug-desc" required rows="3" style="width:100%;background:#1e2f42;border:1.5px solid #35546f;color:#eaf1f8;padding:8px 11px;border-radius:8px;font-size:.84rem;font-family:Inter,sans-serif;resize:vertical" placeholder="¿Qué pasó? ¿Qué resultado esperabas?"></textarea>
+        <textarea id="bug-desc" required rows="3" style="width:100%;background:#2d4f68;border:1.5px solid #35546f;color:#eaf1f8;padding:8px 11px;border-radius:8px;font-size:.84rem;font-family:Inter,sans-serif;resize:vertical" placeholder="¿Qué pasó? ¿Qué resultado esperabas?"></textarea>
       </div>
       <div style="margin-bottom:14px">
         <label style="display:block;font-size:.67rem;font-weight:600;color:#7fa0be;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Tu email (opcional)</label>
-        <input type="email" id="bug-email" style="width:100%;background:#1e2f42;border:1.5px solid #35546f;color:#eaf1f8;padding:8px 11px;border-radius:8px;font-size:.84rem;font-family:Inter,sans-serif" placeholder="Para avisarte cuando esté resuelto"/>
+        <input type="email" id="bug-email" style="width:100%;background:#2d4f68;border:1.5px solid #35546f;color:#eaf1f8;padding:8px 11px;border-radius:8px;font-size:.84rem;font-family:Inter,sans-serif" placeholder="Para avisarte cuando esté resuelto"/>
       </div>
       <div id="bug-form-msg" style="font-size:.76rem;margin-bottom:8px"></div>
       <button type="submit" style="width:100%;background:var(--blue);color:#fff;border:none;padding:10px;border-radius:9px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">📤 Enviar reporte</button>
@@ -562,7 +562,7 @@ function enviarBug(e){
 
 <!-- BUG REPORT BUTTON flotante -->
 <button onclick="abrirBugReport()" title="Reportar un problema"
-  style="position:fixed;bottom:76px;right:20px;z-index:998;background:#35546f;border:1px solid #35546f;color:#7fa0be;width:42px;height:42px;border-radius:50%;font-size:1.1rem;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.3);transition:all .2s"
+  style="position:fixed;bottom:126px;right:20px;z-index:998;background:#375e7a;border:1px solid #35546f;color:#7fa0be;width:42px;height:42px;border-radius:50%;font-size:1.1rem;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.3);transition:all .2s"
   onmouseover="this.style.color='#eaf1f8';this.style.borderColor='#60a5fa'" 
   onmouseout="this.style.color='#7fa0be';this.style.borderColor='#35546f'"><img src="data:image/png;base64,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" style="width:22px;height:22px;object-fit:contain" alt="Reportar"/></button>
 
