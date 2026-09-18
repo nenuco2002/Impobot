@@ -59,6 +59,16 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <link rel="apple-touch-icon" href="../logo.png"/>
+<style>
+.guia-wrap{margin:0 0 16px;border:1px solid rgba(77,122,150,.35);border-radius:10px;overflow:hidden}
+.guia-wrap summary{cursor:pointer;padding:10px 16px;background:rgba(30,58,78,.6);color:var(--sub);font-size:.8rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+.guia-wrap summary:hover{color:var(--text)}
+.guia-wrap[open] summary{color:var(--text);background:rgba(30,58,78,.9)}
+.guia-body{padding:14px 18px;background:rgba(30,58,78,.4);font-size:.82rem;line-height:1.65;color:var(--text)}
+.guia-body ol{margin:8px 0 8px 18px;padding:0}
+.guia-body li{margin-bottom:5px}
+.guia-nota{margin-top:10px;padding:8px 12px;background:rgba(245,158,11,.07);border-left:3px solid var(--amber);border-radius:4px;font-size:.75rem;color:var(--sub)}
+</style>
 </head>
 <body>
 <div style="position:fixed;top:0;left:0;right:0;height:46px;background:rgba(30,58,78,.94);border-bottom:1px solid #35546f;display:flex;align-items:center;padding:0 16px;gap:10px;z-index:9999;font-family:Inter,system-ui,sans-serif;backdrop-filter:blur(14px)">
@@ -69,11 +79,19 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-
   <span style="color:#35546f">|</span>
   <span style="color:#eaf1f8;font-size:.76rem;font-weight:700">📋 Simulador F.931 Cargas Sociales</span>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-    <a href="https://www.buymeacoffee.com/impobot" target="_blank" style="font-size:.65rem;color:#000;background:#FFDD00;padding:3px 9px;border-radius:20px;text-decoration:none;font-weight:700">☕</a>
+    <a href="https://www.buymeacoffee.com/impobot" target="_blank" style="font-size:.65rem;color:#000;background:#FFDD00;padding:3px 9px;border-radius:20px;text-decoration:none;font-weight:700">☕</a> <a href="https://ko-fi.com/impobot" target="_blank" rel="noopener" title="Ko-fi" style="display:inline-flex;align-items:center;gap:4px;background:#FF5E5B;color:#fff;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;text-decoration:none;">☕ Ko-fi</a>
     <span style="background:rgba(11,130,245,.1);border:1px solid rgba(11,130,245,.2);color:#60a5fa;font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:4px">ARCA 2026</span>
   </div>
 </div>
 <div style="height:46px"></div>
+<details class="guia-wrap">
+  <summary>❓ ¿Cómo usar 📋 Simulador F.931?</summary>
+  <div class="guia-body">
+    <ol><li>Elegí el <strong>período</strong> y completá los datos del empleador.</li><li>Seleccioná el <strong>régimen</strong>: Régimen General (LCT) o Construcción (UOCRA/Ley 22.250).</li><li>Agregá cada empleado con CUIL, nombre, situación de revista y remuneración bruta.</li><li><strong>Modo UOCRA</strong>: indicá la antigüedad para calcular el Fondo de Cese e IERIC.</li><li>El resumen final muestra los totales por concepto para completar el F.931 en ARCA.</li></ol>
+    <div class="guia-nota">ℹ️ El simulador no presenta la declaración. Los montos deben ingresarse en el sistema ARCA-F.931.</div>
+  </div>
+</details>
+
 
 <div class="shell">
 
@@ -93,6 +111,21 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-
     <div class="field"><label>Tope SIPA vigente $</label>
       <input id="e-tope" type="number" value="4691748.47" oninput="recalcularTodo()"/>
     </div>
+  </div>
+</div>
+
+<!-- ══ RÉGIMEN ══ -->
+<div class="card" style="padding:16px 20px">
+  <div class="card-title">⚙ Régimen laboral</div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.9rem">
+      <input type="radio" name="regimen" value="general" checked onchange="cambiarRegimen(this.value)" style="accent-color:var(--blue-l)"/>
+      <span>📋 Régimen General (LCT)</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.9rem">
+      <input type="radio" name="regimen" value="uocra" onchange="cambiarRegimen(this.value)" style="accent-color:var(--amber)"/>
+      <span>🏗 Construcción — UOCRA (Ley 22.250)</span>
+    </label>
   </div>
 </div>
 
@@ -118,6 +151,22 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-
       <button class="btn btn-green" style="width:100%" onclick="agregarEmp()">➕ Agregar a la nómina</button>
     </div>
   </div>
+  <!-- Campos UOCRA (ocultos por defecto) -->
+  <div id="campos-uocra" style="display:none">
+    <div class="grid3" style="margin-top:10px">
+      <div class="field">
+        <label>Antigüedad (meses)</label>
+        <input id="n-antiguedad" type="number" placeholder="0" value="0" min="0"/>
+        <div style="font-size:.7rem;color:var(--sub);margin-top:3px">≤12 meses: 12% Fondo de Cese · >12 meses: 8%</div>
+      </div>
+      <div class="field" style="display:flex;align-items:center;gap:10px;padding-top:20px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
+          <input type="checkbox" id="n-sindical" checked style="accent-color:var(--amber)"/>
+          Afiliado UOCRA (cuota sindical 2%)
+        </label>
+      </div>
+    </div>
+  </div>
   <div id="msg-alta"></div>
 </div>
 
@@ -129,31 +178,8 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-
   </div>
   <div class="tabla-wrap">
     <table class="tabla-nom" id="tabla-nom">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>CUIL</th>
-          <th>Apellido y Nombre</th>
-          <th>Sit.</th>
-          <th>Bruto imponible</th>
-          <th>Base (topada)</th>
-          <!-- Aportes empleado -->
-          <th>Jub. 11%</th>
-          <th>PAMI 3%</th>
-          <th>OS 3%</th>
-          <th>Total ap.</th>
-          <!-- Contribuciones -->
-          <th>Prev 10.77%</th>
-          <th>PAMI 1.59%</th>
-          <th>OS 5.10%</th>
-          <th>FSR 0.90%</th>
-          <th>FNE 0.94%</th>
-          <th>AF 4.70%</th>
-          <th>SCVO</th>
-          <th>ART</th>
-          <th>Total contrib.</th>
-          <th></th>
-        </tr>
+      <thead id="thead-nom">
+        <!-- generado por JS según régimen -->
       </thead>
       <tbody id="tbody-nom"></tbody>
       <tfoot id="tfoot-nom"></tfoot>
@@ -170,6 +196,15 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-
     <div class="res-card"><div class="rl">Masa salarial bruta</div><div class="rv" id="tot-masa" style="color:#fff">—</div></div>
     <div class="res-card"><div class="rl">Total aportes (empleado)</div><div class="rv" id="tot-aportes" style="color:var(--amber)">—</div></div>
     <div class="res-card"><div class="rl">Total contribuciones (empleador)</div><div class="rv" id="tot-contrib" style="color:var(--red)">—</div></div>
+  </div>
+  <!-- UOCRA extra — oculto en modo General -->
+  <div id="row-ieric" style="display:none;margin-top:10px;padding:12px 16px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:10px">
+    <div style="font-size:.72rem;color:var(--amber);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">🏗 Liquidación UOCRA (Ley 22.250)</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+      <div><div style="font-size:.72rem;color:var(--sub)">Fondo de Cese Laboral total</div><div style="font-weight:700;color:var(--amber)" id="val-fondocese">—</div></div>
+      <div><div style="font-size:.72rem;color:var(--sub)">IERIC (1% del Fondo de Cese)</div><div style="font-weight:700;color:var(--amber)" id="val-ieric">—</div></div>
+    </div>
+    <div style="font-size:.68rem;color:var(--sub);margin-top:8px">El Fondo de Cese se deposita en cuenta bancaria del trabajador. El IERIC se autodeclara en su portal (ieric.org.ar).</div>
   </div>
 
   <div class="sep">Desglose contribuciones patronales</div>
@@ -229,31 +264,85 @@ function getTope(){ return parseFloat(document.getElementById('e-tope').value)||
 function fmt(n){ n=Math.abs(parseFloat(n)||0); var s=n.toFixed(2).split('.'); s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.'); return s[0]+','+s[1]; }
 function fmtM(n){ return '$ '+fmt(n); }
 
+function cambiarRegimen(val){
+  document.getElementById('campos-uocra').style.display = val==='uocra' ? 'block' : 'none';
+  // Limpiar nómina al cambiar régimen para evitar mezclas
+  if(nomina.length>0 && confirm('⚠ Cambiar el régimen borrará la nómina actual. ¿Continuar?')){
+    nomina = []; renderNomina();
+  } else if(nomina.length===0){
+    renderNomina();
+  } else {
+    // Revertir selección
+    document.querySelector('input[name="regimen"][value="'+(val==='uocra'?'general':'uocra')+'"]').checked=true;
+    document.getElementById('campos-uocra').style.display = val==='uocra' ? 'none' : 'block';
+  }
+}
+
+function getRegimen(){
+  var el = document.querySelector('input[name="regimen"]:checked');
+  return el ? el.value : 'general';
+}
+
 function calcEmp(emp){
   var tope = getTope();
   var bruto = emp.bruto;
-  var base  = Math.min(bruto, tope); // base topada
-
-  // Situación 01: activo — todos los aportes
-  // Situación 02: jubilado en actividad — sin aporte jub empleado
-  // Situación 03: pensionado — sin aportes previsionales
+  var base  = Math.min(bruto, tope);
   var sit = emp.sit;
+
+  if(emp.regimen === 'uocra'){
+    // ── MODO UOCRA (Ley 22.250) ──────────────────────
+    // Aportes empleado
+    var aJub  = (sit==='01') ? base*0.11 : 0;
+    var aPami = (sit==='01'||sit==='02') ? base*0.03 : 0;
+    var aOS   = base*0.03;
+    var aSind = (emp.sindical && sit==='01') ? bruto*0.02 : 0; // cuota sindical UOCRA (sin tope)
+    var totalAp = aJub+aPami+aOS+aSind;
+
+    // Contribuciones patronales UOCRA
+    var cPrev = (sit==='01') ? base*0.16 : base*0.16;  // SIPA patronal
+    var cPami = base*0.02;                               // INSSJP patronal
+    var cOS   = bruto*0.06;                              // OSYC sin tope
+    var cFNE  = base*0.015;                              // Fondo Nacional de Empleo
+    var cUOCRA = bruto*0.02;                             // Contribución sindical UOCRA patronal
+    var cART  = ART;
+
+    // Fondo de Cese Laboral (Ley 22.250) — se calcula sobre bruto
+    var pctCese = (emp.antiguedad <= 12) ? 0.12 : 0.08;
+    var fondoCese = bruto * pctCese;
+
+    // IERIC: se calcula a nivel nómina (1% del total Fondo de Cese)
+    // Lo guardamos en el objeto para sumar al final
+    var totalC = cPrev+cPami+cOS+cFNE+cUOCRA+cART+fondoCese;
+
+    return {bruto, base, aJub, aPami, aOS, aSind, totalAp,
+            cPrev, cPami, cOS, cFNE, cUOCRA, cART, fondoCese,
+            totalC, regimen:'uocra',
+            // campos unused en modo UOCRA (para no romper totalizador general)
+            cFSR:0, cAsig:0, cSCVO:0};
+  }
+
+  // ── MODO GENERAL (LCT) ──────────────────────────────
   var aJub  = (sit==='01') ? base*0.11 : 0;
   var aPami = (sit==='01'||sit==='02') ? base*0.03 : 0;
-  var aOS   = base*0.03;  // todos
+  var aOS   = base*0.03;
+  var aSind = 0;
   var totalAp = aJub+aPami+aOS;
 
-  var cPrev = (sit==='01') ? base*0.1077 : base*0.1077; // empleador siempre
+  var cPrev = base*0.1077;
   var cPami = base*0.0159;
-  var cOS   = bruto*0.051;   // sin tope
-  var cFSR  = bruto*0.009;   // sin tope
+  var cOS   = bruto*0.051;
+  var cFSR  = bruto*0.009;
   var cFNE  = base*0.0094;
   var cAsig = base*0.047;
   var cSCVO = SCVO;
   var cART  = ART;
+  var fondoCese = 0;
+  var cUOCRA = 0;
   var totalC = cPrev+cPami+cOS+cFSR+cFNE+cAsig+cSCVO+cART;
 
-  return {bruto,base,aJub,aPami,aOS,totalAp,cPrev,cPami,cOS,cFSR,cFNE,cAsig,cSCVO,cART,totalC};
+  return {bruto,base,aJub,aPami,aOS,aSind:0,totalAp,
+          cPrev,cPami,cOS,cFSR,cFNE,cAsig,cSCVO,cART,
+          fondoCese, cUOCRA, totalC, regimen:'general'};
 }
 
 function agregarEmp(){
@@ -270,7 +359,10 @@ function agregarEmp(){
   }
   document.getElementById('msg-alta').innerHTML='';
 
-  var emp = {id:nextId++, cuil, nombre, sit, categ, bruto, noRem};
+  var regimen = document.querySelector('input[name="regimen"]:checked').value;
+  var antiguedad = parseInt(document.getElementById('n-antiguedad').value)||0;
+  var sindical = document.getElementById('n-sindical').checked;
+  var emp = {id:nextId++, cuil, nombre, sit, categ, bruto, noRem, regimen, antiguedad, sindical};
   nomina.push(emp);
 
   // Limpiar formulario
@@ -278,8 +370,141 @@ function agregarEmp(){
   document.getElementById('n-rem').value='';
   document.getElementById('n-noRem').value='0';
   document.getElementById('n-sit').value='01';
+  document.getElementById('n-antiguedad').value='0';
+  document.getElementById('n-sindical').checked=true;
 
   renderNomina();
+}
+
+function eliminarEmp(id){
+  nomina = nomina.filter(function(e){return e.id!==id;});
+  renderNomina();
+}
+
+function renderNomina(){
+  if(!nomina.length){
+    document.getElementById('card-nomina').style.display='none';
+    document.getElementById('card-resumen').style.display='none';
+    return;
+  }
+  document.getElementById('card-nomina').style.display='block';
+  document.getElementById('card-resumen').style.display='block';
+  document.getElementById('badge-cant').textContent=nomina.length+' empleado'+(nomina.length>1?'s':'');
+
+  var reg = getRegimen();
+  var esUOCRA = reg==='uocra';
+
+  // ── THEAD dinámico ──
+  var thead = '<tr><th>#</th><th>CUIL</th><th>Apellido y Nombre</th><th>Sit.</th>';
+  thead += '<th>Bruto</th><th>Base (topada)</th>';
+  thead += '<th>Jub. 11%</th><th>PAMI 3%</th><th>OS 3%</th>';
+  if(esUOCRA) thead += '<th>Sind. 2%</th>';
+  thead += '<th>Total ap.</th>';
+  if(esUOCRA){
+    thead += '<th>SIPA 16%</th><th>PAMI 2%</th><th>OS 6%</th>';
+    thead += '<th>FNE 1.5%</th><th>UOCRA 2%</th><th>ART</th>';
+    thead += '<th>F.Cese 12/8%</th>';
+  } else {
+    thead += '<th>Prev 10.77%</th><th>PAMI 1.59%</th><th>OS 5.10%</th>';
+    thead += '<th>FSR 0.90%</th><th>FNE 0.94%</th><th>AF 4.70%</th>';
+    thead += '<th>SCVO</th><th>ART</th>';
+  }
+  thead += '<th>Total contrib.</th><th></th></tr>';
+  document.getElementById('thead-nom').innerHTML = thead;
+
+  // ── FILAS ──
+  var rows='';
+  var totBruto=0,totBase=0,totAJub=0,totAPami=0,totAOS=0,totASind=0,totAp=0;
+  var totCPrev=0,totCPami=0,totCOS=0,totCFSR=0,totCFNE=0,totCAsig=0,totCSCVO=0,totCART=0,totCUOCRA=0,totCese=0,totC=0;
+
+  nomina.forEach(function(emp,i){
+    var cl = calcEmp(emp);
+    totBruto+=cl.bruto; totBase+=cl.base;
+    totAJub+=cl.aJub; totAPami+=cl.aPami; totAOS+=cl.aOS;
+    totASind+=(cl.aSind||0); totAp+=cl.totalAp;
+    totCPrev+=cl.cPrev; totCPami+=cl.cPami; totCOS+=cl.cOS;
+    totCFSR+=(cl.cFSR||0); totCFNE+=cl.cFNE; totCAsig+=(cl.cAsig||0);
+    totCSCVO+=(cl.cSCVO||0); totCART+=cl.cART;
+    totCUOCRA+=(cl.cUOCRA||0); totCese+=(cl.fondoCese||0); totC+=cl.totalC;
+
+    rows+='<tr>';
+    rows+='<td style="color:var(--sub)">'+(i+1)+'</td>';
+    rows+='<td>'+emp.cuil+'</td>';
+    rows+='<td style="font-weight:600">'+emp.nombre+'</td>';
+    rows+='<td style="text-align:center">'+emp.sit+'</td>';
+    rows+='<td>'+fmt(cl.bruto)+'</td>';
+    rows+='<td>'+(cl.bruto>getTope()?'<span style="color:var(--amber)">'+fmt(cl.base)+'⚠</span>':fmt(cl.base))+'</td>';
+    rows+='<td style="color:var(--amber)">'+fmt(cl.aJub)+'</td>';
+    rows+='<td style="color:var(--amber)">'+fmt(cl.aPami)+'</td>';
+    rows+='<td style="color:var(--amber)">'+fmt(cl.aOS)+'</td>';
+    if(esUOCRA) rows+='<td style="color:var(--amber)">'+fmt(cl.aSind||0)+'</td>';
+    rows+='<td style="color:var(--amber);font-weight:700">'+fmt(cl.totalAp)+'</td>';
+    if(esUOCRA){
+      rows+='<td style="color:var(--red)">'+fmt(cl.cPrev)+'</td>';
+      rows+='<td style="color:var(--red)">'+fmt(cl.cPami)+'</td>';
+      rows+='<td style="color:var(--red)">'+fmt(cl.cOS)+'</td>';
+      rows+='<td style="color:var(--red)">'+fmt(cl.cFNE)+'</td>';
+      rows+='<td style="color:var(--red)">'+fmt(cl.cUOCRA||0)+'</td>';
+      rows+='<td style="color:var(--red)">'+fmt(cl.cART)+'</td>';
+      rows+='<td style="color:var(--red)">'+fmt(cl.fondoCese||0)+'</td>';
+    } else {
+      rows+='<td style="color:var(--red)">'+fmt(cl.cPrev)+'</td>';
+      rows+='<td style="color:var(--red)">'+fmt(cl.cPami)+'</td>';
+      rows+='<td style="color:var(--red)">'+fmt(cl.cOS)+'</td>';
+      rows+='<td style="color:var(--red)">'+fmt(cl.cFSR||0)+'</td>';
+      rows+='<td style="color:var(--red)">'+fmt(cl.cFNE)+'</td>';
+      rows+='<td style="color:var(--red)">'+fmt(cl.cAsig||0)+'</td>';
+      rows+='<td style="color:var(--red)">'+fmt(cl.cSCVO||0)+'</td>';
+      rows+='<td style="color:var(--red)">'+fmt(cl.cART)+'</td>';
+    }
+    rows+='<td style="color:var(--red);font-weight:700">'+fmt(cl.totalC)+'</td>';
+    rows+='<td><button class="btn btn-red" onclick="eliminarEmp('+emp.id+')">✕</button></td>';
+    rows+='</tr>';
+  });
+
+  document.getElementById('tbody-nom').innerHTML=rows;
+
+  // IERIC (modo UOCRA): 1% del total del Fondo de Cese de todos los empleados
+  var ieric = esUOCRA ? totCese*0.01 : 0;
+  var totCConIERIC = totC + ieric;
+
+  // ── TFOOT ──
+  var tf='<tr class="tot-row">';
+  tf+='<td colspan="4" style="text-align:left;font-weight:700">TOTALES ('+nomina.length+' empleado'+(nomina.length>1?'s':'')+')</td>';
+  tf+='<td>'+fmt(totBruto)+'</td><td>'+fmt(totBase)+'</td>';
+  tf+='<td>'+fmt(totAJub)+'</td><td>'+fmt(totAPami)+'</td><td>'+fmt(totAOS)+'</td>';
+  if(esUOCRA) tf+='<td>'+fmt(totASind)+'</td>';
+  tf+='<td style="color:var(--amber)">'+fmt(totAp)+'</td>';
+  if(esUOCRA){
+    tf+='<td>'+fmt(totCPrev)+'</td><td>'+fmt(totCPami)+'</td><td>'+fmt(totCOS)+'</td>';
+    tf+='<td>'+fmt(totCFNE)+'</td><td>'+fmt(totCUOCRA)+'</td><td>'+fmt(totCART)+'</td>';
+    tf+='<td>'+fmt(totCese)+'</td>';
+  } else {
+    tf+='<td>'+fmt(totCPrev)+'</td><td>'+fmt(totCPami)+'</td><td>'+fmt(totCOS)+'</td>';
+    tf+='<td>'+fmt(totCFSR)+'</td><td>'+fmt(totCFNE)+'</td><td>'+fmt(totCAsig)+'</td>';
+    tf+='<td>'+fmt(totCSCVO)+'</td><td>'+fmt(totCART)+'</td>';
+  }
+  tf+='<td style="color:var(--red)">'+fmt(esUOCRA?totCConIERIC:totC)+'</td>';
+  tf+='<td></td></tr>';
+  document.getElementById('tfoot-nom').innerHTML=tf;
+
+  // ── RESUMEN ──
+  document.getElementById('tot-cant').textContent=nomina.length;
+  document.getElementById('tot-masa').textContent=fmt(totBruto);
+  document.getElementById('tot-aportes').textContent=fmt(totAp);
+  document.getElementById('tot-contrib').textContent=fmt(esUOCRA?totCConIERIC:totC);
+  document.getElementById('tot-total').textContent=fmt(totAp+(esUOCRA?totCConIERIC:totC));
+  document.getElementById('lbl-periodo').textContent=document.getElementById('sel-periodo').options[document.getElementById('sel-periodo').selectedIndex].text;
+
+  // Mostrar/ocultar fila IERIC en resumen
+  var rowIeric = document.getElementById('row-ieric');
+  if(rowIeric){
+    rowIeric.style.display = esUOCRA ? '' : 'none';
+    if(esUOCRA){
+      document.getElementById('val-fondocese').textContent=fmt(totCese);
+      document.getElementById('val-ieric').textContent=fmt(ieric);
+    }
+  }
 }
 
 function eliminarEmp(id){
@@ -507,5 +732,6 @@ function generarPDF(){
     color:#7fa0be;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;
     justify-content:center;font-size:.95rem;text-decoration:none;box-shadow:0 2px 12px rgba(0,0,0,.3)"
   onmouseover="this.style.color='#eaf1f8'" onmouseout="this.style.color='#7fa0be'"><img src="data:image/png;base64,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" style="width:20px;height:20px;object-fit:contain" alt="Reportar"/></a>
+<script src="/bot.js"></script>
 </body>
 </html>

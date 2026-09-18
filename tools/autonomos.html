@@ -53,6 +53,17 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <link rel="apple-touch-icon" href="../logo.png"/>
+
+<style>
+.guia-wrap{margin:0 0 16px;border:1px solid rgba(77,122,150,.35);border-radius:10px;overflow:hidden}
+.guia-wrap summary{cursor:pointer;padding:10px 16px;background:rgba(30,58,78,.6);color:var(--sub);font-size:.8rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+.guia-wrap summary:hover{color:var(--text)}
+.guia-wrap[open] summary{color:var(--text);background:rgba(30,58,78,.9)}
+.guia-body{padding:14px 18px;background:rgba(30,58,78,.4);font-size:.82rem;line-height:1.65;color:var(--text)}
+.guia-body ol{margin:8px 0 8px 18px;padding:0}
+.guia-body li{margin-bottom:5px}
+.guia-nota{margin-top:10px;padding:8px 12px;background:rgba(245,158,11,.07);border-left:3px solid var(--amber);border-radius:4px;font-size:.75rem;color:var(--sub)}
+</style>
 </head>
 <body>
 <div style="position:fixed;top:0;left:0;right:0;height:46px;background:rgba(30,58,78,.94);border-bottom:1px solid #35546f;display:flex;align-items:center;padding:0 16px;gap:10px;z-index:9999;font-family:Inter,system-ui,sans-serif;backdrop-filter:blur(14px)">
@@ -63,7 +74,7 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
   <span style="color:#35546f">|</span>
   <span id="tnav-title" style="color:#eaf1f8;font-size:.76rem;font-weight:700"></span>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-    <a href="https://www.buymeacoffee.com/impobot" target="_blank" style="font-size:.65rem;color:#000;background:#FFDD00;padding:3px 9px;border-radius:20px;text-decoration:none;font-weight:700">☕</a>
+    <a href="https://www.buymeacoffee.com/impobot" target="_blank" style="font-size:.65rem;color:#000;background:#FFDD00;padding:3px 9px;border-radius:20px;text-decoration:none;font-weight:700">☕</a> <a href="https://ko-fi.com/impobot" target="_blank" rel="noopener" title="Ko-fi" style="display:inline-flex;align-items:center;gap:4px;background:#FF5E5B;color:#fff;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;text-decoration:none;">☕ Ko-fi</a>
     <span style="background:rgba(11,130,245,.1);border:1px solid rgba(11,130,245,.2);color:#60a5fa;font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:4px">ARCA 2026</span>
   </div>
 </div>
@@ -78,6 +89,15 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
   <div class="nav-badge">✓ ARCA 2026</div>
 </nav>
 <div class="app">
+
+<details class="guia-wrap">
+  <summary>❓ ¿Cómo usar 💼 Aportes Autónomos?</summary>
+  <div class="guia-body">
+    <ol><li>Seleccioná tu <strong>categoría de revista</strong> (A a J) según tu actividad e ingresos.</li><li>El sistema muestra el <strong>aporte mensual obligatorio</strong> vigente (actualizado septiembre 2026).</li><li>Las categorías se determinan por los ingresos brutos del año anterior.</li><li><strong>Categoría A</strong> es la más baja; <strong>Categoría J</strong> la más alta.</li><li>El aporte se paga mensualmente a ARCA, independientemente de si tuviste ingresos ese mes.</li></ol>
+    <div class="guia-nota">ℹ️ Las alícuotas y montos se actualizan por resolución de ARCA. Verificá siempre en arca.gob.ar antes de pagar.</div>
+  </div>
+</details>
+
 <div class="panel-l">
   <div class="card">
     <div class="card-hd">💼 Datos del autónomo</div>
@@ -252,5 +272,6 @@ function calcular(){
     color:#7fa0be;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;
     justify-content:center;font-size:.95rem;text-decoration:none;box-shadow:0 2px 12px rgba(0,0,0,.3)"
   onmouseover="this.style.color='#eaf1f8'" onmouseout="this.style.color='#7fa0be'"><img src="data:image/png;base64,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" style="width:20px;height:20px;object-fit:contain" alt="Reportar"/></a>
+<script src="/bot.js"></script>
 </body>
 </html>
