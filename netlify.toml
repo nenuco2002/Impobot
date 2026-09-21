@@ -4,6 +4,9 @@
 [build]
   publish = "."
 
+[functions]
+  directory = "netlify/functions"
+
 # Redirigir HTTP → HTTPS y www
 [[redirects]]
   from = "http://impobot.com.ar/*"

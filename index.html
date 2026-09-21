@@ -260,22 +260,50 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
     </div>
     <div class="card news-card">
       <div class="news-hd">📰 Últimas novedades</div>
-      <a class="news-item" href="https://www.ambito.com/informacion-general/arca-la-fecha-clave-septiembre-2026-que-todos-los-monotributistas-tienen-que-conocer-n6315853" target="_blank" rel="noopener">
-        <span class="news-date">21 sep</span>
-        <span class="news-text"><strong>Monotributo:</strong> el pago de septiembre vence el lunes 21 (el 20 cayó domingo), con la actualización de cuotas del 16,8%.</span>
-      </a>
-      <a class="news-item" href="https://www.eldestapeweb.com/economia/arca-volvio-prorrogar-ganancias-nuevo-vencimiento-20269201600" target="_blank" rel="noopener">
-        <span class="news-date">13 oct</span>
-        <span class="news-text"><strong>Ganancias:</strong> ARCA prorrogó la DDJJ de personas humanas del período fiscal 2025 (RG 5890/2026).</span>
-      </a>
-      <a class="news-item" href="https://www.lanacion.com.ar/economia/el-gobierno-aumento-el-salario-minimo-vital-y-movil-en-cuanto-queda-a-partir-de-septiembre-y-como-se-nid02092026/" target="_blank" rel="noopener">
-        <span class="news-date">1 sep</span>
-        <span class="news-text"><strong>SMVyM:</strong> subió a $383.800 en septiembre, con actualización mensual programada hasta abril 2027.</span>
-      </a>
+      <div id="news-list">
+        <a class="news-item" href="https://www.ambito.com/informacion-general/arca-la-fecha-clave-septiembre-2026-que-todos-los-monotributistas-tienen-que-conocer-n6315853" target="_blank" rel="noopener">
+          <span class="news-date">21 sep</span>
+          <span class="news-text"><strong>Monotributo:</strong> el pago de septiembre vence el lunes 21 (el 20 cayó domingo), con la actualización de cuotas del 16,8%.</span>
+        </a>
+        <a class="news-item" href="https://www.eldestapeweb.com/economia/arca-volvio-prorrogar-ganancias-nuevo-vencimiento-20269201600" target="_blank" rel="noopener">
+          <span class="news-date">13 oct</span>
+          <span class="news-text"><strong>Ganancias:</strong> ARCA prorrogó la DDJJ de personas humanas del período fiscal 2025 (RG 5890/2026).</span>
+        </a>
+        <a class="news-item" href="https://www.lanacion.com.ar/economia/el-gobierno-aumento-el-salario-minimo-vital-y-movil-en-cuanto-queda-a-partir-de-septiembre-y-como-se-nid02092026/" target="_blank" rel="noopener">
+          <span class="news-date">1 sep</span>
+          <span class="news-text"><strong>SMVyM:</strong> subió a $383.800 en septiembre, con actualización mensual programada hasta abril 2027.</span>
+        </a>
+      </div>
       <a class="news-more" href="https://www.arca.gob.ar" target="_blank" rel="noopener">Ver más novedades en ARCA →</a>
     </div>
   </div>
 </div>
+<script>
+(function () {
+  // Reemplaza las novedades estáticas por las que trae en vivo la función
+  // serverless de Netlify (/.netlify/functions/news). Si falla o no está
+  // desplegada, se quedan los 3 items estáticos de arriba (fallback silencioso).
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  fetch('/.netlify/functions/news', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (data) {
+      if (!data || !data.ok || !data.items || !data.items.length) return;
+      var list = document.getElementById('news-list');
+      if (!list) return;
+      list.innerHTML = data.items.map(function (it) {
+        return '<a class="news-item" href="' + esc(it.link) + '" target="_blank" rel="noopener">' +
+          '<span class="news-date">' + esc(it.dateLabel) + '</span>' +
+          '<span class="news-text">' + esc(it.title) + (it.source ? ' <span style="opacity:.6">— ' + esc(it.source) + '</span>' : '') + '</span>' +
+          '</a>';
+      }).join('');
+    })
+    .catch(function () { /* silencio: se queda el fallback estático */ });
+})();
+</script>
 
 <!-- TOOLS -->
 <div class="section" id="tools">
