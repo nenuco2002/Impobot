@@ -77,24 +77,35 @@ img{max-width:100%}
 .panel-search input:focus{border-color:var(--blue)}
 .panel-search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
 
-/* ── WELCOME CARD + STATS (tipo widgets del panel de control) ── */
-.welcome-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:26px}
+/* ── HERO (oscuro, como la portada original) + NOTICIAS ── */
+.welcome-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:26px;align-items:stretch}
 @media(max-width:900px){.welcome-grid{grid-template-columns:1fr}}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
-.welcome-card{padding:28px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
-.welcome-card::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(11,130,245,.08),transparent 70%)}
+
+.hero-card{padding:30px;display:flex;align-items:center;gap:26px;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--navy-1),var(--navy-2));border-color:var(--navy-1)}
+.hero-glow{position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 20% 30%,rgba(11,130,245,.22),transparent 65%)}
+.hero-logo{flex-shrink:0;position:relative;z-index:1}
+.hero-logo img{width:128px;height:128px;border-radius:50%;border:3px solid rgba(56,189,248,.3);box-shadow:0 0 40px rgba(11,130,245,.35),0 0 80px rgba(11,130,245,.12)}
+.hero-copy{position:relative;z-index:1}
 .welcome-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(11,130,245,.08);border:1px solid rgba(11,130,245,.18);color:var(--blue-d);font-size:.7rem;font-weight:700;padding:5px 13px;border-radius:20px;margin-bottom:14px;width:fit-content}
-.welcome-card h2{font-size:1.5rem;font-weight:900;letter-spacing:-.03em;line-height:1.15;color:var(--ink);margin-bottom:10px}
-.welcome-card h2 span{background:linear-gradient(135deg,var(--blue-d),var(--blue-l));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.welcome-card p{font-size:.85rem;color:var(--ink-2);line-height:1.6;max-width:480px;margin-bottom:18px}
+.welcome-badge--dark{background:rgba(56,189,248,.1);border-color:rgba(56,189,248,.25);color:#7dd3fc}
+.hero-copy h2{font-size:1.5rem;font-weight:900;letter-spacing:-.03em;line-height:1.15;color:#fff;margin-bottom:10px}
+.hero-copy h2 span{background:linear-gradient(135deg,var(--blue-l),#7dd3fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-copy p{font-size:.85rem;color:#a9b8cc;line-height:1.6;max-width:440px;margin-bottom:18px}
 .welcome-cta{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,var(--blue-d),var(--blue));color:#fff;font-size:.85rem;font-weight:700;padding:11px 22px;border-radius:11px;text-decoration:none;box-shadow:0 6px 18px rgba(11,130,245,.28);transition:all .2s;width:fit-content}
 .welcome-cta:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(11,130,245,.35)}
+@media(max-width:700px){.hero-card{flex-direction:column;text-align:center;padding:26px 22px}.hero-copy p{max-width:none}.welcome-badge,.welcome-cta{margin-left:auto;margin-right:auto}.hero-logo img{width:96px;height:96px}}
 
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.stat-tile{padding:18px;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden}
-.stat-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--blue))}
-.stat-tile .n{font-size:1.35rem;font-weight:900;color:var(--ink);letter-spacing:-.03em}
-.stat-tile .l{font-size:.66rem;color:var(--ink-2);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.news-card{padding:20px 22px;display:flex;flex-direction:column}
+.news-hd{font-size:.82rem;font-weight:800;color:var(--ink);margin-bottom:12px}
+.news-item{display:flex;align-items:flex-start;gap:10px;text-decoration:none;padding:8px 0;border-top:1px solid var(--border)}
+.news-item:first-of-type{border-top:none;padding-top:0}
+.news-date{flex-shrink:0;font-size:.62rem;font-weight:700;color:var(--blue-d);background:rgba(11,130,245,.08);border-radius:6px;padding:3px 7px;text-transform:uppercase;letter-spacing:.03em;margin-top:1px}
+.news-text{font-size:.76rem;color:var(--ink-2);line-height:1.5}
+.news-text strong{color:var(--ink)}
+.news-item:hover .news-text{color:var(--ink)}
+.news-more{margin-top:auto;padding-top:10px;font-size:.72rem;font-weight:700;color:var(--blue-d);text-decoration:none}
+.news-more:hover{text-decoration:underline}
 
 /* ── TOOLS GRID ── */
 .section{padding:6px 28px 50px;max-width:1280px;margin:0 auto}
@@ -237,17 +248,31 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
   </div>
 
   <div class="welcome-grid">
-    <div class="card welcome-card">
-      <div class="welcome-badge">Impositivo + Inteligente = <strong>ImpoBot</strong></div>
-      <h2>Resolvé <span>impuestos y sueldos</span><br/>sin vueltas</h2>
-      <p>Monotributo, Ganancias, sueldos, retenciones y vencimientos en un solo lugar. Gratis, sin registro y con las tablas ARCA/ANSES 2026 siempre actualizadas.</p>
-      <a class="welcome-cta" href="#tools">Explorar herramientas →</a>
+    <div class="card hero-card">
+      <div class="hero-glow"></div>
+      <div class="hero-logo"><img src="logo.png" alt="ImpoBot — Robot fiscal inteligente"/></div>
+      <div class="hero-copy">
+        <div class="welcome-badge welcome-badge--dark">Impositivo + Inteligente = <strong>ImpoBot</strong></div>
+        <h2>El bot que entiende<br/>tus <span>impuestos</span></h2>
+        <p>Calculadoras fiscales para contadores y para cualquiera que quiera entender lo que le descuentan. Gratis, sin registro, siempre actualizado.</p>
+        <a class="welcome-cta" href="#tools">Explorar herramientas →</a>
+      </div>
     </div>
-    <div class="stat-grid">
-      <div class="card stat-tile" style="--accent:var(--blue)"><div class="n">14</div><div class="l">Herramientas</div></div>
-      <div class="card stat-tile" style="--accent:#38bdf8"><div class="n">2026.2</div><div class="l">Tablas ARCA</div></div>
-      <div class="card stat-tile" style="--accent:#10b981"><div class="n">SIRADIG</div><div class="l">Import auto</div></div>
-      <div class="card stat-tile" style="--accent:#f59e0b"><div class="n">Dec. 407</div><div class="l">Recibos LSD</div></div>
+    <div class="card news-card">
+      <div class="news-hd">📰 Últimas novedades</div>
+      <a class="news-item" href="https://www.ambito.com/informacion-general/arca-la-fecha-clave-septiembre-2026-que-todos-los-monotributistas-tienen-que-conocer-n6315853" target="_blank" rel="noopener">
+        <span class="news-date">21 sep</span>
+        <span class="news-text"><strong>Monotributo:</strong> el pago de septiembre vence el lunes 21 (el 20 cayó domingo), con la actualización de cuotas del 16,8%.</span>
+      </a>
+      <a class="news-item" href="https://www.eldestapeweb.com/economia/arca-volvio-prorrogar-ganancias-nuevo-vencimiento-20269201600" target="_blank" rel="noopener">
+        <span class="news-date">13 oct</span>
+        <span class="news-text"><strong>Ganancias:</strong> ARCA prorrogó la DDJJ de personas humanas del período fiscal 2025 (RG 5890/2026).</span>
+      </a>
+      <a class="news-item" href="https://www.lanacion.com.ar/economia/el-gobierno-aumento-el-salario-minimo-vital-y-movil-en-cuanto-queda-a-partir-de-septiembre-y-como-se-nid02092026/" target="_blank" rel="noopener">
+        <span class="news-date">1 sep</span>
+        <span class="news-text"><strong>SMVyM:</strong> subió a $383.800 en septiembre, con actualización mensual programada hasta abril 2027.</span>
+      </a>
+      <a class="news-more" href="https://www.arca.gob.ar" target="_blank" rel="noopener">Ver más novedades en ARCA →</a>
     </div>
   </div>
 </div>
@@ -579,9 +604,9 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
 </a>
 <a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" class="bmc-float">☕ Café</a>
 <button onclick="abrirBugReport()" title="Reportar un problema"
-  style="position:fixed;bottom:126px;right:20px;z-index:998;background:#fff;border:1px solid var(--border);color:var(--ink-2);width:42px;height:42px;border-radius:50%;font-size:1.1rem;cursor:pointer;box-shadow:0 2px 12px rgba(16,24,40,.18);transition:all .2s"
-  onmouseover="this.style.color='var(--ink)';this.style.borderColor='var(--blue-l)'"
-  onmouseout="this.style.color='var(--ink-2)';this.style.borderColor='var(--border)'">🐞</button>
+  style="position:fixed;bottom:126px;right:20px;z-index:998;background:#fff;border:1px solid var(--border);width:44px;height:44px;border-radius:50%;padding:0;cursor:pointer;box-shadow:0 2px 12px rgba(16,24,40,.18);transition:all .2s;overflow:hidden"
+  onmouseover="this.style.borderColor='var(--blue-l)';this.style.transform='scale(1.06)'"
+  onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'"><img src="mascot-report.png" alt="Reportar un problema" style="width:100%;height:100%;object-fit:cover"/></button>
 
 <script>
 // ── Buscador de herramientas ──────────────────────────────
