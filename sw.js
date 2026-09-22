@@ -1,5 +1,5 @@
 // ImpoBot Service Worker — Cache primero para assets estáticos
-var CACHE = 'impobot-v3';
+var CACHE = 'impobot-v4';
 var ASSETS = [
   '/',
   '/index.html',
@@ -18,6 +18,9 @@ var ASSETS = [
   '/tools/rg830.html',
   '/tools/valores.html',
   '/tools/uva.html',
+  '/tools/procesador.html',
+  '/tools/procesador/core.js',
+  '/tools/procesador/app.js',
 ];
 
 self.addEventListener('install', function(e){

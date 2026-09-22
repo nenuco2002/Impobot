@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Procesador de Documentos — ImpoBot</title>
+<meta name="description" content="Convertí facturas, resúmenes de tarjeta y extractos bancarios en Excel, TXT de Libro IVA Digital y archivos de importación. Todo se procesa en tu navegador.">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="manifest" href="../manifest.json"/>
+<meta name="theme-color" content="#0b82f5"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<link rel="apple-touch-icon" href="../logo.png"/>
+<style>
+/* ── FH: header ImpoBot (rediseño, estructura tipo dashboard) ── */
+.fh-head{position:sticky;top:0;z-index:500;font-family:'Inter',system-ui,sans-serif}
+.fh-bar{height:46px;display:flex;align-items:center;gap:10px;padding:0 16px;background:linear-gradient(135deg,#0b1220,#141d2e);border-bottom:1px solid rgba(255,255,255,.06)}
+.fh-brand{display:flex;align-items:center;gap:7px;text-decoration:none;flex-shrink:0}
+.fh-brand img{width:24px;height:24px;border-radius:50%;display:block}
+.fh-word{font-size:.86rem;font-weight:800;color:#eaf1f8;letter-spacing:-.02em;white-space:nowrap}
+.fh-word b{color:#38bdf8;font-weight:800}
+.fh-sep{width:1px;height:20px;background:rgba(255,255,255,.15);flex-shrink:0}
+.fh-title{font-size:.78rem;font-weight:700;color:#eaf1f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fh-tools{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.fh-chip{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-size:.75rem;text-decoration:none;background:rgba(255,255,255,.07);transition:background .15s}
+.fh-chip:hover{background:rgba(255,255,255,.14)}
+.fh-strip{height:28px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px;background:linear-gradient(90deg,#0b82f5,#0ea5e9);font-size:.66rem;font-weight:600;color:#eaf6ff;overflow:hidden}
+.fh-crumb a{color:#eaf6ff;opacity:.85;text-decoration:none}
+.fh-crumb a:hover{opacity:1;text-decoration:underline}
+.fh-crumb i{opacity:.6;margin:0 4px;font-style:normal}
+.fh-meta{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
+.fh-badge{background:rgba(255,255,255,.2);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.02em}
+@media(max-width:640px){.fh-strip .fh-meta-text{display:none}.fh-title{max-width:130px}}
+:root{
+  --bg:#2d4f68;--panel:#375e7a;--ink:#e8edf5;--muted:#b3c2d6;--line:#4d7a96;--line2:rgba(77,122,150,.45);
+  --accent:#38bdf8;--accent-ink:#0b1220;--accent-soft:rgba(56,189,248,.14);--ok:#34d399;--ok-soft:rgba(52,211,153,.12);--warn:#fbbf24;--warn-soft:rgba(251,191,36,.12);--bad:#f87171;--bad-soft:rgba(248,113,113,.12);
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--muted);margin:0}
+.priv{display:inline-block;margin-top:8px;font-size:12px;color:var(--ok);background:var(--ok-soft);padding:3px 8px;border-radius:99px}
+main{max-width:1400px;margin:auto;padding:12px 16px 60px}
+nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:16px 0;overflow-x:auto}
+nav.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 14px;color:var(--muted);font:inherit;font-weight:600;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--accent);border-color:var(--accent)}
+nav.tabs .n{font-weight:500;font-size:12px;background:var(--line2);border-radius:99px;padding:1px 7px;margin-left:4px}
+section[hidden]{display:none}
+.drop{border:2px dashed var(--line);border-radius:12px;background:var(--panel);padding:26px 16px;text-align:center;color:var(--muted);cursor:pointer;transition:.15s}
+.drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.drop b{color:var(--ink)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.bar .sp{flex:1}
+button.b{font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 12px;border-radius:8px;cursor:pointer}
+button.b:hover{border-color:var(--accent)}
+button.p{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.b:disabled{opacity:.45;cursor:not-allowed}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.card .k{font-size:12px;color:var(--muted)}.card .v{font-size:18px;font-weight:650;font-variant-numeric:tabular-nums}
+.card.ok{border-color:var(--ok)}.card.bad{border-color:var(--bad)}
+.tw{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:65vh}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{position:sticky;top:0;background:var(--panel);z-index:1;text-align:left;font-weight:600;color:var(--muted);border-bottom:1px solid var(--line);padding:7px 6px;white-space:nowrap}
+td{border-bottom:1px solid var(--line2);padding:2px 4px;vertical-align:middle;white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td input,td select{font:inherit;color:inherit;background:transparent;border:1px solid transparent;border-radius:5px;padding:4px;width:100%;min-width:60px}
+td input:hover,td select:hover{border-color:var(--line)}
+td input:focus,td select:focus{outline:none;border-color:var(--accent);background:var(--accent-soft)}
+td.num input{text-align:right;font-variant-numeric:tabular-nums;min-width:104px}
+td input.w-s{min-width:48px;width:56px}td input.w-m{min-width:120px}td input.w-l{min-width:200px}
+tr.flag td:first-child{box-shadow:inset 3px 0 var(--warn)}
+tr.okr td:first-child{box-shadow:inset 3px 0 var(--ok)}
+.fl{font-size:12px;color:var(--warn);background:var(--warn-soft);border-radius:5px;padding:2px 6px;white-space:normal;display:inline-block;max-width:320px}
+.okt{font-size:12px;color:var(--ok)}
+.x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:16px}.x:hover{color:var(--bad)}
+.muted{color:var(--muted)}.small{font-size:12px}
+.log{font-size:12px;color:var(--muted);margin-top:8px;white-space:pre-wrap}
+details.cfg{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+details.cfg summary{cursor:pointer;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:10px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+label.f input,label.f select,label.f textarea{font:inherit;font-size:13px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:7px}
+label.f textarea{font-family:var(--mono);min-height:110px;resize:vertical}
+h3{font-size:15px;margin:18px 0 6px}
+.pill{font-size:11px;border-radius:99px;padding:1px 7px;background:var(--line2);color:var(--muted)}
+.help{font-size:12px;color:var(--muted);line-height:1.5}
+.help code{font-family:var(--mono);background:var(--line2);padding:0 4px;border-radius:4px}
+@media (max-width:640px){h1{font-size:19px}}
+td select option,label.f select option{background:#375e7a;color:#e8edf5}
+.intro{max-width:1400px;margin:auto;padding:18px 16px 0}
+</style>
+</head>
+<body>
+<header class="fh-head">
+  <div class="fh-bar">
+    <a class="fh-brand" href="../index.html">
+      <img src="../logo-sm.png" alt="ImpoBot"/>
+      <span class="fh-word"><b>impo</b>bot</span>
+    </a>
+    <span class="fh-sep"></span>
+    <span class="fh-title">🗂️ Procesador de Documentos</span>
+    <div class="fh-tools">
+      <a class="fh-chip" style="background:#FFDD00;color:#000" href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" title="Buy Me a Coffee">☕</a>
+      <a class="fh-chip" style="background:#FF5E5B;color:#fff" href="https://ko-fi.com/impobot" target="_blank" rel="noopener" title="Ko-fi">💙</a>
+    </div>
+  </div>
+  <div class="fh-strip">
+    <span class="fh-crumb"><a href="../index.html">Herramientas</a><i>›</i><strong>Procesador de Documentos</strong></span>
+    <span class="fh-meta"><span class="fh-meta-text">Facturas · Tarjetas · Bancos</span><span class="fh-badge">100% local</span></span>
+  </div>
+</header>
+<div class="intro">
+  <h1>Procesador de Documentos</h1>
+  <p class="sub">Facturas, resúmenes de tarjeta y extractos bancarios → Excel, Libro IVA Digital, importación a SOS-Contador y asientos.</p>
+  <span class="priv">🔒 Todo se procesa en tu navegador — ningún archivo sale de tu equipo</span>
+</div>
+<main>
+<nav class="tabs" role="tablist">
+  <button role="tab" data-tab="fac" aria-selected="true">Facturas / comprobantes <span class="n" id="nFac">0</span></button>
+  <button role="tab" data-tab="tar" aria-selected="false">Resúmenes de tarjeta <span class="n" id="nTar">0</span></button>
+  <button role="tab" data-tab="ban" aria-selected="false">Extractos bancarios <span class="n" id="nBan">0</span></button>
+  <button role="tab" data-tab="cfg" aria-selected="false">Configuración</button>
+</nav>
+
+<!-- ─────────── FACTURAS ─────────── -->
+<section id="tab-fac">
+  <div class="drop" data-kind="fac"><b>Arrastrá PDFs de facturas</b> o hacé clic para elegirlos<br><span class="small">Lee el texto del PDF y el QR de ARCA. Detecta tipo, PV, número, CUIT, netos por alícuota, IVA, percepciones y total.</span></div>
+  <div class="bar">
+    <button class="b" id="facAdd">+ Fila manual</button>
+    <button class="b" id="facClear">Limpiar</button>
+    <span class="small muted" id="facStatus"></span>
+    <span class="sp"></span>
+    <button class="b p" id="facXlsx" disabled>Excel</button>
+    <button class="b" id="facLid" disabled>Libro IVA Digital (TXT)</button>
+    <button class="b" id="facSos" disabled>Importación SOS (CSV)</button>
+  </div>
+  <div class="cards" id="facCards"></div>
+  <div class="tw"><table id="facTable"></table></div>
+  <div class="log" id="facLog"></div>
+</section>
+
+<!-- ─────────── TARJETAS ─────────── -->
+<section id="tab-tar" hidden>
+  <div class="drop" data-kind="tar"><b>Arrastrá resúmenes de tarjeta (PDF)</b> o hacé clic<br><span class="small">BNA, BBVA, Santander y formatos similares. Separa titulares, Separa pesos/dólares, cuotas, pagos, impuestos y clasifica por rubro.</span></div>
+  <div class="bar">
+    <button class="b" id="tarClear">Limpiar</button>
+    <span class="small muted" id="tarStatus"></span>
+    <span class="sp"></span>
+    <button class="b p" id="tarXlsx" disabled>Excel (4 hojas)</button>
+    <button class="b" id="tarCsv" disabled>Movimientos (CSV)</button>
+  </div>
+  <div class="cards" id="tarCards"></div>
+  <div class="tw"><table id="tarTable"></table></div>
+  <div class="log" id="tarLog"></div>
+</section>
+
+<!-- ─────────── BANCOS ─────────── -->
+<section id="tab-ban" hidden>
+  <div class="drop" data-kind="ban"><b>Arrastrá extractos bancarios (PDF)</b> o hacé clic<br><span class="small">Probado con BBVA, Nación, Galicia, Credicoop y Provincia. Separa cada cuenta del resumen, valida el encadenamiento de saldos y propone cuentas y asientos.</span></div>
+  <div class="bar">
+    <button class="b" id="banClear">Limpiar</button>
+    <span class="small muted" id="banStatus"></span>
+    <span class="sp"></span>
+    <button class="b p" id="banXlsx" disabled>Excel</button>
+    <button class="b" id="banMovCsv" disabled>Movimientos (CSV)</button>
+    <button class="b" id="banAsiCsv" disabled>Asientos (CSV)</button>
+  </div>
+  <div class="cards" id="banCards"></div>
+  <div class="tw"><table id="banTable"></table></div>
+  <div class="log" id="banLog"></div>
+</section>
+
+<!-- ─────────── CONFIG ─────────── -->
+<section id="tab-cfg" hidden>
+  <p class="help">La configuración se guarda en este navegador. Cambiala por cliente antes de procesar.</p>
+  <div class="grid">
+    <label class="f">CUIT del cliente (receptor de las facturas)<input id="cfgCuit" placeholder="30-12345678-9"><span class="help">Se excluye al buscar el CUIT del emisor.</span></label>
+    <label class="f">Cuenta contable del banco (opcional)<input id="cfgBanco" placeholder="Vacío = automática: Banco + nro. de cuenta"><span class="help">También se puede cambiar en la tarjeta de cada cuenta.</span></label>
+    <label class="f">Separador CSV<select id="cfgSep"><option value=";">; (punto y coma)</option><option value=",">, (coma)</option><option value="\t">Tabulación</option></select></label>
+    <label class="f">Decimal en CSV<select id="cfgDec"><option value=",">Coma (1234,56)</option><option value=".">Punto (1234.56)</option></select></label>
+    <label class="f">Formato de fecha en CSV<select id="cfgFecha"><option>DD/MM/AAAA</option><option>AAAAMMDD</option><option>AAAA-MM-DD</option></select></label>
+    <label class="f">Encabezado en CSV<select id="cfgHead"><option value="1">Sí</option><option value="0">No</option></select></label>
+  </div>
+  <h3>Columnas del CSV de comprobantes para SOS-Contador</h3>
+  <label class="f"><textarea id="cfgSosFac"></textarea></label>
+  <p class="help">Una columna por línea: <code>campo:Encabezado</code>. Ajustá orden y nombres a la plantilla de importación de SOS.<br>
+  Campos: <code>fecha tipo tipoNombre letra pv nro comprobante cuit cuitFmt razon neto21 iva21 neto105 iva105 neto27 iva27 neto5 iva5 neto25 iva25 neto0 netoTotal ivaTotal noGravado exento percIVA percIIBB percNac percMuni impInternos otrosTrib total moneda tc cae observaciones archivo</code></p>
+  <h3>Columnas del CSV de asientos</h3>
+  <label class="f"><textarea id="cfgSosAsi"></textarea></label>
+  <p class="help">Campos: <code>asiento fecha cuenta debe haber leyenda</code></p>
+  <h3>Reglas propias — rubros de tarjeta</h3>
+  <label class="f"><textarea id="cfgReglasTar" placeholder="Gastos del estudio: ARCA, COLEGIO, CPCE&#10;Software: SOS, TANGO, HOLISTOR"></textarea></label>
+  <p class="help">Una regla por línea: <code>Rubro: palabra, palabra</code>. Tienen prioridad sobre las reglas incorporadas.</p>
+  <h3>Reglas propias — categorías/cuentas bancarias</h3>
+  <label class="f"><textarea id="cfgReglasBan" placeholder="Alquileres cobrados: INQUILINO, ALQUILER&#10;Honorarios: HONORARIOS"></textarea></label>
+  <p class="help">Misma sintaxis. El nombre de la regla se usa como categoría y como cuenta contable.</p>
+  <div class="bar"><button class="b" id="cfgReset">Restaurar valores por defecto</button></div>
+</section>
+</main>
+<input type="file" id="fileIn" accept="application/pdf" multiple hidden>
+<script src="procesador/core.js"></script>
+<script src="procesador/app.js"></script>
+<a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener"
+  style="position:fixed;bottom:16px;right:16px;z-index:999;
+    display:flex;align-items:center;gap:6px;
+    background:#FFDD00;color:#000;font-weight:800;font-size:.72rem;padding:8px 14px;border-radius:50px;text-decoration:none;box-shadow:0 3px 16px rgba(0,0,0,.25)" title="☕ ImpoBot — Invitarnos un café">☕</a>
+<a href="https://api.whatsapp.com/send?text=Procesador%20de%20facturas%2C%20tarjetas%20y%20extractos%20bancarios%20%E2%86%92%20https://www.impobot.com.ar/tools/procesador.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
+  style="position:fixed;bottom:76px;right:20px;z-index:998;background:#25D366;color:#fff;
+    width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;text-decoration:none;box-shadow:0 2px 12px rgba(37,211,102,.3);transition:all .2s"
+  onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('../sw.js').catch(function(){});</script>
+<a href="mailto:impobot.ar@gmail.com?subject=Bug en ImpoBot&body=Herramienta: procesador%0AProblema: " 
+  title="Reportar un problema con esta herramienta"
+  style="position:fixed;bottom:128px;right:20px;z-index:997;background:#35546f;border:1px solid #35546f;
+    color:#7fa0be;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-size:.95rem;text-decoration:none;box-shadow:0 2px 12px rgba(0,0,0,.3)"
+  onmouseover="this.style.color='#eaf1f8'" onmouseout="this.style.color='#7fa0be'"><img src="data:image/png;base64,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" style="width:20px;height:20px;object-fit:contain" alt="Reportar"/></a>
+<script src="/bot.js"></script>
+</body>
+</html>
