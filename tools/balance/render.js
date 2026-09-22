@@ -94,8 +94,8 @@
     const usadas = P.columnas.filter(c => ['pn_capital', 'pn_ajuste', 'pn_rlegal', 'pn_rna'].includes(c.id) || P.filas.some(f => nz(f.v[c.id])));
     const aport = usadas.filter(c => ['pn_capital', 'pn_ajuste', 'pn_aportes', 'pn_primas'].includes(c.id));
     const acum = usadas.filter(c => ['pn_rlegal', 'pn_otras_res', 'pn_rna'].includes(c.id));
-    const eCols = [{ t: 'Concepto', w: 40 }, ...aport.map(c => ({ t: c.label, w: 12, num: true })), { t: 'Total aportes', w: 12, num: true },
-      ...acum.map(c => ({ t: c.label, w: 12, num: true })), { t: 'Total resultados acumulados', w: 12, num: true }, { t: `Total al ${cierre}`, w: 13, num: true }, ...(hayC ? [{ t: `Total al ${cierreC}`, w: 13, num: true }] : [])];
+    const eCols = [{ t: 'Concepto', w: 30 }, ...aport.map(c => ({ t: c.label, w: 14, num: true })), { t: 'Total aportes', w: 14, num: true },
+      ...acum.map(c => ({ t: c.label, w: 14, num: true })), { t: 'Total resultados acumulados', w: 14, num: true }, { t: `Total al ${cierre}`, w: 14, num: true }, ...(hayC ? [{ t: `Total al ${cierreC}`, w: 14, num: true }] : [])];
     const pnRows = [];
     const compV = { 'Saldos al inicio del ejercicio': P.comparativo.inicio, 'Resultado del ejercicio': P.comparativo.resultado, 'Saldos al cierre del ejercicio': P.comparativo.cierre };
     for (const f of P.filas) {
@@ -336,7 +336,7 @@
           if (s === 'tot') { d.cell.styles.fontStyle = 'bold'; d.cell.styles.fillColor = GRIS; }
           if (s === 'h') d.cell.styles.fillColor = GRIS;
           if (raw._i) d.cell.styles.cellPadding = { top: 1, bottom: 1, left: 1.4 + 4 * raw._i, right: 1.4 };
-          if (raw._num) d.cell.styles.halign = 'right';
+          if (raw._num) { d.cell.styles.halign = 'right'; d.cell.styles.overflow = 'visible'; }
           if (raw._falta && borr) d.cell.styles.fillColor = AMAR;
           if (s === 'txt') { d.cell.styles.halign = 'justify'; }
         },
@@ -363,7 +363,7 @@
       doc.setPage(i);
       const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
       doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(120);
-      doc.text(`${bal.datos.razonSocial || ''} — Estados contables al ${bal.datos.cierre || ''}`, 10, H - 8);
+      doc.text(`${bal.datos.razonSocial || '[Razón social]'} — Estados contables al ${bal.datos.cierre || '[cierre]'}`, 10, H - 8);
       doc.text(`Página ${i} de ${total}`, W - 10, H - 8, { align: 'right' });
       if (borr) {
         doc.saveGraphicsState && doc.saveGraphicsState();

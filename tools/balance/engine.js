@@ -78,7 +78,7 @@
   };
 
   // ───────────── Lectura de sumas y saldos ─────────────
-  const RE_H_NOMBRE = /^(CUENTA|DESCRIPCION|NOMBRE|DENOMINACION|DETALLE|NOMBRE DE LA CUENTA|DESCRIPCION DE LA CUENTA)$/;
+  const RE_H_NOMBRE = /^(CUENTA|CUENTAS|DESCRIPCION|NOMBRE|DENOMINACION|DETALLE|NOMBRE (DE )?(LA )?CUENTA|DESCRIPCION (DE )?(LA )?CUENTA|DENOMINACION (DE )?(LA )?CUENTA)$/;
   const RE_H_COD = /^(CODIGO|COD\.?|NRO\.?|NUMERO|N°|NRO\.? CUENTA|CUENTA N°|CODIGO CUENTA|COD\. CUENTA|ID)$/;
   function detectarColumnas(filas) {
     for (let i = 0; i < Math.min(filas.length, 40); i++) {
@@ -88,7 +88,7 @@
       if (nombre < 0) continue;
       const saldo = col(/^SALDO( FINAL| AL CIERRE| ACTUAL| DEL PERIODO)?$|^SALDO AL /);
       const sd = col(/SALDO.*DEUD|^DEUDOR$/), sa = col(/SALDO.*ACREED|^ACREEDOR$/);
-      const debe = col(/^(DEBE|DEBITOS?|SUMAS? DEBE|TOTAL DEBE)$/), haber = col(/^(HABER|CREDITOS?|SUMAS? HABER|TOTAL HABER)$/);
+      const debe = col(/^(MONTO |IMPORTE |TOTAL |SUMAS? )?(DEBE|DEBITOS?)$/), haber = col(/^(MONTO |IMPORTE |TOTAL |SUMAS? )?(HABER|CREDITOS?)$/);
       if (saldo < 0 && (sd < 0 || sa < 0) && (debe < 0 || haber < 0)) continue;
       let cod = h.findIndex(x => RE_H_COD.test(x));
       const imput = col(/IMPUTABLE|IMP\.?$|TIPO$/);
@@ -141,19 +141,26 @@
   // ───────────── Auto-mapeo ─────────────
   // Reglas por palabra clave, evaluadas en orden. Cada una: [regex, rubro, (opcional) restricción de signo/código]
   const REGLAS = [
+    [/LEY 25\.?413.*(CREDITO|A CTA|A COMPUTAR|A CUENTA|CONT\.? PAT)|IMPUESTO (A LOS|S\/) DEBITOS Y CREDITOS A COMPUTAR/, 'ac_otros_cred'],
+    [/PASIVO POR IMPUESTO DIFERIDO|IMPUESTO DIFERIDO PASIVO/, 'pnc_fiscales'],
+    [/ANTICIPOS? (DE|DE LOS) CLIENTES|COBROS ANTICIPADOS|SE[NÑ]AS RECIBIDAS/, 'pc_anticipos'],
+    [/ACTIVO POR IMPUESTO DIFERIDO|IMPUESTO DIFERIDO ACTIVO/, 'anc_otros_cred'],
+    [/RESULTADOS? (DE )?EJERC(ICIOS|\.)? ?ANT|RESULTADOS? ANTERIORES/, 'pn_rna'],
+    [/^RESULTADOS? DEL (EJERCICIO|PERIODO)$/, 'pn_resej'],
     // Resultados primero (nombres ambiguos como "Intereses" o "Impuestos")
     [/IMPUESTO A LAS GANANCIAS(?! A PAGAR| DIFERIDO ACTIVO| ANTICIPO|.*SALDO A FAVOR)|^GANANCIAS \(IMPUESTO\)|IMP\.? GANANCIAS DEL EJERCICIO|CARGO POR IMPUESTO/, 'er_ig', 'R'],
-    [/^VENTAS?|INGRESOS POR (VENTAS|SERVICIOS)|SERVICIOS PRESTADOS|HONORARIOS (GANADOS|COBRADOS|PERCIBIDOS)|FACTURACION|DESCUENTOS? (Y BONIFICACIONES )?(CONCEDIDOS|OTORGADOS)|DEVOLUCIONES S\/ VENTAS/, 'er_ventas', 'R'],
-    [/COSTO DE (LAS |LOS )?(MERCADERIAS |BIENES |PRODUCTOS )?(VENDID|VENTA)|^C\.?M\.?V\.?|COSTO DE (LOS )?SERVICIOS PRESTADOS|COSTO DE PRODUCCION VENDIDA/, 'er_cmv', 'R'],
+    [/^VENTAS?|INGRESOS POR (VENTAS|SERVICIOS)|SERVICIOS PRESTADOS|HONORARIOS (GANADOS|COBRADOS|PERCIBIDOS)|FACTURACION|^INTERMEDIACION|ASESORAMIENTO|COMISIONES (GANADAS|COBRADAS|PERCIBIDAS)|DESCUENTOS? (Y BONIFICACIONES )?(CONCEDIDOS|OTORGADOS)|DEVOLUCIONES S\/ VENTAS/, 'er_ventas', 'R'],
+    [/COSTO DE (LAS |LOS )?(MERCADERIAS |BIENES |PRODUCTOS )?(VENDID|VENTA)|^C\.?M\.?V\.?|COSTO DE (LOS )?SERVICIOS PRESTADOS|COSTO DE PRODUCCION VENDIDA|^COSTO DE (MATERIALES|MERCADERIAS?|LA MERCADERIA|PRODUCTOS)/, 'er_cmv', 'R'],
     [/RESULTADO POR PRODUCCION|PRODUCCION AGRICOLA|PRODUCCION PECUARIA|PRODUCCION AGROPECUARIA/, 'er_agro_prod', 'R'],
     [/TENENCIA.*(ACTIVOS BIOLOGICOS|HACIENDA|SEMOVIENTES)|VALUACION.*(HACIENDA|ACTIVOS BIOLOGICOS)/, 'er_agro_ten', 'R'],
-    [/R\.?E\.?C\.?P\.?A\.?M|EXPOSICION (AL CAMBIO|A LA INFLACION)|INTERES(ES)?|DIFERENCIAS? DE CAMBIO|DIF\.? DE CAMBIO|RESULTADO POR TENENCIA|GASTOS BANCARIOS FINANCIEROS|DESCUENTOS OBTENIDOS|RENTA|DIVIDENDOS GANADOS|RESULTADO (DE|POR) (INVERSIONES|OPERACIONES FINANCIERAS)|COMISIONES BANCARIAS/, 'er_rfin', 'R'],
-    [/RESULTADO (DE|POR) (VENTA|BAJA) DE BIENES DE USO|RECUPERO|INGRESOS VARIOS|OTROS INGRESOS|OTROS EGRESOS|SINIESTRO|DONACION/, 'er_otros', 'R'],
+    [/R\.?E\.?C\.?P\.?A\.?M|EXPOSICION (AL CAMBIO|A LA INFLACION)|INTERES(ES)?|DIFERENCIAS? DE CAMBIO|DIF\.? DE CAMBIO|RESULTADO POR TENENCIA|GASTOS BANCARIOS|COMISIONES (Y GASTOS )?BANCARI|DESCUENTOS OBTENIDOS|RENTA|DIVIDENDOS GANADOS|RESULTADO (DE|POR) (INVERSIONES|OPERACIONES FINANCIERAS)|COMISIONES BANCARIAS/, 'er_rfin', 'R'],
+    [/RESULTADO (DE|POR) (VENTA|BAJA) DE BIENES DE USO|RECUPERO|INGRESOS VARIOS|OTROS INGRESOS|INGRESOS EXTRAORDINARIOS|OTROS EGRESOS|SINIESTRO|DONACION/, 'er_otros', 'R'],
+    [/^OTROS GASTOS$|GASTOS VARIOS NO OPERATIVOS/, 'er_gotros', 'R'],
     [/RESULTADOS? (DE )?INVERSIONES EN (ENTES|SOCIEDADES)|VALOR PATRIMONIAL PROPORCIONAL|V\.?P\.?P/, 'er_rinv', 'R'],
     [/\b(COMERCIALIZACION|COMERCIALES|G\.? ?COM\.?)$|- ?COMERCIALIZACION|\(COMERCIALIZACION\)/, 'er_gcom', 'R'],
     [/\b(ADMINISTRACION|ADMINISTRATIVOS|G\.? ?ADM\.?)$|- ?ADMINISTRACION|\(ADMINISTRACION\)/, 'er_gadm', 'R'],
     [/COMISIONES|PUBLICIDAD|PROPAGANDA|FLETES|INGRESOS BRUTOS(?! A PAGAR)|IIBB(?! A PAGAR)|DEUDORES INCOBRABLES|INCOBRABLES|GASTOS DE (COMERCIALIZACION|VENTAS|EXPORTACION)|EMBALAJE|PROMOCION|MARKETING/, 'er_gcom', 'R'],
-    [/SUELDOS|JORNALES|CARGAS SOCIALES|CONTRIBUCIONES|HONORARIOS|ALQUILER|ENERGIA|LUZ|GAS|AGUA|TELEFON|INTERNET|PAPELERIA|(?<!MUEBLES Y )(?<!MUEBLES E )UTILES(?! Y MUEBLES)|MANTENIMIENTO|REPARACION|SEGUROS|IMPUESTOS|TASAS|MOVILIDAD|VIATICOS|LIMPIEZA|AMORTIZACION(ES)? (DEL EJERCICIO|BIENES|DE )|DEPRECIACION(ES)? (DEL EJERCICIO|BIENES|DE )|GASTOS (GENERALES|DE ADMINISTRACION|VARIOS)|SERVICIOS|CUOTAS|SUSCRIPCIONES|CORREO|SOFTWARE|LICENCIAS|CAPACITACION|REFRIGERIO|ART\b|SEGURO DE VIDA|INDEMNIZACION|SAC|AGUINALDO|VACACIONES/, 'er_gadm', 'R'],
+    [/SUELDOS|JORNALES|CARGAS SOCIALES|CONTRIBUCIONES|APORTES PATRONALES|HONORARIOS|ALQUILER|ENERGIA|ELECTRICIDAD|LUZ|GAS|AGUA|TELEFON|TLEFON|TELEF\.|INTERNET|REPRESENTACION|LIBRERIA|OSDE|MEDICINA PREPAGA|OBRA SOCIAL|INACAP|FAECYS|SELLOS|BIENES PERSONALES|PAPELERIA|(?<!MUEBLES Y )(?<!MUEBLES E )UTILES(?! Y MUEBLES)|MANTENIMIENTO|REPARACION|SEGUROS|IMPUESTOS|TASAS|MOVILIDAD|VIATICOS|LIMPIEZA|AMORTIZACION(ES)? (DEL EJERCICIO|BIENES|DE )|DEPRECIACION(ES)? (DEL EJERCICIO|BIENES|DE )|GASTOS (GENERALES|DE ADMINISTRACION|VARIOS)|SERVICIOS|CUOTAS|SUSCRIPCIONES|CORREO|SOFTWARE|LICENCIAS|CAPACITACION|REFRIGERIO|ART\b|SEGURO DE VIDA|INDEMNIZACION|SAC|AGUINALDO|VACACIONES/, 'er_gadm', 'R'],
     // Patrimonio neto
     [/AJUSTE (DEL |DE )?CAPITAL/, 'pn_ajuste'], [/^CAPITAL( SOCIAL| SUSCRIPTO| SUSCRITO)?$|^CAPITAL SOCIAL|ACCIONES EN CIRCULACION|CUOTAS SOCIALES/, 'pn_capital'],
     [/APORTES? IRREVOCABLES?|APORTES A CUENTA DE FUTURAS/, 'pn_aportes'], [/PRIMA(S)? DE EMISION/, 'pn_primas'],
@@ -164,7 +171,7 @@
     [/^CAJA|BANCO|FONDO FIJO|VALORES A DEPOSITAR|MONEDA EXTRANJERA|RECAUDACIONES A DEPOSITAR|MERCADO ?PAGO|CUENTA CORRIENTE BANC|CAJA DE AHORRO/, 'ac_caja'],
     [/PLAZO FIJO|FONDOS? COMUNES? DE INVERSION|F\.?C\.?I\b|TITULOS PUBLICOS|ACCIONES CON COTIZACION|CAUCION|INVERSIONES TRANSITORIAS|INVERSIONES TEMPORARIAS/, 'ac_inv'],
     [/DEUDORES POR VENTAS|CLIENTES|DOCUMENTOS A COBRAR|CHEQUES DIFERIDOS A COBRAR|TARJETAS? DE CREDITO A COBRAR|DEUDORES MOROSOS|DEUDORES EN GESTION|CUPONES A COBRAR|PREVISION (PARA )?DEUDORES INCOBRABLES|PREVISION INCOBRABLES/, 'ac_cred_ventas'],
-    [/IVA (CREDITO|SALDO A FAVOR|SALDO TECNICO A FAVOR)|CREDITO FISCAL|ANTICIPOS? (DE )?(IMPUESTO|GANANCIAS|IIBB|INGRESOS BRUTOS)|RETENCIONES? (SUFRIDAS|DE )|PERCEPCIONES? (SUFRIDAS|DE )|SALDO A FAVOR|ANTICIPOS? A PROVEEDORES|GASTOS PAGADOS POR ADELANTADO|SEGUROS A DEVENGAR|DEUDORES VARIOS|CREDITOS? VARIOS|PRESTAMOS AL PERSONAL|ANTICIPOS? AL PERSONAL|ANTICIPO DE SUELDOS|SOCIOS? CUENTA PARTICULAR|CUENTA PARTICULAR SOCIO|DEPOSITOS EN GARANTIA|IMPUESTO DIFERIDO ACTIVO|SIRCREB|IMPUESTO (A LOS|S\/) DEBITOS Y CREDITOS A COMPUTAR|LEY 25\.?413 A COMPUTAR/, 'ac_otros_cred'],
+    [/IVA (CREDITO|SALDO A FAVOR|SALDO TECNICO A FAVOR)|CREDITO FISCAL|ANTICIPOS? (DE )?(IMPUESTO|GANANCIAS|IIBB|INGRESOS BRUTOS)|RETENCION(ES)?.*SUFRID|PERCEPCION(ES)?.*SUFRID|RETENCIONES? (SUFRIDAS|DE )|PERCEPCIONES? (SUFRIDAS|DE )|SALDO A FAVOR|A FAVOR|ANTICIPOS? A PROVEEDORES|GASTOS PAGADOS POR ADELANTADO|SEGUROS A DEVENGAR|DEUDORES VARIOS|CREDITOS? VARIOS|PRESTAMOS AL PERSONAL|ANTICIPOS? AL PERSONAL|ANTICIPO DE SUELDOS|SOCIOS? CUENTA PARTICULAR|CUENTA PARTICULAR SOCIO|DEPOSITOS EN GARANTIA|IMPUESTO DIFERIDO ACTIVO|SIRCREB|IMPUESTO (A LOS|S\/) DEBITOS Y CREDITOS A COMPUTAR|LEY 25\.?413 A COMPUTAR/, 'ac_otros_cred'],
     [/MERCADERIA|MATERIAS? PRIMAS?|PRODUCTOS? (TERMINADOS|EN PROCESO|EN CURSO)|STOCK|INVENTARIO|EXISTENCIAS?|MATERIALES|INSUMOS|ANTICIPOS? A PROVEEDORES DE BIENES|HACIENDA PARA VENTA|CEREALES|GRANOS|SEMILLAS|AGROQUIMICOS/, 'ac_bcambio'],
     [/HACIENDA|RODEO|VIENTRES|REPRODUCTORES|PLANTACIONES|MONTES FRUTALES|SEMENTERAS|CULTIVOS EN (CURSO|DESARROLLO)|ACTIVOS? BIOLOGICOS?/, 'anc_bio'],
     [/INMUEBLES?|TERRENOS?|EDIFICIOS?|RODADOS?|VEHICULOS?|MUEBLES|UTILES(?! DE)|INSTALACIONES|MAQUINARIAS?|EQUIPOS?|HERRAMIENTAS|OBRAS EN CURSO|MEJORAS|AERONAVES|BIENES DE USO|AMORTIZACION(ES)? ACUMULADA|DEPRECIACION(ES)? ACUMULADA|AMORT\.? ACUM|DEP\.? ACUM|ALAMBRADOS|MOLINOS|TRACTORES|COSECHADORAS|SILOS/, 'anc_bu'],
@@ -173,14 +180,14 @@
     [/PROPIEDADES DE INVERSION|INMUEBLES (EN ALQUILER|DE RENTA)/, 'anc_pi'],
     [/LLAVE DE NEGOCIO/, 'anc_llave'],
     // Pasivo
-    [/PROVEEDORES|DOCUMENTOS A PAGAR|CHEQUES DIFERIDOS A PAGAR|ACREEDORES (COMERCIALES|VARIOS COMERCIALES)|E-?CHEQ A PAGAR|FACTURAS A RECIBIR/, 'pc_comerciales'],
-    [/PRESTAMOS?|ADELANTOS? EN (CUENTA CORRIENTE|CTA\.? CTE\.?)|DESCUBIERTO|GIRO EN DESCUBIERTO|OBLIGACIONES NEGOCIABLES|TARJETAS? DE CREDITO A PAGAR|LEASING A PAGAR|ACUERDO(S)? BANCARIO/, 'pc_prestamos'],
-    [/SUELDOS A PAGAR|JORNALES A PAGAR|REMUNERACIONES A PAGAR|CARGAS SOCIALES A PAGAR|APORTES? (Y CONTRIBUCIONES )?A PAGAR|CONTRIBUCIONES A PAGAR|SINDICATO|OBRA SOCIAL A PAGAR|ART A PAGAR|SAC A PAGAR|PROVISION (SAC|AGUINALDO|VACACIONES)|F\.?931 A PAGAR|SEGURO DE VIDA OBLIGATORIO A PAGAR|UOCRA|FONDO DE CESE|IERIC/, 'pc_remun'],
-    [/IVA (DEBITO|A PAGAR|SALDO A PAGAR)|DEBITO FISCAL|IMPUESTOS? A PAGAR|INGRESOS BRUTOS A PAGAR|IIBB A PAGAR|GANANCIAS A PAGAR|IMPUESTO A LAS GANANCIAS A PAGAR|PROVISION (IMPUESTO|GANANCIAS)|RETENCIONES A (PAGAR|DEPOSITAR)|PERCEPCIONES A (PAGAR|DEPOSITAR)|PLAN(ES)? DE PAGO|MORATORIA|TASAS? MUNICIPALES A PAGAR|BIENES PERSONALES (A PAGAR|ACCIONES)|SICORE A PAGAR|IMPUESTO DIFERIDO PASIVO|ARBA A PAGAR|AGIP A PAGAR|CONVENIO MULTILATERAL A PAGAR/, 'pc_fiscales'],
+    [/PROVEEDORES|DOCUMENTOS A PAGAR|DEUDAS COMERCIALES|CHEQUES DIFERIDOS A PAGAR|ACREEDORES (COMERCIALES|VARIOS COMERCIALES)|E-?CHEQ A PAGAR|FACTURAS A RECIBIR/, 'pc_comerciales'],
+    [/PRESTAMOS?|DEUDAS BANCARIAS|DEUDAS FINANCIERAS|ADELANTOS? EN (CUENTA CORRIENTE|CTA\.? CTE\.?)|DESCUBIERTO|GIRO EN DESCUBIERTO|OBLIGACIONES NEGOCIABLES|TARJETAS? DE CREDITO A PAGAR|LEASING A PAGAR|ACUERDO(S)? BANCARIO/, 'pc_prestamos'],
+    [/SUELDOS.*A PAGAR|JORNALES A PAGAR|REMUNERACIONES A PAGAR|FAECYS A PAGAR|INACAP A PAGAR|SEC A PAGAR|OSECAC A PAGAR|SINDICATO.*A PAGAR|CARGAS SOCIALES A PAGAR|APORTES? (Y CONTRIBUCIONES )?A PAGAR|CONTRIBUCIONES A PAGAR|SINDICATO|OBRA SOCIAL A PAGAR|ART A PAGAR|SAC A PAGAR|PROVISION (SAC|AGUINALDO|VACACIONES)|F\.?931 A PAGAR|SEGURO DE VIDA OBLIGATORIO A PAGAR|UOCRA|FONDO DE CESE|IERIC/, 'pc_remun'],
+    [/IVA (DEBITO|A PAGAR|SALDO A PAGAR)|DEBITO FISCAL|IMPUESTOS? A PAGAR|(GANANCIAS|IVA|IIBB|INGRESOS BRUTOS|RETENC|PERCEP|IMP\.|IMPUESTO|SELLOS|TASA).*A PAGAR|PROVISION (PARA )?IMPUESTOS?|INGRESOS BRUTOS A PAGAR|IIBB A PAGAR|GANANCIAS A PAGAR|IMPUESTO A LAS GANANCIAS A PAGAR|PROVISION (IMPUESTO|GANANCIAS)|RETENCIONES A (PAGAR|DEPOSITAR)|PERCEPCIONES A (PAGAR|DEPOSITAR)|PLAN(ES)? DE PAGO|MORATORIA|TASAS? MUNICIPALES A PAGAR|BIENES PERSONALES (A PAGAR|ACCIONES)|SICORE A PAGAR|IMPUESTO DIFERIDO PASIVO|ARBA A PAGAR|AGIP A PAGAR|CONVENIO MULTILATERAL A PAGAR/, 'pc_fiscales'],
     [/ANTICIPOS? (DE|DE LOS) CLIENTES|COBROS ANTICIPADOS|SEÑAS RECIBIDAS/, 'pc_anticipos'],
     [/DIVIDENDOS A PAGAR|UTILIDADES A PAGAR/, 'pc_dividendos'],
     [/PREVISION(ES)? (PARA )?(DESPIDOS|JUICIOS|CONTINGENCIAS|RIESGOS)/, 'pc_prev'],
-    [/ACREEDORES VARIOS|DEUDAS VARIAS|OTRAS DEUDAS|HONORARIOS A PAGAR|SOCIOS? (CUENTA|CTA\.?) (PARTICULAR|CORRIENTE) ACREEDOR|DIRECTORES A PAGAR|ALQUILERES A PAGAR|SERVICIOS A PAGAR|GASTOS A PAGAR|CUENTAS A PAGAR/, 'pc_otras'],
+    [/ACREEDORES VARIOS|DEUDAS VARIAS|OTRAS DEUDAS|OTROS PASIVOS|TARJETAS? (DE CREDITO )?A PAGAR|HONORARIOS A PAGAR|SOCIOS? (CUENTA|CTA\.?) (PARTICULAR|CORRIENTE) ACREEDOR|DIRECTORES A PAGAR|ALQUILERES A PAGAR|SERVICIOS A PAGAR|GASTOS A PAGAR|CUENTAS A PAGAR/, 'pc_otras'],
     // Amortizaciones/depreciaciones del ejercicio → gasto
     [/AMORTIZACION|DEPRECIACION/, 'er_gadm', 'R']
   ];
@@ -201,7 +208,7 @@
   const P_NC = { pc_comerciales: 'pnc_comerciales', pc_prestamos: 'pnc_prestamos', pc_fiscales: 'pnc_fiscales', pc_otras: 'pnc_otras', pc_prev: 'pnc_prev', pc_remun: 'pnc_otras', pc_anticipos: 'pnc_otras', pc_dividendos: 'pnc_otras' };
   const NC_P = { pnc_comerciales: 'pc_comerciales', pnc_prestamos: 'pc_prestamos', pnc_fiscales: 'pc_fiscales', pnc_otras: 'pc_otras', pnc_prev: 'pc_prev' };
 
-  const RE_PATRIMONIAL = /A PAGAR|A COBRAR|A DEPOSITAR|A DEVENGAR|A RENDIR|ACUMULAD|SALDO A FAVOR|CREDITO FISCAL|DEBITO FISCAL|^PREVISION|^PROVISION|ANTICIPOS? (A|DE) /;
+  const RE_PATRIMONIAL = /A PAGAR|A COBRAR|A DEPOSITAR|A DEVENGAR|A RENDIR|ACUMULAD|\bACUM\b|SALDO A FAVOR|A FAVOR|SUFRID|A COMPUTAR|A CTA\.?|A CUENTA|CREDITO FISCAL|DEBITO FISCAL|^PREVISION|^PROVISION|^ANTICIPOS?\b|\bDIFERIDO\b|RESULTADOS? DE EJERC|RESULTADOS? DEL EJERCICIO|NO ASIGNADOS/;
   function sugerirRubro(cta, modelo) {
     const n = norm(cta.nombre), g = grupoPorCodigo(cta.codigo);
     let r = null, conf = 'baja';
@@ -231,25 +238,35 @@
     if (!r) { // sin código ni palabra clave: por signo (muy baja confianza)
       r = cta.saldo >= 0 ? 'ac_otros_cred' : 'pc_otras'; conf = 'baja';
     }
+    if (r && !g && ['er_gcom', 'er_gadm', 'er_gotros'].includes(r) && cta.saldo < 0) {
+      r = /SERVICIO|ASESOR|VENTA|INTERMEDIAC|COMISION|HONORARIO|FACTURAC|ABONO/.test(n) ? 'er_ventas' : 'er_otros'; conf = 'baja';
+    }
     if (r && !g && /LARGO PLAZO|NO CORRIENTES?\b|\bL\.? ?P\.?$|A MAS DE (UN|1) ANO/.test(n)) { if (A_NC[r]) r = A_NC[r]; if (P_NC[r]) r = P_NC[r]; }
     if (r === 'anc_bio' && modelo !== 'agro') r = 'anc_otros';
     if (r === 'er_agro_prod' || r === 'er_agro_ten') { if (modelo !== 'agro') r = 'er_otros'; }
     return { rubro: r, confianza: conf };
   }
 
-  const claveCta = c => (c.codigo ? 'C:' + String(c.codigo).trim() : 'N:' + norm(c.nombre));
+  const claveCta = c => (c.codigo ? 'C:' + String(c.codigo).trim() : 'N:' + norm(c.nombre)) + (c.dup ? '#' + c.dup : '');
 
   // Une actual y comparativo en una sola lista de cuentas
+  // Cuentas homónimas sin código ("PUBLICIDAD" dos veces): se distinguen por orden de aparición
+  function numerar(lista) {
+    const vistos = {};
+    return lista.map(c => { const k = claveCta(c); vistos[k] = (vistos[k] || 0) + 1; return Object.assign({}, c, { dup: vistos[k] > 1 ? vistos[k] : 0 }); });
+  }
   function unirCuentas(act, comp, coef) {
     const m = new Map();
-    for (const c of act) m.set(claveCta(c), { codigo: c.codigo, nombre: c.nombre, act: c.saldo, compOrig: 0, comp: 0 });
-    for (const c of comp || []) {
+    act = numerar(act); comp = numerar(comp || []);
+    for (const c of act) m.set(claveCta(c), { codigo: c.codigo, nombre: c.nombre, dup: c.dup, act: c.saldo, compOrig: 0, comp: 0 });
+    for (const c of comp) {
       const k = claveCta(c);
-      const e = m.get(k) || (m.set(k, { codigo: c.codigo, nombre: c.nombre, act: 0, compOrig: 0, comp: 0 }), m.get(k));
+      const e = m.get(k) || (m.set(k, { codigo: c.codigo, nombre: c.nombre, dup: c.dup, act: 0, compOrig: 0, comp: 0 }), m.get(k));
       e.compOrig = r2(e.compOrig + c.saldo);
     }
     for (const e of m.values()) e.comp = r2(e.compOrig * coef);
-    return [...m.values()].sort((a, b) => String(a.codigo || 'zz').localeCompare(String(b.codigo || 'zz'), 'es', { numeric: true }) || a.nombre.localeCompare(b.nombre));
+    const vals = [...m.values()];
+    return vals.some(v => v.codigo) ? vals.sort((a, b) => String(a.codigo || 'zz').localeCompare(String(b.codigo || 'zz'), 'es', { numeric: true }) || a.nombre.localeCompare(b.nombre)) : vals; // sin códigos: se respeta el orden del sistema
   }
 
   // ───────────── Lectura de templates ─────────────
@@ -347,7 +364,9 @@
       if (c.act || c.comp) rub[id].cuentas.push({ codigo: c.codigo, nombre: c.nombre, act: r2(s * c.act), comp: r2(s * c.comp), compOrig: r2(s * c.compOrig) });
     }
     // Capital suscripto se expone a valor nominal; su reexpresión integra "Ajuste de capital"
-    if (rub.pn_capital.comp !== rub.pn_capital.compOrig) {
+    const capReexpEnLibros = coef !== 1 && Math.abs(rub.pn_capital.act - rub.pn_capital.compOrig) > EPS && Math.abs(rub.pn_capital.act - rub.pn_capital.comp) <= Math.max(EPS, Math.abs(rub.pn_capital.act) * 0.005);
+    if (capReexpEnLibros) rep.info.push('La cuenta Capital social está reexpresada en los registros contables (varía en la misma proporción que el coeficiente): se expone tal como surge de los libros. Si corresponde exponer el capital a valor nominal, reclasificá la diferencia a Ajuste de capital.');
+    if (!capReexpEnLibros && rub.pn_capital.comp !== rub.pn_capital.compOrig) {
       const dif = r2(rub.pn_capital.comp - rub.pn_capital.compOrig);
       rub.pn_ajuste.comp = r2(rub.pn_ajuste.comp + dif); rub.pn_capital.comp = rub.pn_capital.compOrig;
       rub.pn_capital.cuentas.forEach(c => { c.comp = c.compOrig; });
@@ -419,7 +438,13 @@
       filas: [
         { label: 'Saldos al inicio del ejercicio', v: inicio, total: totalFila(inicio) },
         { label: 'Distribución de resultados aprobada por asamblea (reservas / dividendos)', v: distribAprobada, total: totalFila(distribAprobada), opcional: true },
-        { label: 'Aportes, capitalizaciones y otros movimientos', v: otros, total: totalFila(otros), opcional: true, revisar: Math.abs(totalFila(otros)) > EPS || colsPN.some(c => Math.abs(otros[c]) > EPS) },
+        (() => {
+          const escala = colsPN.reduce((s, c) => s + Math.abs(inicio[c]) + Math.abs(cierre[c]), 0);
+          const tol = Math.max(EPS, escala * 1e-5);
+          const esRedondeo = colsPN.some(c => Math.abs(otros[c]) > 0.005) && colsPN.every(c => Math.abs(otros[c]) <= tol);
+          return { label: esRedondeo ? 'Diferencias de redondeo por reexpresión' : 'Aportes, capitalizaciones y otros movimientos', v: otros, total: totalFila(otros), opcional: true,
+            revisar: !esRedondeo && (Math.abs(totalFila(otros)) > EPS || colsPN.some(c => Math.abs(otros[c]) > EPS)) };
+        })(),
         { label: 'Resultado del ejercicio', v: resultado, total: resNeto.act },
         { label: 'Saldos al cierre del ejercicio', v: cierre, total: totalFila(cierre), total_: true }
       ],
@@ -642,6 +667,14 @@
     }, extra || {});
   }
 
-  return { RUBROS, RUB, rubrosPara, MODELOS, num, fecha, norm, r2, leerSumasYSaldos, sugerirRubro, claveCta, unirCuentas, grupoPorCodigo,
+  // Coeficiente estimado a partir de (Capital + Ajuste de capital) actual / comparativo (sin aportes en el ejercicio)
+  function estimarCoef(act, comp, modelo) {
+    const tot = lista => lista.reduce((s, c) => { const r = sugerirRubro({ codigo: c.codigo, nombre: c.nombre, saldo: c.saldo }, modelo || 'caba').rubro; return s + (r === 'pn_capital' || r === 'pn_ajuste' ? -c.saldo : 0); }, 0);
+    const a = tot(act), c = tot(comp || []);
+    if (a > 0 && c > 0 && a / c > 1.0001 && a / c < 20) return Math.round(a / c * 1e6) / 1e6;
+    return null;
+  }
+
+  return { estimarCoef, RUBROS, RUB, rubrosPara, MODELOS, num, fecha, norm, r2, leerSumasYSaldos, sugerirRubro, claveCta, unirCuentas, grupoPorCodigo,
     leerMetadata, leerAnexoBU, leerAnexoCMV, leerAnexoGastos, leerBiologicos, construir, reporteJSON };
 });

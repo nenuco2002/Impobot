@@ -64,7 +64,7 @@
   const modelo = () => $('input[name=modelo]:checked').value;
   const coef = () => { const v = E.num($('#coef').value); return v && v > 0 ? v : 1; };
   $$('input[name=modelo]').forEach(r => r.onchange = () => { $('.fcard[data-f="bio"]').classList.toggle('hidden', modelo() !== 'agro'); renderMapa(); recalcular(); });
-  $('#coef').onchange = () => recalcularCuentas();
+  $('#coef').onchange = () => { st.coefManual = true; $('#coefHint').textContent = ''; recalcularCuentas(); };
   $('#eqEfvo').onchange = () => recalcular();
 
   // ───────── Mapeo ─────────
@@ -74,6 +74,12 @@
 
   function recalcularCuentas() {
     if (!st.ss) { $('#paso2').classList.add('hidden'); $('#paso3').classList.add('hidden'); return; }
+    // Sin índice en la metadata: se propone el coeficiente implícito en Capital + Ajuste de capital
+    const tieneIndice = st.md && Object.keys(st.md.general).some(x => /ndice de actualizaci/i.test(x));
+    if (st.ssc && !tieneIndice && !st.coefManual) {
+      const est = E.estimarCoef(st.ss.cuentas, st.ssc.cuentas, modelo());
+      if (est) { $('#coef').value = String(est).replace('.', ','); $('#coefHint').textContent = `Estimado ${String(est).replace('.', ',')} a partir de Capital + Ajuste de capital (actual ÷ anterior). Verificalo contra los índices FACPCE.`; }
+    }
     st.cuentas = E.unirCuentas(st.ss.cuentas, st.ssc ? st.ssc.cuentas : [], coef());
     const prev = Object.assign({}, guardadoMapeo(), st.mapeo);
     for (const c of st.cuentas) {
