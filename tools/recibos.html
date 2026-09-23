@@ -294,6 +294,7 @@ if(_backLink) _backLink.addEventListener('click', function(e){
 
 // Variables globales
 var empActual = null;
+var lsdTexto = '';
 
 // ── FILE INPUT ──────────────────────────────────────────────
 document.getElementById('lsd-inp').addEventListener('change', function(){
@@ -311,7 +312,14 @@ upbox.addEventListener('drop', function(e){
 
 function cargarArchivo(file){
   var reader = new FileReader();
-  reader.onload = function(e){ parseLSD(e.target.result); };
+  reader.onload = function(e){
+    lsdTexto = e.target.result;
+    if(!Object.keys(configMapeo).length){
+      setMsg('Archivo LSD leído. Cargá la plantilla Excel para clasificar los conceptos y generar recibos.', false);
+      return;
+    }
+    parseLSD(lsdTexto);
+  };
   reader.onerror = function(){ setMsg('Error leyendo el archivo.', false); };
   reader.readAsText(file, 'UTF-8');
 }
@@ -347,6 +355,13 @@ function parseLSD(txt){
   txt = txt.replace(/\r/g,'');
   var lineas = txt.split('\n');
   var emps = {}, orden = [];
+  var sinMapear = [...new Set(lineas.filter(function(l){return l.substring(0,2)==='03';})
+    .map(function(l){return l.substring(19,23);})
+    .filter(function(code){return !configMapeo[code];}))];
+  if(sinMapear.length){
+    setMsg('Faltan códigos en la hoja Mapeo: '+sinMapear.join(', ')+'. Completá la planilla y volvé a cargarla.', false);
+    return;
+  }
 
   for(var i=0; i<lineas.length; i++){
     var l = lineas[i];
@@ -372,7 +387,7 @@ function parseLSD(txt){
         else if(leg) break;
       }
       if(!emps[cuil]){
-        emps[cuil]={cuil:cuil,legajo:leg,haberes:[],descuentos:[],contribs:[]};
+        emps[cuil]={cuil:cuil,legajo:leg,haberes:[],descuentos:[],contribs:[],origen:'lsd'};
         orden.push(cuil);
       }
     }
@@ -384,16 +399,17 @@ function parseLSD(txt){
       var cd = l.charAt(44);
       if(isNaN(monto)) continue;
       if(!emps[cuil]){
-        emps[cuil]={cuil:cuil,legajo:'',haberes:[],descuentos:[],contribs:[]};
+        emps[cuil]={cuil:cuil,legajo:'',haberes:[],descuentos:[],contribs:[],origen:'lsd'};
         orden.push(cuil);
       }
       var desc = getConceptoDesc(code);
-      if(cd==='D'){
+      var mapeo = configMapeo[code];
+      if(cd==='D' || mapeo.tipo===2){
         emps[cuil].descuentos.push({code:code,desc:desc,monto:monto});
-      } else if(code==='0003'||code.charAt(0)==='4'||code.substring(0,2)==='04'){
+      } else if(mapeo.tipo===3){
         emps[cuil].contribs.push({code:code,desc:desc,monto:monto});
       } else {
-        emps[cuil].haberes.push({code:code,desc:desc,monto:monto});
+        emps[cuil].haberes.push({code:code,desc:desc,monto:monto,noRem:mapeo.tipo===4});
       }
     }
   }
@@ -402,6 +418,7 @@ function parseLSD(txt){
   todosEmpleados = orden.map(function(cuil){
     var e = emps[cuil];
     e.bruto = e.haberes.reduce(function(s,h){return s+h.monto;},0);
+    e.noRem = e.haberes.reduce(function(s,h){return s+(h.noRem?h.monto:0);},0);
     e.totalDesc = e.descuentos.reduce(function(s,d){return s+d.monto;},0);
     e.neto = e.bruto - e.totalDesc;
     return e;
@@ -509,13 +526,19 @@ function generar(){
   var fpap   = g('d-fpap'); var fpago  = g('d-fpago');
   var cbu    = g('d-cbu');  var lugar  = g('e-lugar')||'CIUDAD AUTONOMA DE BUENOS AIRES, CABA';
   var ganRet = parseFloat(document.getElementById('d-gan').value)||0;
+  var fechaPartes = fpago.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  var fechaAnterior = fechaPartes && (Number(fechaPartes[3])<Number(anio) ||
+    (Number(fechaPartes[3])===Number(anio) && Number(fechaPartes[2])<Number(mes)));
 
   var TOPE = 4594798.23; // Agosto 2026
-  var base = Math.min(bruto, TOPE);
+  var noRem = empActual && empActual.origen==='lsd' ? empActual.noRem||0 : 0;
+  var costoIndividualDisponible = !(empActual && empActual.origen==='lsd');
+  var remunerativo = bruto - noRem;
+  var base = Math.min(remunerativo, TOPE);
 
   // Descuentos (del LSD si disponibles, sino calculados)
   var dJub, dPami, dOS, dSind, dGan;
-  if(empActual && empActual.descuentos && empActual.descuentos.length){
+  if(empActual && empActual.origen==='lsd'){
     dJub  = find(empActual.descuentos,'0201');
     dPami = find(empActual.descuentos,'0202');
     dOS   = find(empActual.descuentos,'0203');
@@ -527,7 +550,8 @@ function generar(){
     dOS   = base * 0.03;
     dSind = 0; dGan = ganRet;
   }
-  var totalDesc = dJub + dPami + dOS + dSind + dGan;
+  var totalDesc = empActual && empActual.origen==='lsd'
+    ? empActual.totalDesc : dJub + dPami + dOS + dSind + dGan;
   var neto = bruto - totalDesc;
 
   // Contribuciones patronales — siempre calculadas + montos fijos
@@ -585,11 +609,12 @@ function generar(){
     (dPami?'<tr><td class="rbold">Total PAMI ('+pP+'%)</td><td>'+fmt(dPami)+'</td></tr><tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmt(dPami)+'</td></tr>':'')+
     (dOS?'<tr><td class="rbold">Total Obra Social ('+pO+'%)</td><td>'+fmt(dOS)+'</td></tr><tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmt(dOS)+'</td></tr>':'')+
     (dGan?'<tr><td class="rbold">Total Imp. Ganancias ('+pG+'%)</td><td>'+fmt(dGan)+'</td></tr><tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmt(dGan)+'</td></tr>':'')+
-    '<tr><td class="rbold">Total Varios ('+pV+'%)</td><td>'+fmt(totalCtb)+'</td></tr>'+
-    '<tr><td style="padding-left:4mm;color:#666">Empleador</td><td>'+fmt(totalCtb)+'</td></tr>';
+    (costoIndividualDisponible?'<tr><td class="rbold">Total Varios ('+pV+'%)</td><td>'+fmt(totalCtb)+'</td></tr>'+
+    '<tr><td style="padding-left:4mm;color:#666">Empleador</td><td>'+fmt(totalCtb)+'</td></tr>':'');
 
   var html =
   '<div style="margin-bottom:12px">'+
+  (fechaAnterior?'<div class="msg warn">Revisá la fecha de pago: es anterior al período del recibo. Corregila en el formulario antes de imprimir.</div>':'')+
   '<button class="btn-print" onclick="window.print()">🖨 Imprimir / PDF</button>'+
   '<span style="font-size:.7rem;color:#8b949e">En el diálogo elegí "Guardar como PDF"</span>'+
   '</div>'+
@@ -612,27 +637,30 @@ function generar(){
   '<td style="text-align:center">'+cuil+'</td>'+
   '<td>'+categ+'</td><td>'+lugar+'</td><td>'+antig+'</td></tr>'+
   '</table>'+
-  '<div class="rsec"><span>COSTO TOTAL EMPLEADOR</span><span>'+fmt(costoTotal)+'</span></div>'+
-  '<table class="ct"><tr><th>CONCEPTO</th><th>UNIDAD</th><th class="r">BASE</th><th class="r">MONTO</th></tr>'+
-  rowsCtb+'<tr class="sub"><td colspan="3" style="text-align:center">SUB TOTAL CONTRIBUCIONES EMPLEADOR</td><td class="r">'+fmt(totalCtb)+'</td></tr>'+
-  '</table>'+
+  (costoIndividualDisponible
+    ? '<div class="rsec"><span>COSTO EMPLEADOR ESTIMADO</span><span>'+fmt(costoTotal)+'</span></div>'+
+      '<table class="ct"><tr><th>CONCEPTO</th><th>UNIDAD</th><th class="r">BASE</th><th class="r">MONTO</th></tr>'+
+      rowsCtb+'<tr class="sub"><td colspan="3" style="text-align:center">SUB TOTAL CONTRIBUCIONES EMPLEADOR</td><td class="r">'+fmt(totalCtb)+'</td></tr></table>'
+    : '')+
   '<div class="rsec"><span>SUELDO BRUTO</span><span>'+fmt(bruto)+'</span></div>'+
   '<table class="ct"><tr><th>CONCEPTO</th><th>UNIDAD</th><th class="r">BASE</th><th class="r">MONTO</th></tr>'+
   rowsH+'</table>'+
-  '<div class="rcomp"><span>COMPOSICION SALARIAL: &nbsp; Remunerativo: <b>'+fmt(bruto)+'</b></span>'+
-  '<span>No Remunerativo: <b>$ 0,00</b></span>'+
+  '<div class="rcomp"><span>COMPOSICION SALARIAL: &nbsp; Remunerativo: <b>'+fmt(remunerativo)+'</b></span>'+
+  '<span>No Remunerativo: <b>'+fmt(noRem)+'</b></span>'+
   '<span style="text-align:right">Descuentos: <b>'+fmt(totalDesc)+'</b></span></div>'+
   '<div class="rneto">SUELDO NETO $ &nbsp;&nbsp;&nbsp;&nbsp; '+fmt(neto)+'</div>'+
-  '<div class="rletras">Son Pesos: '+numLetras(neto)+' con 00/100</div>'+
+  '<div class="rletras">Son Pesos: '+numLetras(Math.floor(Math.round(neto*100)/100))+' con '+String(Math.round(neto*100)%100).padStart(2,'0')+'/100</div>'+
   '<div class="rpago">Fecha de Pago: '+fpago+'</div>'+
   (cbu?'<div class="rpago">Depositado en Cuenta CBU: '+cbu+'</div>':'')+
   '<div class="rbottom">'+
   '<table class="rctab"><tr><td colspan="2" style="font-weight:bold;text-align:center;border-bottom:1px solid #ccc;padding-bottom:2mm">Detalle de la composición salarial</td></tr>'+
   compRows+'</table>'+
-  '<div class="rpie"><div style="font-size:7.5pt;font-weight:bold;margin-bottom:2mm">Costo total empleador</div>'+pie+'</div>'+
+  (costoIndividualDisponible ? '<div class="rpie"><div style="font-size:7.5pt;font-weight:bold;margin-bottom:2mm">Costo total empleador estimado</div>'+pie+'</div>' : '')+
   '</div>'+
   '<div class="rfirma"><div>Firma del empleado</div><div style="font-size:6.5pt">2608MEN03<br/>Página 1 de 1</div><div>'+(configEmpleador && configEmpleador.firma ? configEmpleador.firma : 'Empleador')+'</div></div>'+
-  '<div class="rnota">Seguridad social del empleador incluye SIPA, Fondo Nacional de Empleo y Asignaciones Familiares. SCVO $424,62 y ART $1.905,00 son montos fijos reglamentarios (Dec. 590/97).</div>'+
+  '<div class="rnota">'+(costoIndividualDisponible
+    ? 'Costo empleador estimado con parámetros generales. Verificar bases, régimen, ART, SCVO y F.931 antes de usar el importe.'
+    : 'Las contribuciones patronales no se asignan a cada trabajador: el F.931 informa importes globales del empleador. Consultar la liquidación individual para calcular el costo de cada empleado.')+'</div>'+
   '</div>';
 
   document.getElementById('content').innerHTML = html;
@@ -656,24 +684,29 @@ function TR(concepto,unidad,base,monto,bold){
          '<td class="r">'+base+'</td><td class="r">'+monto+'</td></tr>';
 }
 function numLetras(n){
-  n=Math.round(n); if(n<=0) return 'Cero';
-  var U=['','Un','Dos','Tres','Cuatro','Cinco','Seis','Siete','Ocho','Nueve','Diez','Once','Doce','Trece','Catorce','Quince','Dieciséis','Diecisiete','Dieciocho','Diecinueve'];
-  var D=['','','Veinte','Treinta','Cuarenta','Cincuenta','Sesenta','Setenta','Ochenta','Noventa'];
-  var C=['','Cien','Doscientos','Trescientos','Cuatrocientos','Quinientos','Seiscientos','Setecientos','Ochocientos','Novecientos'];
-  function g2(x){
-    if(x===100) return 'Cien';
-    var ce=Math.floor(x/100),de=Math.floor((x%100)/10),un=x%10,r='';
-    if(ce) r+=C[ce]+' ';
-    if(de===1) r+=U[10+un];
-    else if(de>1) r+=D[de]+(un?' y '+U[un]:'');
-    else if(un) r+=U[un];
-    return r.trim();
+  n=Math.floor(Math.abs(n));
+  if(!n) return 'Cero';
+  var u=['','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve',
+    'diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve'];
+  var v=['veinte','veintiuno','veintidós','veintitrés','veinticuatro','veinticinco',
+    'veintiséis','veintisiete','veintiocho','veintinueve'];
+  var d=['','','','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];
+  var c=['','ciento','doscientos','trescientos','cuatrocientos','quinientos',
+    'seiscientos','setecientos','ochocientos','novecientos'];
+  function tramo(x,apocope){
+    var r='';
+    if(x===100) return 'cien';
+    if(x>=100){r=c[Math.floor(x/100)];x%=100;}
+    if(x) r+=(r?' ':'')+(x<20?u[x]:x<30?v[x-20]:d[Math.floor(x/10)]+(x%10?' y '+u[x%10]:''));
+    return apocope?r.replace(/veintiuno$/,'veintiún').replace(/uno$/,'un'):r;
   }
-  var mm=Math.floor(n/1e6),m=Math.floor((n%1e6)/1e3),re=n%1e3,s='';
-  if(mm) s+=g2(mm)+(mm===1?' Millón ':' Millones ');
-  if(m)  s+=g2(m)+(m===1?' Mil ':' Mil ');
-  if(re) s+=g2(re);
-  return s.trim()||'Cero';
+  var millones=Math.floor(n/1000000),miles=Math.floor(n%1000000/1000),resto=n%1000;
+  var partes=[];
+  if(millones) partes.push(millones===1?'un millón':tramo(millones,true)+' millones');
+  if(miles) partes.push(miles===1?'mil':tramo(miles,true)+' mil');
+  if(resto) partes.push(tramo(resto,false));
+  var texto=partes.join(' ');
+  return texto.charAt(0).toUpperCase()+texto.slice(1);
 }
 function makePie(data){
   var tot=data.reduce(function(s,d){return s+d.v;},0); if(!tot) return '';
@@ -786,7 +819,10 @@ function parsearExcel(file){
         configEmpleador = {};
         rows.forEach(function(row){
           var dato = String(row['Dato']||'').trim().toLowerCase();
-          var val  = String(row['Valor']||'').trim();
+          var valor = row['Valor'];
+          var val = valor instanceof Date
+            ? valor.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'})
+            : String(valor||'').trim();
           if(val === 'nan' || val === '(se lee automáticamente del TXT de LSD)') return;
           if(dato.indexOf('razón') >= 0 || dato.indexOf('razon') >= 0) configEmpleador.razon = val;
           else if(dato.indexOf('domicilio') >= 0)   configEmpleador.domicilio = val;
@@ -827,8 +863,8 @@ function parsearExcel(file){
       document.getElementById('xl-msg').innerHTML = '<div class="msg ok">✓ '+resumen+'</div>';
       upboxXl.style.background = 'rgba(35,134,54,.08)';
 
-      // Si ya hay empleados cargados del LSD, re-seleccionar el activo para rellenar datos
-      if(empActual) seleccionarEmp(empActual);
+      // El mapeo puede reclasificar haberes y conceptos no remunerativos.
+      if(lsdTexto) parseLSD(lsdTexto);
 
     } catch(err) {
       document.getElementById('xl-msg').innerHTML = '<div class="msg warn">Error leyendo Excel: '+err.message+'</div>';
