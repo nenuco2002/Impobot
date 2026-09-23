@@ -243,7 +243,7 @@ function setTipo(t){
 
 function fmt(n){
   n=parseFloat(n)||0;
-  return '$ '+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  return '$ '+n.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
 function calcular(){
