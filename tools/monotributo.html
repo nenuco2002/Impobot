@@ -250,14 +250,14 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
 // ══════════════════════════════════════════════════════════════
 const MESES = ["","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
-// Categorías A–K (o J para servicios sin K)
+// Categorías A–K para ambas actividades (ARCA).
 // Fuente: ARCA - valores vigentes 01/08/2026
 // ═══════════════════════════════════════════════════════════════
 // CATEGORÍAS MONOTRIBUTO — Vigentes desde 01/08/2026
 // Fuente oficial: https://www.afip.gob.ar/monotributo/categorias.asp
 // ═══════════════════════════════════════════════════════════════
 const CATEGORIAS = [
-  { cat:'A', ing:12009410.45, sup:30,  kwh:3300,  alq:2792886.15,  precioMax:716840.77 },
+  { cat:'A', ing:12009410.45, sup:30,  kwh:3330,  alq:2792886.15,  precioMax:716840.77 },
   { cat:'B', ing:17595182.74, sup:45,  kwh:5000,  alq:2792886.15,  precioMax:716840.77 },
   { cat:'C', ing:24670494.31, sup:60,  kwh:6700,  alq:3816944.41,  precioMax:716840.77 },
   { cat:'D', ing:30628651.43, sup:85,  kwh:10000, alq:3816944.41,  precioMax:716840.77 },
@@ -375,7 +375,7 @@ function calcular(){
   ];
 
   // Tabla de categorías para comparar
-  const tablaCats = CATEGORIAS.filter(c=> !(!esBienes && c.cat==='K'));
+  const tablaCats = CATEGORIAS;
 
   document.getElementById('panel-r').innerHTML = cat==='EXCLUIDO'
     ? `<div class="cat-hero" style="border-color:rgba(239,68,68,.4);background:linear-gradient(135deg,#1a0000,#2d0000)">
@@ -415,7 +415,7 @@ function calcular(){
       <span class="val">${fmt(esBienes ? cuotas.totalVenta : cuotas.totalServ)}</span>
     </div>
     <div class="alerta info" style="margin-bottom:14px">
-      💡 Cuota anual estimada: <strong>${fmt(cuotas.total*12)}</strong>
+      💡 Cuota anual estimada, si no cambian los valores mensuales: <strong>${fmt((esBienes ? cuotas.totalVenta : cuotas.totalServ)*12)}</strong>
       ${empleados>0?` · Con ${empleados} empleado${empleados>1?'s':''}: sumá aportes patronales adicionales.`:''}
     </div>
 
@@ -460,7 +460,7 @@ function calcular(){
           }).join('')}
         </tbody>
       </table></div>
-      <div style="font-size:.67rem;color:var(--sub);margin-top:8px">* Valores vigentes desde enero 2026 según ARCA. Fila resaltada = tu categoría actual.</div>
+      <div style="font-size:.67rem;color:var(--sub);margin-top:8px">* Valores vigentes desde agosto 2026 según ARCA. Fila resaltada = tu categoría actual.</div>
     </div>
 
     <!-- RECATEGORIZACIÓN -->
