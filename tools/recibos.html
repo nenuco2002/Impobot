@@ -219,6 +219,7 @@ input:not(:placeholder-shown){border-color:#30363d}
     <label>Categoría laboral</label><input id="d-categ" placeholder="Sr. Analyst"/>
     <label>Antigüedad</label><input id="d-antig" placeholder="3 año(s) y 5 mes(es)"/>
     <label>F. Pago aportes</label><input id="d-fpap" placeholder="20-08-2026"/>
+    <div style="font-size:.68rem;color:#8b949e;margin-top:3px">Cargala manualmente o en la hoja Empleador del Excel como «Fecha pago aportes». No figura en el TXT LSD.</div>
     <label>Fecha de pago</label><input id="d-fpago" placeholder="1 de septiembre de 2026"/>
     <label>CBU</label><input id="d-cbu" placeholder="0720..."/>
   </div>
@@ -227,6 +228,7 @@ input:not(:placeholder-shown){border-color:#30363d}
     <div class="block-title">4. Sueldo (del LSD o manual)</div>
     <label>Sueldo bruto $</label><input type="number" id="d-bruto" placeholder="0"/>
     <label>Retención Ganancias $ (si aplica)</label><input type="number" id="d-gan" value="0"/>
+    <label style="display:flex;align-items:center;gap:8px;margin:8px 0"><input id="d-redondear" type="checkbox" style="width:auto"/> Redondear el neto a pesos enteros</label>
     <button class="btn-gen" id="btn-gen">📄 Generar recibo</button>
   </div>
 
@@ -464,6 +466,7 @@ function seleccionarEmp(e){
   document.getElementById('d-cuil').value   = fmtCuil(e.cuil);
   document.getElementById('d-legajo').value = e.legajo;
   document.getElementById('d-bruto').value  = e.bruto.toFixed(2);
+  document.getElementById('d-fpap').value = configEmpleador.fechaAportes || '';
   var gan = e.descuentos.find(function(d){return d.code==='0209';});
   document.getElementById('d-gan').value = gan ? gan.monto.toFixed(2) : '0';
 
@@ -477,7 +480,9 @@ function seleccionarEmp(e){
     if(emp.categ)   document.getElementById('d-categ').value  = emp.categ;
     if(emp.fing)    document.getElementById('d-fing').value   = emp.fing;
     if(emp.cbu)     document.getElementById('d-cbu').value    = emp.cbu;
-    if(emp.os)      document.getElementById('d-os').value     = emp.os;
+    if(emp.os || emp.rnos) document.getElementById('d-os').value =
+      (emp.os||'')+(emp.rnos?' (RNOS '+emp.rnos+')':'');
+    if(emp.fpap)    document.getElementById('d-fpap').value   = emp.fpap;
     // Calcular antigüedad
     if(emp.fing){
       var fi = emp.fing.match(/(\d{2})-(\d{2})-(\d{4})/);
@@ -552,7 +557,10 @@ function generar(){
   }
   var totalDesc = empActual && empActual.origen==='lsd'
     ? empActual.totalDesc : dJub + dPami + dOS + dSind + dGan;
-  var neto = bruto - totalDesc;
+  var netoExacto = Math.round((bruto - totalDesc)*100)/100;
+  var redondeo = gCheck('d-redondear') ? Math.round(netoExacto) - netoExacto : 0;
+  redondeo = Math.round(redondeo*100)/100;
+  var neto = Math.round((netoExacto + redondeo)*100)/100;
 
   // Contribuciones patronales — siempre calculadas + montos fijos
   var cPrev = base * 0.1077;  // 890000
@@ -592,6 +600,7 @@ function generar(){
   if(dOS)   rowsH += TR('810002 - Obra Social','3%',fmt(base),'$ -'+fmtR(dOS));
   if(dSind) rowsH += TR('810006 - Descuento sindical','0.000',fmt(dSind),'$ -'+fmtR(dSind));
   if(dGan)  rowsH += TR('810008 - Impuesto a las Ganancias','0.000',fmt(dGan),'$ -'+fmtR(dGan));
+  if(redondeo) rowsH += TR('Ajuste por redondeo','—','—',(redondeo<0?'-$ ':'+$ ')+fmtR(Math.abs(redondeo)));
 
   var pN = pc(neto,bruto); var pJ=pc(dJub,bruto); var pP=pc(dPami,bruto);
   var pO=pc(dOS,bruto); var pG=pc(dGan,bruto); var pV=pc(totalCtb,bruto);
@@ -615,6 +624,7 @@ function generar(){
   var html =
   '<div style="margin-bottom:12px">'+
   (fechaAnterior?'<div class="msg warn">Revisá la fecha de pago: es anterior al período del recibo. Corregila en el formulario antes de imprimir.</div>':'')+
+  (!fpap?'<div class="msg warn">Falta F. PAGO APORTES: completala antes de imprimir el recibo.</div>':'')+
   '<button class="btn-print" onclick="window.print()">🖨 Imprimir / PDF</button>'+
   '<span style="font-size:.7rem;color:#8b949e">En el diálogo elegí "Guardar como PDF"</span>'+
   '</div>'+
@@ -633,7 +643,7 @@ function generar(){
   '<tr><th colspan="2">F.INGRESO</th><th>F.PAGO APORTES</th><th>C.U.I.L</th>'+
   '<th>CATEGORÍA LABORAL</th><th>LUGAR DE PAGO</th><th>ANTIGÜEDAD</th></tr>'+
   '<tr><td colspan="2" style="text-align:center">'+fing+'</td>'+
-  '<td style="text-align:center">'+fpap+'</td>'+
+  '<td style="text-align:center">'+(fpap||'PENDIENTE')+'</td>'+
   '<td style="text-align:center">'+cuil+'</td>'+
   '<td>'+categ+'</td><td>'+lugar+'</td><td>'+antig+'</td></tr>'+
   '</table>'+
@@ -649,7 +659,7 @@ function generar(){
   '<span>No Remunerativo: <b>'+fmt(noRem)+'</b></span>'+
   '<span style="text-align:right">Descuentos: <b>'+fmt(totalDesc)+'</b></span></div>'+
   '<div class="rneto">SUELDO NETO $ &nbsp;&nbsp;&nbsp;&nbsp; '+fmt(neto)+'</div>'+
-  '<div class="rletras">Son Pesos: '+numLetras(Math.floor(Math.round(neto*100)/100))+' con '+String(Math.round(neto*100)%100).padStart(2,'0')+'/100</div>'+
+  '<div class="rletras">Son Pesos: '+numLetras(Math.floor(neto))+' con '+String(Math.round(neto*100)%100).padStart(2,'0')+'/100</div>'+
   '<div class="rpago">Fecha de Pago: '+fpago+'</div>'+
   (cbu?'<div class="rpago">Depositado en Cuenta CBU: '+cbu+'</div>':'')+
   '<div class="rbottom">'+
@@ -668,6 +678,7 @@ function generar(){
 
 // ── HELPERS ──────────────────────────────────────────────────
 function g(id){ return (document.getElementById(id)||{}).value||''; }
+function gCheck(id){ return !!(document.getElementById(id)||{}).checked; }
 function find(arr, code){ return (arr.find(function(x){return x.code===code;})||{monto:0}).monto; }
 function pc(v,t){ return t?((v/t)*100).toFixed(2):'0.00'; }
 function fmtCuil(c){ return c&&c.length===11?c.substring(0,2)+'-'+c.substring(2,10)+'-'+c.substring(10):c; }
@@ -805,6 +816,9 @@ function parsearExcel(file){
             fing:     fing,
             cbu:      cbu,
             banco:    String(row['Banco']||'').trim(),
+            fpap:     row['Fecha pago aportes'] instanceof Date
+              ? row['Fecha pago aportes'].toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'})
+              : String(row['Fecha pago aportes']||'').trim(),
             os:       String(row['Obra social']||'').trim(),
             rnos:     String(row['RNOS']||'').trim(),
           };
@@ -829,6 +843,7 @@ function parsearExcel(file){
           else if(dato.indexOf('cuit') >= 0)         configEmpleador.cuit = val;
           else if(dato.indexOf('firma') >= 0)        configEmpleador.firma = val;
           else if(dato.indexOf('lugar') >= 0)        configEmpleador.lugar = val;
+          else if(dato.indexOf('fecha') >= 0 && dato.indexOf('aporte') >= 0) configEmpleador.fechaAportes = val;
           else if(dato.indexOf('fecha') >= 0)        configEmpleador.fechaPago = val;
         });
         // Rellenar formulario con datos del empleador
@@ -837,6 +852,7 @@ function parsearExcel(file){
         if(configEmpleador.cuit)     document.getElementById('e-cuit').value     = configEmpleador.cuit;
         if(configEmpleador.lugar)    document.getElementById('e-lugar').value    = configEmpleador.lugar;
         if(configEmpleador.fechaPago)document.getElementById('d-fpago').value    = configEmpleador.fechaPago;
+        if(configEmpleador.fechaAportes)document.getElementById('d-fpap').value = configEmpleador.fechaAportes;
         ok++;
         console.log('Empleador OK:', configEmpleador);
       }
