@@ -180,6 +180,7 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-
       <div class="field"><label>Categoría/CCT</label><input type="text" id="inp-categ" placeholder="B1"/></div>
     </div>
 
+    <div class="field"><label for="inp-sindicato">Descuento sindical aplicable (%) — según CCT y situación del trabajador</label><input type="number" id="inp-sindicato" min="0" max="100" step="0.01" value="0"/></div>
     <button class="btn-calc" onclick="calcular()">💰 Calcular SAC</button>
   </div>
 
@@ -194,7 +195,7 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-
       • 1° semestre → 30 de junio<br/>
       • 2° semestre → 31 de diciembre<br/><br/>
       <b style="color:var(--blue-l)">Aportes sobre el SAC:</b><br/>
-      Jubilación 11%, PAMI 3%, Obra Social 3%, Sindicato 2% (sobre la base topada al SIPA).
+      Jubilación 11%, PAMI 3% y obra social 3%, sujetos a los topes aplicables. Ingresá el descuento sindical que corresponda según el convenio y la situación del trabajador.
     </div>
   </div>
 
@@ -316,7 +317,8 @@ function calcular(){
   var dJub     = baseSac * 0.11;
   var dPami    = baseSac * 0.03;
   var dOS      = baseSac * 0.03;
-  var dSind    = baseSac * 0.02;
+  var pctSind  = Math.max(0, Math.min(100, parseFloat(document.getElementById('inp-sindicato').value)||0));
+  var dSind    = sacBruto * pctSind / 100;
   var totalDesc = dJub + dPami + dOS + dSind;
   var sacNeto  = sacBruto - totalDesc;
 
@@ -350,7 +352,7 @@ function calcular(){
   html += '<tr><td>Jubilación (SIPA)'+topMsg+'</td><td class="r">'+fmt(baseSac)+'</td><td style="text-align:center">11%</td><td class="r red">'+fmt(dJub)+'</td></tr>';
   html += '<tr><td>PAMI (Ley 19.032)</td><td class="r">'+fmt(baseSac)+'</td><td style="text-align:center">3%</td><td class="r red">'+fmt(dPami)+'</td></tr>';
   html += '<tr><td>Obra Social empleado</td><td class="r">'+fmt(baseSac)+'</td><td style="text-align:center">3%</td><td class="r red">'+fmt(dOS)+'</td></tr>';
-  html += '<tr><td>Sindicato</td><td class="r">'+fmt(baseSac)+'</td><td style="text-align:center">2%</td><td class="r red">'+fmt(dSind)+'</td></tr>';
+  if(pctSind) html += '<tr><td>Descuento sindical</td><td class="r">'+fmt(sacBruto)+'</td><td style="text-align:center">'+pctSind+'%</td><td class="r red">'+fmt(dSind)+'</td></tr>';
   html += '<tr class="tot"><td colspan="3">Total descuentos</td><td class="r red">'+fmt(totalDesc)+'</td></tr>';
   html += '</table>';
   html += '<div class="neto-box">SAC NETO A PAGAR: <strong>'+fmt(sacNeto)+'</strong></div>';
@@ -359,7 +361,7 @@ function calcular(){
   html += '<div class="alerta alerta-info">📅 Vencimiento de pago: <strong>'+vctoStr+'</strong></div>';
   html += '<div class="alerta alerta-warn" style="margin-top:8px">⚠ Los aportes sobre el SAC se calculan por separado de los aportes del salario mensual. Tope SIPA agosto 2026: '+fmt(TOPE_SIPA)+'</div>';
 
-  html += '<button onclick="generarPDF('+JSON.stringify({mejorRem,diasTrab,diasSem,sacBruto,baseSac,dJub,dPami,dOS,dSind,totalDesc,sacNeto,sem,esProp}).replace(/"/g,"'")+
+  html += '<button onclick="generarPDF('+JSON.stringify({mejorRem,diasTrab,diasSem,sacBruto,baseSac,dJub,dPami,dOS,dSind,pctSind,totalDesc,sacNeto,sem,esProp}).replace(/"/g,"'")+
     ')" style="width:100%;margin-top:14px;background:linear-gradient(135deg,#0762c8,#0b82f5);color:#fff;border:none;padding:11px;border-radius:10px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">📄 Generar recibo SAC (Decreto 407/2026)</button>';
 
   document.getElementById('panel-r').innerHTML = html;
@@ -416,7 +418,7 @@ function generarPDF(d){
   html+=TR('Jubilación (SIPA)','11%',fP(d.baseSac),fP(d.dJub));
   html+=TR('PAMI (Ley 19.032)','3%',fP(d.baseSac),fP(d.dPami));
   html+=TR('Obra Social empleado','3%',fP(d.baseSac),fP(d.dOS));
-  html+=TR('Sindicato','2%',fP(d.baseSac),fP(d.dSind));
+  if(d.pctSind) html+=TR('Descuento sindical',d.pctSind+'%',fP(d.sacBruto),fP(d.dSind));
   html+='<tr style="background:#e8e8e8"><td colspan="3" style="padding:3px 5px;font-weight:bold">Total descuentos</td><td style="text-align:right;padding:3px 5px;font-weight:bold">'+fP(d.totalDesc)+'</td></tr>';
   html+='</tbody></table>';
 
