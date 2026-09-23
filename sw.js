@@ -1,5 +1,5 @@
 // ImpoBot Service Worker — Cache primero para assets estáticos
-var CACHE = 'impobot-v5';
+var CACHE = 'impobot-v7';
 var ASSETS = [
   '/',
   '/index.html',
@@ -10,6 +10,8 @@ var ASSETS = [
   '/tools/sueldos.html',
   '/tools/ganancias.html',
   '/tools/recibos.html',
+  '/tools/fal.html',
+  '/report-widget.js',
   '/tools/autonomos.html',
   '/tools/sac.html',
   '/tools/indemnizacion.html',
@@ -39,23 +41,32 @@ self.addEventListener('install', function(e){
 self.addEventListener('activate', function(e){
   e.waitUntil(
     caches.keys().then(function(keys){
-      return Promise.all(keys.filter(function(k){ return k!==CACHE; }).map(function(k){ return caches.delete(k); }));
+      return Promise.all(keys.filter(function(k){ return k.indexOf('impobot-v')===0 && k!==CACHE; }).map(function(k){ return caches.delete(k); }));
     })
   );
   self.clients.claim();
 });
 
 self.addEventListener('fetch', function(e){
-  // Network first para API calls (BCRA, etc), cache first para assets
+  if(e.request.method !== 'GET') return;
+  // Consultar primero la red para páginas y scripts; usar caché si no hay conexión.
   var url = e.request.url;
-  if(url.includes('api.bcra') || url.includes('dolarapi') || url.includes('formspree') || url.includes('brevo')){
-    e.respondWith(fetch(e.request).catch(function(){ return caches.match(e.request); }));
+  var sameOrigin = new URL(url).origin === self.location.origin;
+  if((sameOrigin && (e.request.mode === 'navigate' || /\.(html|js)$/.test(new URL(url).pathname))) ||
+     url.includes('api.bcra') || url.includes('dolarapi') || url.includes('formspree') || url.includes('brevo')){
+    e.respondWith(fetch(e.request).then(function(resp){
+      if(sameOrigin && resp.ok){
+        var clone = resp.clone();
+        e.waitUntil(caches.open(CACHE).then(function(cache){ return cache.put(e.request, clone); }));
+      }
+      return resp;
+    }).catch(function(){ return caches.match(e.request); }));
   } else {
     e.respondWith(
       caches.match(e.request).then(function(cached){
         return cached || fetch(e.request).then(function(resp){
           var clone = resp.clone();
-          caches.open(CACHE).then(function(cache){ cache.put(e.request, clone); });
+          if(sameOrigin && resp.ok) e.waitUntil(caches.open(CACHE).then(function(cache){ return cache.put(e.request, clone); }));
           return resp;
         });
       })
