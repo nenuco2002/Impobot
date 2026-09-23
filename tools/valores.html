@@ -99,7 +99,7 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-
     <details class="guia-wrap" style="max-width:860px;margin:12px auto 0;padding:0 16px">
   <summary>❓ ¿Cómo usar 📌 Valores Fiscales?</summary>
   <div class="guia-body"><ol><li>Herramienta de <strong>consulta rápida</strong>: no requiere ingresar datos.</li><li>Encontrás: SMVyM, tope SIPA, UVA, haberes jubilatorios, tasas ARCA, límites Monotributo y aportes Autónomos.</li><li>Usá el <strong>buscador</strong> para filtrar por concepto.</li><li>Cada valor muestra su fuente normativa.</li></ol>
-    <div class="guia-nota">ℹ️ Valores actualizados a septiembre 2026.</div>
+    <div class="guia-nota">ℹ️ Valores previsionales actualizados a octubre 2026.</div>
   </div>
 </details>
 <h1 style="font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:5px">Valores Fiscales Clave 2026 🇦🇷</h1>
@@ -131,11 +131,12 @@ var DATA = [
   {
     id:'sipa', cat:'sueldo', titulo:'Tope SIPA / Base imponible (Ley 24.241)', icon:'💰', badge:'ANSES', color:'blue',
     items:[
-      {lbl:'Base imponible máxima — septiembre 2026', val:'$ 4.691.748,47', nota:'Res. ANSES 257/2026 — VIGENTE'},
+      {lbl:'Base imponible máxima — octubre 2026',    val:'$ 4.769.631,49', nota:'Movilidad 1,66% — VIGENTE'},
+      {lbl:'Base imponible mínima — octubre 2026',    val:'$ 146.759,98',   nota:'Movilidad 1,66% — VIGENTE'},
+      {lbl:'Base imponible máxima — septiembre 2026', val:'$ 4.691.748,47', nota:'Res. ANSES 257/2026'},
       {lbl:'Base imponible máxima — agosto 2026',     val:'$ 4.594.798,23', nota:'Res. ANSES 232/2026'},
       {lbl:'Base imponible máxima — julio 2026',      val:'$ 4.509.567,41', nota:'Res. ANSES 186/2026'},
-      {lbl:'Base imponible mínima — septiembre 2026', val:'$ 144.363,55',   nota:'Res. ANSES 257/2026'},
-      {lbl:'Movilidad septiembre 2026',               val:'2,11%',           nota:'Sobre IPC julio 2026 (INDEC)'},
+      {lbl:'Movilidad octubre 2026',                  val:'1,66%',           nota:'Respecto de septiembre 2026'},
     ],
     nota:'Se actualiza mensualmente por movilidad previsional (DNU 274/2024). Afecta aportes y contribuciones.'
   },
@@ -176,10 +177,10 @@ var DATA = [
     nota:'890004 y 890005 se calculan sobre el bruto total sin aplicar tope SIPA.'
   },
   {
-    id:'jubilacion', cat:'sueldo', titulo:'Haberes jubilatorios — septiembre 2026', icon:'🏦', badge:'ANSES', color:'green',
+    id:'jubilacion', cat:'sueldo', titulo:'Haberes jubilatorios — octubre 2026', icon:'🏦', badge:'ANSES', color:'green',
     items:[
-      {lbl:'Haber mínimo garantizado',          val:'$ 428.633,20',   nota:'Res. ANSES 257/2026'},
-      {lbl:'Haber máximo',                      val:'$ 2.884.295,54', nota:'Res. ANSES 257/2026'},
+      {lbl:'Haber mínimo garantizado',          val:'$ 435.748,51',   nota:'Octubre 2026 — VIGENTE'},
+      {lbl:'Haber máximo',                      val:'$ 2.932.174,85', nota:'Octubre 2026 — VIGENTE'},
       {lbl:'Prestación Básica Universal (PBU)', val:'$ 196.080,12',   nota:'Res. ANSES 257/2026'},
       {lbl:'PUAM (Adulto Mayor)',                val:'$ 342.906,56',   nota:'Res. ANSES 257/2026'},
       {lbl:'Prestación por desempleo — mínimo', val:'$ 191.900',       nota:'50% del SMVyM sept'},
@@ -240,17 +241,17 @@ var DATA = [
     nota:'Valores vigentes desde 01/08/2026. Ver tabla completa A-K en herramienta Monotributo de ImpoBot.'
   },
   {
-    id:'autonomos', cat:'autonomos', titulo:'Aportes Autónomos — vigentes desde 15/09/2026', icon:'💼', badge:'ARCA', color:'blue',
+    id:'autonomos', cat:'autonomos', titulo:'Aportes Autónomos — octubre 2026', icon:'💼', badge:'ARCA', color:'blue',
     items:[
-      {lbl:'Cat. I — renta referencia / aporte', val:'$240.604,60 / $76.993,48',   nota:'32% de la renta'},
-      {lbl:'Cat. II — renta referencia / aporte',val:'$336.841,28 / $107.789,20',  nota:'32% de la renta'},
-      {lbl:'Cat. III — renta referencia / aporte',val:'$481.204,97 / $153.985,59', nota:'32% de la renta'},
-      {lbl:'Cat. IV — renta referencia / aporte', val:'$769.927,62 / $246.376,84', nota:'32% de la renta'},
-      {lbl:'Cat. V — renta referencia / aporte',  val:'$1.058.646,30 / $338.766,81',nota:'32% de la renta'},
+      {lbl:'Cat. I — renta referencia / aporte', val:'$244.598,64 / $78.271,57',   nota:'32% de la renta'},
+      {lbl:'Cat. II — renta referencia / aporte',val:'$342.432,85 / $109.578,50',  nota:'32% de la renta'},
+      {lbl:'Cat. III — renta referencia / aporte',val:'$489.192,97 / $156.541,75', nota:'32% de la renta'},
+      {lbl:'Cat. IV — renta referencia / aporte', val:'$782.708,42 / $250.466,70', nota:'32% de la renta'},
+      {lbl:'Cat. V — renta referencia / aporte',  val:'$1.076.219,83 / $344.390,34',nota:'32% de la renta'},
       {lbl:'Aporte = 27% jub + 1.5% PAMI + 3.5% OS', val:'32% total',             nota:''},
       {lbl:'Vencimiento',                         val:'Días 5–7 según CUIT',        nota:'Ver vencimientos ARCA'},
     ],
-    nota:'Fuente: PDF ARCA "Valores autónomos desde septiembre 2026". Tope ingresos Art. 19/20 RG 2217: $1.732.810,08.'
+    nota:'Importes de septiembre actualizados por la movilidad previsional de octubre 2026 (1,66%). Verificar la tabla publicada por ARCA antes del pago.'
   },
   {
     id:'rg830', cat:'ganancias', titulo:'Retenciones RG 830 — montos no imponibles exactos', icon:'📋', badge:'ARCA', color:'blue',
