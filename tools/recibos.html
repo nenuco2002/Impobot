@@ -609,8 +609,8 @@ function generar(){
     (dPami?'<tr><td class="rbold">Total PAMI ('+pP+'%)</td><td>'+fmt(dPami)+'</td></tr><tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmt(dPami)+'</td></tr>':'')+
     (dOS?'<tr><td class="rbold">Total Obra Social ('+pO+'%)</td><td>'+fmt(dOS)+'</td></tr><tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmt(dOS)+'</td></tr>':'')+
     (dGan?'<tr><td class="rbold">Total Imp. Ganancias ('+pG+'%)</td><td>'+fmt(dGan)+'</td></tr><tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmt(dGan)+'</td></tr>':'')+
-    '<tr><td class="rbold">Total Varios ('+pV+'%)</td><td>'+fmt(totalCtb)+'</td></tr>'+
-    '<tr><td style="padding-left:4mm;color:#666">Empleador</td><td>'+fmt(totalCtb)+'</td></tr>';
+    (costoIndividualDisponible?'<tr><td class="rbold">Total Varios ('+pV+'%)</td><td>'+fmt(totalCtb)+'</td></tr>'+
+    '<tr><td style="padding-left:4mm;color:#666">Empleador</td><td>'+fmt(totalCtb)+'</td></tr>':'');
 
   var html =
   '<div style="margin-bottom:12px">'+
