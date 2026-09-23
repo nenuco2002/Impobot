@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Vencimientos ARCA 2026 — FiscalAR</title>
+<title>Vencimientos ARCA 2026 — ImpoBot</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 :root{--ink:#2d4f68;--card:#375e7a;--border:#4d7a96;--text:#f0f6fb;--sub:#9dbdd6;--cyan:#00c9b8;--amber:#f59e0b;--green:#10b981;--red:#ef4444;--purple:#8b5cf6}
@@ -127,11 +127,18 @@ select.filter-sel{background:#1e3a4e;border:1px solid var(--border);color:var(--
     <button class="filter-btn" onclick="setFiltro('ARBA',this)">ARBA (PBA)</button>
     <select class="filter-sel" id="sel-mes" onchange="renderGrid()">
       <option value="">Todos los meses</option>
-      ${Array.from({length:12},(_,i)=>{
-        const m=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][i
-
-        return `<option value="${i}">${m}</option>`;
-      }).join('')}
+      <option value="0">Enero</option>
+      <option value="1">Febrero</option>
+      <option value="2">Marzo</option>
+      <option value="3">Abril</option>
+      <option value="4">Mayo</option>
+      <option value="5">Junio</option>
+      <option value="6">Julio</option>
+      <option value="7">Agosto</option>
+      <option value="8">Septiembre</option>
+      <option value="9">Octubre</option>
+      <option value="10">Noviembre</option>
+      <option value="11">Diciembre</option>
     </select>
   </div>
   <div class="legend">
