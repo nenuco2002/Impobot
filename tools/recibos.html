@@ -532,6 +532,7 @@ function generar(){
 
   var TOPE = 4594798.23; // Agosto 2026
   var noRem = empActual && empActual.origen==='lsd' ? empActual.noRem||0 : 0;
+  var costoIndividualDisponible = !(empActual && empActual.origen==='lsd');
   var remunerativo = bruto - noRem;
   var base = Math.min(remunerativo, TOPE);
 
@@ -636,10 +637,11 @@ function generar(){
   '<td style="text-align:center">'+cuil+'</td>'+
   '<td>'+categ+'</td><td>'+lugar+'</td><td>'+antig+'</td></tr>'+
   '</table>'+
-  '<div class="rsec"><span>COSTO EMPLEADOR ESTIMADO</span><span>'+fmt(costoTotal)+'</span></div>'+
-  '<table class="ct"><tr><th>CONCEPTO</th><th>UNIDAD</th><th class="r">BASE</th><th class="r">MONTO</th></tr>'+
-  rowsCtb+'<tr class="sub"><td colspan="3" style="text-align:center">SUB TOTAL CONTRIBUCIONES EMPLEADOR</td><td class="r">'+fmt(totalCtb)+'</td></tr>'+
-  '</table>'+
+  (costoIndividualDisponible
+    ? '<div class="rsec"><span>COSTO EMPLEADOR ESTIMADO</span><span>'+fmt(costoTotal)+'</span></div>'+
+      '<table class="ct"><tr><th>CONCEPTO</th><th>UNIDAD</th><th class="r">BASE</th><th class="r">MONTO</th></tr>'+
+      rowsCtb+'<tr class="sub"><td colspan="3" style="text-align:center">SUB TOTAL CONTRIBUCIONES EMPLEADOR</td><td class="r">'+fmt(totalCtb)+'</td></tr></table>'
+    : '')+
   '<div class="rsec"><span>SUELDO BRUTO</span><span>'+fmt(bruto)+'</span></div>'+
   '<table class="ct"><tr><th>CONCEPTO</th><th>UNIDAD</th><th class="r">BASE</th><th class="r">MONTO</th></tr>'+
   rowsH+'</table>'+
@@ -653,10 +655,12 @@ function generar(){
   '<div class="rbottom">'+
   '<table class="rctab"><tr><td colspan="2" style="font-weight:bold;text-align:center;border-bottom:1px solid #ccc;padding-bottom:2mm">Detalle de la composición salarial</td></tr>'+
   compRows+'</table>'+
-  '<div class="rpie"><div style="font-size:7.5pt;font-weight:bold;margin-bottom:2mm">Costo total empleador</div>'+pie+'</div>'+
+  (costoIndividualDisponible ? '<div class="rpie"><div style="font-size:7.5pt;font-weight:bold;margin-bottom:2mm">Costo total empleador estimado</div>'+pie+'</div>' : '')+
   '</div>'+
   '<div class="rfirma"><div>Firma del empleado</div><div style="font-size:6.5pt">2608MEN03<br/>Página 1 de 1</div><div>'+(configEmpleador && configEmpleador.firma ? configEmpleador.firma : 'Empleador')+'</div></div>'+
-  '<div class="rnota">Costo empleador estimado con parámetros generales; las contribuciones no surgen de los registros de conceptos de este LSD. Verificar bases, régimen, ART, SCVO y F.931 antes de usar el importe.</div>'+
+  '<div class="rnota">'+(costoIndividualDisponible
+    ? 'Costo empleador estimado con parámetros generales. Verificar bases, régimen, ART, SCVO y F.931 antes de usar el importe.'
+    : 'Las contribuciones patronales no se asignan a cada trabajador: el F.931 informa importes globales del empleador. Consultar la liquidación individual para calcular el costo de cada empleado.')+'</div>'+
   '</div>';
 
   document.getElementById('content').innerHTML = html;
