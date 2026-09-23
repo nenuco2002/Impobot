@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>ImpoBot — Herramientas fiscales inteligentes 🇦🇷</title>
-<meta name="description" content="ImpoBot: herramientas fiscales gratuitas para Argentina. Ganancias, Monotributo, Sueldos, Recibos LSD, Vencimientos ARCA 2026."/>
+<meta name="description" content="ImpoBot: herramientas fiscales para Argentina. Ganancias, Monotributo, Sueldos, FAL, Recibos LSD y Vencimientos ARCA."/>
 <meta name="keywords" content="impuestos argentina, ganancias 4ta categoria, monotributo 2026, ARCA, liquidacion sueldos, impobot"/>
 <meta property="og:title" content="ImpoBot — Herramientas fiscales inteligentes"/>
 <meta property="og:description" content="Calculadoras impositivas y laborales para contadores y empresas argentinas. Monotributo, Ganancias, sueldos, vencimientos y retenciones. Tablas ARCA/ANSES 2026."/>
@@ -222,7 +222,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
   </div>
   <div class="ib-strip">
     <div class="ib-strip-left">ImpoBot <b>· Herramientas fiscales inteligentes</b></div>
-    <div class="ib-strip-right">16 herramientas · gratis, sin registro</div>
+    <div class="ib-strip-right">17 herramientas · sin registro</div>
   </div>
 </header>
 
@@ -246,7 +246,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="hero-copy">
         <div class="welcome-badge welcome-badge--dark">Impositivo + Inteligente = <strong>ImpoBot</strong></div>
         <h2>El bot que entiende<br/>tus <span>impuestos</span></h2>
-        <p>Calculadoras fiscales para contadores y para cualquiera que quiera entender lo que le descuentan. Gratis y sin registro. Consultá la fecha y las fuentes de cada herramienta antes de usar sus resultados.</p>
+        <p>Calculadoras fiscales para contadores y para cualquiera que quiera entender lo que le descuentan. Consultá la fecha y las fuentes de cada herramienta antes de usar sus resultados.</p>
         <a class="welcome-cta" href="#tools">Explorar herramientas →</a>
       </div>
     </div>
@@ -295,8 +295,17 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
 
 <!-- TOOLS -->
 <div class="section" id="tools">
-  <div class="sec-hd"><h2>Herramientas disponibles</h2><div class="divider"></div><span>16 herramientas · gratuitas</span></div>
+  <div class="sec-hd"><h2>Herramientas disponibles</h2><div class="divider"></div><span>17 herramientas disponibles</span></div>
   <div class="grid" id="tools-grid">
+
+    <a class="tcard span2" data-name="fal fondo asistencia laboral mipyme grandes contribuciones proyeccion" href="tools/fal.html" style="--icon-bg:rgba(52,211,153,.12)">
+      <span class="ctag">🆕 Nueva</span>
+      <div class="cicon">📈</div>
+      <div class="cname">Simulador FAL</div>
+      <div class="cdesc">Estimá el aporte al Fondo de Asistencia Laboral y proyectá su saldo a 12, 24 y 36 meses con supuestos editables de rendimiento y comisión.</div>
+      <div class="cpills"><span class="pill">Ley 27.802</span><span class="pill">MiPyME / Grande</span><span class="pill">SAC</span><span class="pill">Proyección</span></div>
+      <div class="ccta">Abrir herramienta <span class="arrow">→</span></div>
+    </a>
 
     <a class="tcard span2" data-name="ganancias 4ta categoria liquidacion siradig sicore" href="tools/ganancias.html" style="--icon-bg:rgba(56,189,248,.12)">
       <span class="ctag">⭐ Destacada</span>
@@ -451,7 +460,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
     <div class="servicios-hd">
       <div class="servicios-tag">🧑‍💼 Servicios profesionales</div>
       <h2 class="servicios-title">¿Necesitás un contador?</h2>
-      <p class="servicios-sub">Además de las herramientas gratuitas, ofrecemos servicios profesionales de contabilidad e impuestos.</p>
+      <p class="servicios-sub">Además de las herramientas, ofrecemos servicios profesionales de contabilidad e impuestos.</p>
     </div>
     <div class="servicios-grid">
       <div class="serv-card">
@@ -525,7 +534,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
   <div class="card support-inner">
     <div style="font-size:1.8rem;margin-bottom:10px">☕</div>
     <h3>¿ImpoBot te ahorró tiempo?</h3>
-    <p>ImpoBot es 100% gratuito y sin publicidad. Si te resultó útil, podés invitarnos un café para mantener las tablas actualizadas y seguir agregando herramientas.</p>
+    <p>Si ImpoBot te resultó útil, podés invitarnos un café para mantener las tablas actualizadas y seguir agregando herramientas.</p>
     <div class="support-btns">
       <a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" class="btn-bmc">☕ Invitarnos un café</a>
       <a href="https://ko-fi.com/impobot" target="_blank" rel="noopener" class="btn-kofi">💙 Apoyar en Ko-fi</a>
@@ -557,6 +566,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
           <option>SAC / Aguinaldo</option>
           <option>Indemnización</option>
           <option>F.931</option>
+          <option>Simulador FAL</option>
           <option>Otro / Página general</option>
         </select>
       </div>
@@ -581,7 +591,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
         <img src="logo-sm.png" alt="ImpoBot"/>
         <div style="font-size:1.1rem;font-weight:900;letter-spacing:-.04em"><span style="color:#fff">impo</span><span style="color:var(--blue-l)">bot</span></div>
       </div>
-      <p>Calculadoras impositivas y laborales para contadores y empresas argentinas. Tablas ARCA y ANSES actualizadas. Gratis, sin registro.</p>
+      <p>Calculadoras impositivas y laborales para contadores y empresas argentinas. Consultá la fecha y las fuentes de cada herramienta.</p>
     </div>
     <div class="footer-col">
       <h4>Herramientas</h4>
@@ -680,7 +690,8 @@ function enviarBug(e){
   var endpoint = 'https://formspree.io/f/xpwzakqj'; // ← configurar
   fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({herramienta:tool,descripcion:desc,email:email})})
-    .then(function(){
+    .then(function(r){
+      if(!r.ok) throw new Error('No se pudo enviar el reporte');
       document.getElementById('bug-form-msg').textContent='✓ Reporte enviado. ¡Gracias!';
       document.getElementById('bug-form-msg').style.color='#10b981';
       setTimeout(cerrarBugReport, 2000);
