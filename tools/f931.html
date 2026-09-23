@@ -136,7 +136,7 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-
     <div class="field"><label>CUIT</label><input id="e-cuit" placeholder="30-12345678-9" oninput="actualizarHeader()"/></div>
     <div class="field"><label>Período (MMAAAA)</label><input id="e-periodo" placeholder="092026" maxlength="6" oninput="actualizarHeader()"/></div>
     <div class="field"><label>Tope SIPA vigente $</label>
-      <input id="e-tope" type="number" value="4691748.47" oninput="recalcularTodo()"/>
+      <input id="e-tope" type="number" value="4769631.49" oninput="recalcularTodo()"/>
     </div>
   </div>
   <div class="grid3" style="margin-top:10px">
@@ -299,7 +299,7 @@ function calcArt(emp){ return Math.round(((emp.bruto + (emp.noRem||0))*getArtPct
 var nomina = [];
 var nextId = 1;
 
-function getTope(){ return parseFloat(document.getElementById('e-tope').value)||4691748.47; }
+function getTope(){ return parseFloat(document.getElementById('e-tope').value)||4769631.49; }
 function fmt(n){ n=Math.abs(parseFloat(n)||0); var s=n.toFixed(2).split('.'); s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.'); return s[0]+','+s[1]; }
 function fmtM(n){ return '$ '+fmt(n); }
 

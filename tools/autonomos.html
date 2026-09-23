@@ -108,7 +108,7 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
 <details class="guia-wrap">
   <summary>❓ ¿Cómo usar 💼 Aportes Autónomos?</summary>
   <div class="guia-body">
-    <ol><li>Seleccioná tu <strong>categoría de revista</strong> (A a J) según tu actividad e ingresos.</li><li>El sistema muestra el <strong>aporte mensual obligatorio</strong> vigente (actualizado septiembre 2026).</li><li>Las categorías se determinan por los ingresos brutos del año anterior.</li><li><strong>Categoría A</strong> es la más baja; <strong>Categoría J</strong> la más alta.</li><li>El aporte se paga mensualmente a ARCA, independientemente de si tuviste ingresos ese mes.</li></ol>
+    <ol><li>Seleccioná tu <strong>categoría mínima de revista</strong> (I a V).</li><li>El sistema muestra el <strong>aporte mensual obligatorio</strong> de octubre 2026.</li><li>Los importes incorporan el aumento previsional del 1,66% respecto de septiembre.</li><li>El aporte se paga mensualmente a ARCA, independientemente de si tuviste ingresos ese mes.</li></ol>
     <div class="guia-nota">ℹ️ Las alícuotas y montos se actualizan por resolución de ARCA. Verificá siempre en arca.gob.ar antes de pagar.</div>
   </div>
 </details>
@@ -134,32 +134,7 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
         </select>
         <div class="hint">La categoría determina el monto de aportes mensuales</div>
       </div>
-      <div class="sep">Actividad</div>
-      <div class="field">
-        <label>Tipo de actividad</label>
-        <select id="sel-actividad" onchange="calcular()">
-          <option value="prof">Profesional (universitario)</option>
-          <option value="comercio">Comercio / Industria / Servicios</option>
-          <option value="agro">Agropecuaria</option>
-        </select>
-      </div>
-      <div class="sep">Obra social</div>
-      <div class="field">
-        <label>¿Adhiere a obra social?</label>
-        <select id="sel-os" onchange="calcular()">
-          <option value="si">Sí — incluir aporte OS</option>
-          <option value="no">No — solo jubilación</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>¿Incluye grupo familiar?</label>
-        <select id="sel-fam" onchange="calcular()">
-          <option value="0">Solo titular</option>
-          <option value="1">+ 1 beneficiario</option>
-          <option value="2">+ 2 beneficiarios</option>
-          <option value="3">+ 3 o más beneficiarios</option>
-        </select>
-      </div>
+      <div class="alerta info">El aporte total de la categoría equivale al 32% de la renta de referencia: 27% jubilación, 1,5% PAMI y 3,5% obra social.</div>
       <button class="btn-calc" onclick="calcular()">💼 Calcular aportes</button>
     </div>
   </div>
@@ -173,25 +148,21 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
 </div>
 <script>
 // ── TABLAS ARCA 2026 — Autónomos ─────────────────────────────
-// Aportes mensuales actualizados al 2do semestre 2026
-// RG 5.608/2026 — Base imponible autónomos
-// Rentas de referencia autónomos — 2do semestre 2026 (+16.8% sobre H1/2026)
-// Fuente: ARCA RG 5608/2026 — vigentes desde julio 2026
+// Aportes mensuales octubre 2026: septiembre 2026 + movilidad 1,66%.
 const RENTAS = {
-  1: { label:'Categoría I',   renta: 8207.67  },
-  2: { label:'Categoría II',  renta: 13144.41 },
-  3: { label:'Categoría III', renta: 16430.51 },
-  4: { label:'Categoría IV',  renta: 24645.77 },
-  5: { label:'Categoría V',   renta: 32861.02 },
+  1: { label:'Categoría I',   renta:244598.64,  aporteTotal:78271.57 },
+  2: { label:'Categoría II',  renta:342432.85,  aporteTotal:109578.50 },
+  3: { label:'Categoría III', renta:489192.97,  aporteTotal:156541.75 },
+  4: { label:'Categoría IV',  renta:782708.42,  aporteTotal:250466.70 },
+  5: { label:'Categoría V',   renta:1076219.83, aporteTotal:344390.34 },
 };
 
 // Alícuotas
 // Alícuotas autónomos — OS actualizada H2 2026
 const ALICUOTAS = {
   jubilacion: 0.27,   // 27% sobre renta de referencia
-  retiro:     0.015,  // 1.5% PAMI (Ley 19.032)
-  os_titular: 7777,   // obra social titular (actualizado H2 2026)
-  os_benefic: 3889,   // por cada beneficiario adicional
+  pami:       0.015,  // 1.5% PAMI (Ley 19.032)
+  os_titular: 0.035,  // 3.5% incluido en el aporte base
 };
 
 const fmt = n => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',minimumFractionDigits:2}).format(n);
@@ -199,36 +170,30 @@ const fmt = n => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',
 function calcular(){
   const cat = parseInt(document.getElementById('sel-cat').value);
   if(!cat) return;
-  const os   = document.getElementById('sel-os').value === 'si';
-  const fam  = parseInt(document.getElementById('sel-fam').value)||0;
   const datos = RENTAS[cat];
 
-  // Valores exactos del PDF — vigentes desde 15/09/2026
   // Aporte total = 32% renta (27% jub + 1.5% PAMI + 3.5% OS titular incluida)
   const jub        = datos.renta * ALICUOTAS.jubilacion;            // 27%
   const pami       = datos.renta * ALICUOTAS.pami;                  // 1.5%
   const osTitular  = datos.renta * ALICUOTAS.os_titular;            // 3.5% (incluido en aporte base)
-  const osFamAdic  = fam * datos.renta * ALICUOTAS.os_benefic_pct_pct;  // por cada adherente adicional
   const totalBase  = datos.aporteTotal;                              // total exacto de la tabla ARCA
-  const totalConFam= totalBase + osFamAdic;
-  const anual      = totalConFam * 12;
+  const anual      = totalBase * 12;
 
   document.getElementById('panel-r').innerHTML = `
     <div class="result-hero">
       <div class="lbl">Aporte mensual total</div>
-      <div class="val">${fmt(totalConFam)}</div>
+      <div class="val">${fmt(totalBase)}</div>
       <div class="sub">${datos.label} · Renta ref.: ${fmt(datos.renta)} · Anual: ${fmt(anual)}</div>
     </div>
     <div class="breakdown">
       <div class="bk-card"><div class="lbl">Jubilación (27%)</div><div class="val">${fmt(jub)}</div></div>
       <div class="bk-card"><div class="lbl">PAMI (1.5%)</div><div class="val">${fmt(pami)}</div></div>
       <div class="bk-card"><div class="lbl">OS titular (3.5%)</div><div class="val">${fmt(osTitular)}</div></div>
-      <div class="bk-card"><div class="lbl">OS adicionales (×${fam})</div><div class="val">${fam?fmt(osFamAdic):'—'}</div></div>
     </div>
     <div class="alerta info">📅 Los aportes se pagan mensualmente. El vencimiento varía según terminación de CUIT (días 5–7 de cada mes). Ver herramienta de <a href="vencimientos.html" style="color:inherit;font-weight:600">Vencimientos ARCA</a>.</div>
-    <div class="alerta warn">⚠ Valores vigentes desde <strong>15/09/2026</strong>. Fuente: ARCA — "Valores vigentes a partir de septiembre 2026". Verificar siempre en arca.gob.ar.</div>
+    <div class="alerta warn">⚠ Valores de <strong>octubre 2026</strong>: importes de septiembre actualizados 1,66%. Verificar en ARCA antes del pago.</div>
     <div class="card" style="margin-top:14px">
-      <div class="card-hd">📊 Tabla completa — Categorías mínimas de revista (desde 15/09/2026)</div>
+      <div class="card-hd">📊 Categorías mínimas de revista — octubre 2026</div>
       <div class="card-body" style="padding:0">
         <table class="table-cat">
           <thead><tr><th>Categoría</th><th>Renta referencia</th><th>Jubilación (27%)</th><th>PAMI (1.5%)</th><th>OS titular (3.5%)</th><th>Total (32%)</th></tr></thead>
@@ -239,33 +204,37 @@ function calcular(){
       </div>
     </div>
     <div class="card" style="margin-top:14px">
-      <div class="card-hd">📋 Otros regímenes (desde 15/09/2026)</div>
+      <div class="card-hd">📋 Otros regímenes — octubre 2026</div>
       <div class="card-body">
         <table class="table-cat">
           <thead><tr><th>Régimen</th><th>Importe mensual</th></tr></thead>
           <tbody>
-            <tr><td>Actividades penosas/riesgosas — Cat I'</td><td>${fmt(84211.61)}</td></tr>
-            <tr><td>Actividades penosas/riesgosas — Cat II'</td><td>${fmt(117894.44)}</td></tr>
-            <tr><td>Actividades penosas/riesgosas — Cat III'</td><td>${fmt(168421.73)}</td></tr>
-            <tr><td>Actividades penosas/riesgosas — Cat IV'</td><td>${fmt(269474.67)}</td></tr>
-            <tr><td>Actividades penosas/riesgosas — Cat V'</td><td>${fmt(370526.20)}</td></tr>
-            <tr><td>Afiliaciones voluntarias (Cat I)</td><td>${fmt(76993.48)}</td></tr>
-            <tr><td>Menores de 21 años (Cat I)</td><td>${fmt(76993.48)}</td></tr>
-            <tr><td>Beneficiarios prestaciones previsionales (Cat I)</td><td>${fmt(64963.25)}</td></tr>
-            <tr><td>Amas de Casa — Ley 24.828 (Cat I)</td><td>${fmt(26466.51)}</td></tr>
+            <tr><td>Actividades penosas/riesgosas — Cat I'</td><td>${fmt(85609.52)}</td></tr>
+            <tr><td>Actividades penosas/riesgosas — Cat II'</td><td>${fmt(119851.49)}</td></tr>
+            <tr><td>Actividades penosas/riesgosas — Cat III'</td><td>${fmt(171217.53)}</td></tr>
+            <tr><td>Actividades penosas/riesgosas — Cat IV'</td><td>${fmt(273947.95)}</td></tr>
+            <tr><td>Actividades penosas/riesgosas — Cat V'</td><td>${fmt(376676.93)}</td></tr>
+            <tr><td>Afiliaciones voluntarias (Cat I)</td><td>${fmt(78271.57)}</td></tr>
+            <tr><td>Menores de 21 años (Cat I)</td><td>${fmt(78271.57)}</td></tr>
+            <tr><td>Beneficiarios prestaciones previsionales (Cat I)</td><td>${fmt(66041.64)}</td></tr>
+            <tr><td>Amas de Casa — Ley 24.828 (Cat I)</td><td>${fmt(26905.85)}</td></tr>
 
             <tr style="border-top:1.5px solid var(--border)"><td colspan="2" style="padding:8px 0 4px;font-weight:700;color:var(--blue-l);font-size:.72rem">CATEGORÍAS DE REVISTA (encuadramiento según ingresos anuales)</td></tr>
-            <tr><td>Categoría A — hasta $952.069</td><td>${fmt(60052.65)}</td></tr>
-            <tr><td>Categoría B — hasta $1.428.104</td><td>${fmt(73719.95)}</td></tr>
-            <tr><td>Categoría B' — hasta $1.904.139</td><td>${fmt(80631.20)}</td></tr>
-            <tr><td>Categoría C — hasta $2.856.209</td><td>${fmt(98546.87)}</td></tr>
-            <tr><td>Categoría D — hasta $3.808.278</td><td>${fmt(116462.54)}</td></tr>
-            <tr><td>Categoría E — hasta $5.236.383</td><td>${fmt(141869.87)}</td></tr>
-            <tr><td>Categoría F — hasta $6.664.489</td><td>${fmt(167277.20)}</td></tr>
-            <tr><td>Categoría G — hasta $9.472.558</td><td>${fmt(220093.17)}</td></tr>
-            <tr><td>Categoría H — hasta $11.376.034</td><td>${fmt(252777.70)}</td></tr>
-            <tr><td>Categoría I — hasta $13.995.208</td><td>${fmt(291955.08)}</td></tr>
-            <tr><td>Categoría J — sin límite superior</td><td>${fmt(923903.40)}</td></tr>
+            <tr><td>Categoría A</td><td>${fmt(61049.52)}</td></tr>
+            <tr><td>Categoría B</td><td>${fmt(74943.70)}</td></tr>
+            <tr><td>Categoría B'</td><td>${fmt(81969.68)}</td></tr>
+            <tr><td>Categoría C</td><td>${fmt(100182.75)}</td></tr>
+            <tr><td>Categoría C'</td><td>${fmt(109574.87)}</td></tr>
+            <tr><td>Categoría D</td><td>${fmt(149883.91)}</td></tr>
+            <tr><td>Categoría D'</td><td>${fmt(163935.52)}</td></tr>
+            <tr><td>Categoría E</td><td>${fmt(250266.08)}</td></tr>
+            <tr><td>Categoría E'</td><td>${fmt(273728.53)}</td></tr>
+            <tr><td>Categoría F</td><td>${fmt(350061.76)}</td></tr>
+            <tr><td>Categoría G</td><td>${fmt(500339.55)}</td></tr>
+            <tr><td>Categoría G'</td><td>${fmt(547246.39)}</td></tr>
+            <tr><td>Categoría H</td><td>${fmt(750803.89)}</td></tr>
+            <tr><td>Categoría I</td><td>${fmt(939240.20)}</td></tr>
+            <tr><td>Categoría J</td><td>${fmt(939240.20)}</td></tr>
           </tbody>
         </table>
       </div>

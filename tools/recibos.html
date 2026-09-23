@@ -535,7 +535,7 @@ function generar(){
   var fechaAnterior = fechaPartes && (Number(fechaPartes[3])<Number(anio) ||
     (Number(fechaPartes[3])===Number(anio) && Number(fechaPartes[2])<Number(mes)));
 
-  var TOPE = 4594798.23; // Agosto 2026
+  var TOPE = 4769631.49; // Octubre 2026
   var noRem = empActual && empActual.origen==='lsd' ? empActual.noRem||0 : 0;
   var costoIndividualDisponible = !(empActual && empActual.origen==='lsd');
   var remunerativo = bruto - noRem;

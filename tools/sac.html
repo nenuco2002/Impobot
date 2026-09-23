@@ -228,7 +228,7 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-
     padding:8px 14px;border-radius:50px;text-decoration:none;box-shadow:0 3px 16px rgba(0,0,0,.25)">☕</a>
 
 <script>
-var TOPE_SIPA = 4594798.23;
+var TOPE_SIPA = 4769631.49;
 var tipo = 'prop'; // 'prop' | 'comp'
 
 var SEMESTRES = {
@@ -359,7 +359,7 @@ function calcular(){
 
   var vctoStr = (sem===1)?'30 de junio 2026':'18 de diciembre 2026';
   html += '<div class="alerta alerta-info">📅 Vencimiento de pago: <strong>'+vctoStr+'</strong></div>';
-  html += '<div class="alerta alerta-warn" style="margin-top:8px">⚠ Los aportes sobre el SAC se calculan por separado de los aportes del salario mensual. Tope SIPA agosto 2026: '+fmt(TOPE_SIPA)+'</div>';
+  html += '<div class="alerta alerta-warn" style="margin-top:8px">⚠ Los aportes sobre el SAC se calculan por separado de los aportes del salario mensual. Tope SIPA octubre 2026: '+fmt(TOPE_SIPA)+'</div>';
 
   html += '<button onclick="generarPDF('+JSON.stringify({mejorRem,diasTrab,diasSem,sacBruto,baseSac,dJub,dPami,dOS,dSind,pctSind,totalDesc,sacNeto,sem,esProp}).replace(/"/g,"'")+
     ')" style="width:100%;margin-top:14px;background:linear-gradient(135deg,#0762c8,#0b82f5);color:#fff;border:none;padding:11px;border-radius:10px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">📄 Generar recibo SAC (Decreto 407/2026)</button>';
@@ -436,7 +436,7 @@ function generarPDF(d){
   html+='<div style="border-top:1px solid #000;padding-top:4px">Firma empleador</div>';
   html+='<div style="font-size:6.5pt;color:#444">'+(empresa||'Razón Social')+'</div></td></tr>';
   html+='</table>';
-  html+='<div style="font-size:6.5pt;color:#666;text-align:center;margin-top:6px">SAC calculado según Art. 121/122 LCT. Aportes sobre la base topada al SIPA ($'+fP(4594798.23)+'). Generado con ImpoBot — impobot.com.ar</div>';
+  html+='<div style="font-size:6.5pt;color:#666;text-align:center;margin-top:6px">SAC calculado según Art. 121/122 LCT. Aportes sobre la base topada al SIPA ($'+fP(TOPE_SIPA)+'). Generado con ImpoBot — impobot.com.ar</div>';
 
   document.getElementById('pdf-cont').innerHTML=html;
   document.getElementById('pdf-overlay').style.display='block';

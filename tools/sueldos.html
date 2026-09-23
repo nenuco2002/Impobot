@@ -150,7 +150,7 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
   <summary>❓ ¿Cómo usar 💰 Liquidador de Sueldos?</summary>
   <div class="guia-body">
     <ol><li>Completá los <strong>datos del empleador</strong>: razón social, CUIT y datos del período.</li><li>Ingresá los datos del empleado: nombre, CUIL, categoría, fecha de ingreso y remuneración bruta.</li><li>Agregá adicionales remunerativos y no remunerativos si corresponde.</li><li>Indicá el <strong>porcentaje sindical</strong> y si aplica retención de Ganancias 4ª Categoría.</li><li>Hacé clic en <strong>Generar recibo (Decreto 407/2026)</strong> para obtener el recibo completo con gráfico de distribución.</li></ol>
-    <div class="guia-nota">ℹ️ El tope SIPA vigente (septiembre 2026) es $4.691.748,47 (Res. ANSES 257/2026).</div>
+    <div class="guia-nota">ℹ️ El tope SIPA vigente para el devengado octubre 2026 es $4.769.631,49.</div>
   </div>
 </details>
 </div>
@@ -215,7 +215,7 @@ function fmt(n){
   return '$ ' + n.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
-const TOPE_SIPA = 4691748.47; // Septiembre 2026 — Res. ANSES 257/2026
+const TOPE_SIPA = 4769631.49; // Octubre 2026 — movilidad previsional 1,66%
 
 // Aportes del empleado (sobre base topada al SIPA)
 const AP_EMP = { jub:0.11, pami:0.03, os:0.03, sind:0.02 };
@@ -454,7 +454,7 @@ function generarReciboPDF(){
     +'<div style="margin:2px 0"><span style="display:inline-block;width:10px;height:10px;background:#1e7e34;margin-right:4px"></span>Neto: '+fmtP(d.neto)+' ('+Math.round(pNeto*100)+'%)</div>'
     +'<div style="margin:2px 0"><span style="display:inline-block;width:10px;height:10px;background:#cc5500;margin-right:4px"></span>Aportes empleado: '+fmtP(d.dJub+d.dPami+d.dOS+d.dSind)+' ('+Math.round(pAp*100)+'%)</div>'
     +(d.dGan?'<div style="margin:2px 0"><span style="display:inline-block;width:10px;height:10px;background:#8B0000;margin-right:4px"></span>Retención Ganancias: '+fmtP(d.dGan)+'</div>':'')
-    +'<div style="margin-top:4px;font-size:6.5pt;color:#666">Tope SIPA agosto 2026: $ 4.691.748,47'+(d.topado?' — Aplicado ⚠':'')+' </div>'
+    +'<div style="margin-top:4px;font-size:6.5pt;color:#666">Tope SIPA octubre 2026: $ 4.769.631,49'+(d.topado?' — Aplicado ⚠':'')+' </div>'
     +'</td></tr></table>';
 
   html += pieSection;
