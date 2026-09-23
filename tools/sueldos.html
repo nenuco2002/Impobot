@@ -194,7 +194,7 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
       <div class="sep">Descuentos</div>
       <div class="field"><label>Embargo / Otros desc. $</label><input type="number" id="inp-embargo" placeholder="0" oninput="calcular()"/></div>
       <div class="row2">
-        <div class="field"><label>Sindicato %</label><input type="number" id="inp-sind" placeholder="2" value="2" step="0.1" oninput="calcular()"/></div>
+        <div class="field"><label>Descuento sindical aplicable (%) — según CCT</label><input type="number" id="inp-sind" placeholder="0" value="0" min="0" max="100" step="0.1" oninput="calcular()"/></div>
         <div class="field"><label>Retención Ganancias $</label><input type="number" id="inp-gan" placeholder="0" oninput="calcular()"/></div>
       </div>
       <button class="btn-calc" onclick="calcular()">💰 Calcular recibo</button>
@@ -212,10 +212,10 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
 // Formatter sin Intl (más compatible en iframes)
 function fmt(n){
   n = parseFloat(n)||0;
-  return '$ ' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return '$ ' + n.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
-const TOPE_SIPA = 4691748.47; // Agosto 2026 — Res. ANSES 257/2026
+const TOPE_SIPA = 4691748.47; // Septiembre 2026 — Res. ANSES 257/2026
 
 // Aportes del empleado (sobre base topada al SIPA)
 const AP_EMP = { jub:0.11, pami:0.03, os:0.03, sind:0.02 };
@@ -312,7 +312,7 @@ function calcular(){
   html += '<tr><td>590000 — Jubilación (SIPA)</td><td class="r">'+fmt(base)+'</td><td class="c">11%</td><td class="r red">'+fmt(dJub)+'</td></tr>';
   html += '<tr><td>590009 — PAMI (Ley 19.032)</td><td class="r">'+fmt(base)+'</td><td class="c">3%</td><td class="r red">'+fmt(dPami)+'</td></tr>';
   html += '<tr><td>590003 — Obra Social empleado</td><td class="r">'+fmt(base)+'</td><td class="c">3%</td><td class="r red">'+fmt(dOS)+'</td></tr>';
-  html += '<tr><td>590019 — Sindicato</td><td class="r">'+fmt(base)+'</td><td class="c">'+sindPct+'%</td><td class="r red">'+fmt(dSind)+'</td></tr>';
+  if(sindPct) html += '<tr><td>590019 — Descuento sindical</td><td class="r">'+fmt(base)+'</td><td class="c">'+sindPct+'%</td><td class="r red">'+fmt(dSind)+'</td></tr>';
   if(dGan)    html += '<tr><td>810008 — Retención Ganancias</td><td class="r">—</td><td class="c">—</td><td class="r red">'+fmt(dGan)+'</td></tr>';
   if(embargo) html += '<tr><td>Embargo / Otros</td><td class="r">—</td><td class="c">—</td><td class="r red">'+fmt(embargo)+'</td></tr>';
   html += '<tr class="subtotal"><td colspan="3">Total descuentos</td><td class="r red">'+fmt(totalDesc)+'</td></tr>';
@@ -491,7 +491,7 @@ function generarReciboPDF(){
   html += TR('Jubilación (SIPA)','11%',fmtP(d.base),fmtP(d.dJub));
   html += TR('PAMI (Ley 19.032)','3%',fmtP(d.base),fmtP(d.dPami));
   html += TR('Obra Social empleado','3%',fmtP(d.base),fmtP(d.dOS));
-  html += TR('Sindicato',d.sindPct+'%',fmtP(d.base),fmtP(d.dSind));
+  if(d.sindPct) html += TR('Descuento sindical',d.sindPct+'%',fmtP(d.base),fmtP(d.dSind));
   if(d.dGan)    html += TR('Retención Ganancias','','',fmtP(d.dGan));
   if(d.embargo) html += TR('Embargo / Otros descuentos','','',fmtP(d.embargo));
   html += '<tr style="background:#e8e8e8"><td colspan="3" style="padding:3px 5px;font-weight:bold">Total descuentos</td><td style="text-align:right;padding:3px 5px;font-weight:bold">'+fmtP(d.totalDesc)+'</td></tr>';
