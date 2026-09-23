@@ -38,3 +38,8 @@
   for = "/tools/*.html"
   [headers.values]
     Cache-Control = "public, max-age=1800"
+
+[[headers]]
+  for = "/bot.js"
+  [headers.values]
+    Cache-Control = "no-cache, must-revalidate"
