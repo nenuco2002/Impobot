@@ -32,12 +32,27 @@
 [[headers]]
   for = "/*.html"
   [headers.values]
-    Cache-Control = "public, max-age=1800, stale-while-revalidate=3600"
+    Cache-Control = "no-cache, must-revalidate"
 
 [[headers]]
   for = "/tools/*.html"
   [headers.values]
-    Cache-Control = "public, max-age=1800"
+    Cache-Control = "no-cache, must-revalidate"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "no-cache, must-revalidate"
+
+[[headers]]
+  for = "/tools/*/*.js"
+  [headers.values]
+    Cache-Control = "no-cache, must-revalidate"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-store, must-revalidate"
 
 [[headers]]
   for = "/bot.js"
