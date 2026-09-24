@@ -1,5 +1,5 @@
 // ImpoBot Service Worker — Cache primero para assets estáticos
-var CACHE = 'impobot-v9';
+var CACHE = 'impobot-v10';
 var ASSETS = [
   '/',
   '/index.html',
@@ -55,7 +55,8 @@ self.addEventListener('fetch', function(e){
   var sameOrigin = new URL(url).origin === self.location.origin;
   if((sameOrigin && (e.request.mode === 'navigate' || /\.(html|js)$/.test(new URL(url).pathname))) ||
      url.includes('api.bcra') || url.includes('dolarapi') || url.includes('formspree') || url.includes('brevo')){
-    e.respondWith(fetch(e.request).then(function(resp){
+    // Omitir el caché HTTP: fetch() normal puede devolver HTML/JS viejo sin ir a la red.
+    e.respondWith(fetch(e.request, sameOrigin ? { cache: 'no-store' } : {}).then(function(resp){
       if(sameOrigin && resp.ok){
         var clone = resp.clone();
         e.waitUntil(caches.open(CACHE).then(function(cache){ return cache.put(e.request, clone); }));
