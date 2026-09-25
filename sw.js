@@ -1,5 +1,5 @@
 // ImpoBot Service Worker — Cache primero para assets estáticos
-var CACHE = 'impobot-v11';
+var CACHE = 'impobot-v12';
 var ASSETS = [
   '/',
   '/index.html',
@@ -10,6 +10,8 @@ var ASSETS = [
   '/tools/sueldos.html',
   '/tools/ganancias.html',
   '/tools/recibos.html',
+  '/tools/facturador.html',
+  '/tools/facturador.js',
   '/tools/fal.html',
   '/report-widget.js',
   '/bot.js?v=8',
