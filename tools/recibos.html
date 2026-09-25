@@ -549,7 +549,7 @@ function generar(){
   var TOPE = 4769631.49; // Octubre 2026
   var noRem = empActual && empActual.origen==='lsd' ? empActual.noRem||0 : 0;
   var importado = !!(empActual && (empActual.origen==='lsd'||empActual.origen==='manual'));
-  var costoIndividualDisponible = !importado;
+  var costoIndividualDisponible = true; // El costo empleador se muestra siempre, venga el dato de LSD o carga manual
   var remunerativo = bruto - noRem;
   var base = Math.min(remunerativo, TOPE);
 
@@ -686,9 +686,7 @@ function generar(){
   '<div class="rpie"><div style="font-size:8pt;font-weight:bold;margin-bottom:2mm">Distribución del sueldo bruto</div>'+pie+'</div>'+
   '</div>'+
   '<div class="rfirma"><div>Firma del empleado</div><div style="font-size:6.5pt">Página 1 de 1</div><div>'+(configEmpleador && configEmpleador.firma ? configEmpleador.firma : 'Empleador')+'</div></div>'+
-  '<div class="rnota">'+(costoIndividualDisponible
-    ? 'Costo empleador estimado con parámetros generales. Verificar bases, régimen, ART, SCVO y F.931 antes de usar el importe.'
-    : 'Las contribuciones patronales no se asignan a cada trabajador: el F.931 informa importes globales del empleador. Consultar la liquidación individual para calcular el costo de cada empleado.')+'</div>'+
+  '<div class="rnota">Costo empleador estimado con parámetros generales. Verificar bases, régimen, ART, SCVO y F.931 antes de usar el importe.</div>'+
   '</div>';
 
   document.getElementById('content').innerHTML = html;
