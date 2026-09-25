@@ -574,6 +574,10 @@ function generar(){
   var redondeo=calculo.redondeo,neto=calculo.neto;
 
   // Contribuciones patronales — siempre calculadas + montos fijos
+  // Los Socios Gerentes (Anexo III Dto. 407/26) no aportan al SIPA/PAMI/Obra
+  // Social/FSR/FNE por esta vía (van por Autónomos): solo ART, SCVO y
+  // Asignaciones Familiares.
+  var esSocioGerente = /socio\s*gerente/i.test(categ);
   var cPrev = base * 0.1077;  // 890000
   var cPami = base * 0.0159;  // 890001
   var cOS   = bruto * 0.051;  // 890004
@@ -582,7 +586,7 @@ function generar(){
   var cSCVO = 424.62;          // 890007 FIJO Dec.590/97
   var cAsig = base * 0.047;   // 890010
   var cART  = 1905.00;         // 890017 FIJO Dec.590/97
-  var totalCtb = cPrev+cPami+cOS+cFSR+cFNE+cSCVO+cAsig+cART;
+  var totalCtb = esSocioGerente ? (cSCVO+cAsig+cART) : (cPrev+cPami+cOS+cFSR+cFNE+cSCVO+cAsig+cART);
   var costoTotal = bruto + totalCtb;
 
   // Haberes (del LSD si disponibles)
@@ -591,15 +595,18 @@ function generar(){
     : [{code:'0001',desc:'110500 - Sueldo',monto:bruto}];
 
   // Filas contribuciones empleador
-  var rowsCtb =
-    TR('890000 - Contribucion Previsional','10.77%',fmt(base),fmt(cPrev))+
-    TR('890001 - Contribucion Ley 19032 INSSJP','1.59%',fmt(base),fmt(cPami))+
-    TR('890004 - Contribucion Obra Social','5.10%',fmt(bruto),fmt(cOS))+
-    TR('890005 - Contribucion FSR ex ANSSAL','0.90%',fmt(bruto),fmt(cFSR))+
-    TR('890006 - Contribucion Fondo Nacional de Empleo','0.94%',fmt(base),fmt(cFNE))+
-    TR('890007 - SCVO Seguro de Vida Obligatorio','0.000','$ 424,62','$ 424,62')+
-    TR('890010 - Contribucion Asignaciones Familiares','4.70%',fmt(base),fmt(cAsig))+
-    TR('890017 - ART Suma Fija Dec 590/97','0.000','$ 1.905,00','$ 1.905,00');
+  var rowsCtb = esSocioGerente
+    ? TR('890007 - SCVO Seguro de Vida Obligatorio','0.000','$ 424,62','$ 424,62')+
+      TR('890010 - Contribucion Asignaciones Familiares','4.70%',fmt(base),fmt(cAsig))+
+      TR('890017 - ART Suma Fija Dec 590/97','0.000','$ 1.905,00','$ 1.905,00')
+    : TR('890000 - Contribucion Previsional','10.77%',fmt(base),fmt(cPrev))+
+      TR('890001 - Contribucion Ley 19032 INSSJP','1.59%',fmt(base),fmt(cPami))+
+      TR('890004 - Contribucion Obra Social','5.10%',fmt(bruto),fmt(cOS))+
+      TR('890005 - Contribucion FSR ex ANSSAL','0.90%',fmt(bruto),fmt(cFSR))+
+      TR('890006 - Contribucion Fondo Nacional de Empleo','0.94%',fmt(base),fmt(cFNE))+
+      TR('890007 - SCVO Seguro de Vida Obligatorio','0.000','$ 424,62','$ 424,62')+
+      TR('890010 - Contribucion Asignaciones Familiares','4.70%',fmt(base),fmt(cAsig))+
+      TR('890017 - ART Suma Fija Dec 590/97','0.000','$ 1.905,00','$ 1.905,00');
 
   // Filas sueldo bruto
   var rowsHaberes = haberes.map(function(h){
