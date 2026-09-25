@@ -496,7 +496,7 @@ function seleccionarEmp(e){
     if(emp.fpap)    document.getElementById('d-fpap').value   = emp.fpap;
     // Calcular antigüedad
     if(emp.fing){
-      var fi = emp.fing.match(/(\d{2})-(\d{2})-(\d{4})/);
+      var fi = emp.fing.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
       if(fi){
         var ingreso = new Date(fi[3],fi[2]-1,fi[1]);
         var hoy = new Date();
