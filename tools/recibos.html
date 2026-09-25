@@ -54,16 +54,16 @@ input:not(:placeholder-shown){border-color:#30363d}
 .r-dir{font-size:7.5pt;color:#555;margin-bottom:2.5mm}
 .rt{width:100%;border-collapse:collapse;margin-bottom:1.5mm}
 .rt td,.rt th{border:1px solid #555;padding:1.5mm 2mm;vertical-align:middle;line-height:1.3;font-size:7.5pt}
-.rt th{background:#d0d0d0;font-weight:bold;font-size:7pt;text-align:center}
-.rsec{background:#222;color:#fff;font-weight:bold;font-size:8pt;padding:1.5mm 3mm;margin:2mm 0 0;display:flex;justify-content:space-between;align-items:center}
+.rt th{background:#dbe8f8;color:#183e77;font-weight:bold;font-size:7pt;text-align:center}
+.rsec{background:#173e78;color:#fff;font-weight:bold;font-size:8pt;padding:1.5mm 3mm;margin:2mm 0 0;display:flex;justify-content:space-between;align-items:center}
 .ct{width:100%;border-collapse:collapse}
-.ct th{background:#444;color:#fff;font-size:7pt;padding:1.5mm 2mm;text-align:left;font-weight:bold}
+.ct th{background:#255998;color:#fff;font-size:7pt;padding:1.5mm 2mm;text-align:left;font-weight:bold}
 .ct th.r,.ct td.r{text-align:right}
 .ct td{border-bottom:.3px solid #ddd;padding:1.3mm 2mm;font-size:8pt}
-.ct tr.sub td{background:#e0e0e0;font-weight:bold}
-.rcomp{background:#222;color:#fff;font-size:7.5pt;font-weight:bold;padding:1.5mm 3mm;display:flex;gap:8mm;margin-top:1mm}
+.ct tr.sub td{background:#e3edf9;font-weight:bold}
+.rcomp{background:#224f89;color:#fff;font-size:7.5pt;font-weight:bold;padding:1.5mm 3mm;display:flex;gap:8mm;margin-top:1mm}
 .rcomp span{flex:1}
-.rneto{background:#111;color:#fff;text-align:right;padding:2mm 4mm;font-size:11pt;font-weight:bold;margin-top:.5mm}
+.rneto{background:#bceebc;color:#163d27;text-align:right;padding:2mm 4mm;font-size:11pt;font-weight:bold;margin-top:.5mm}
 .rletras{font-size:8pt;color:#333;font-style:italic;margin:1.2mm 0}
 .rpago{font-size:7.5pt;color:#555;margin:.3mm 0}
 .rbottom{display:flex;gap:5mm;margin-top:3mm}
@@ -79,13 +79,20 @@ input:not(:placeholder-shown){border-color:#30363d}
 .rfirma{display:flex;justify-content:space-between;margin-top:6mm;gap:8mm}
 .rfirma div{flex:1;text-align:center;border-top:1px solid #333;padding-top:2mm;font-size:7pt;color:#555}
 .rnota{font-size:6.5pt;color:#888;text-align:center;margin-top:2mm}
+.rtitulo{text-align:center;color:#173f83;font-size:12pt;font-weight:700;border-bottom:2px solid #3476bd;padding-bottom:2mm;margin-bottom:3mm}
+.rsubtitulo{font-size:7.5pt;font-weight:400;color:#374b69}
+.ros{font-size:7.5pt;padding:1mm 0;color:#344c74}
 @media print{
+  @page{size:A4;margin:10mm}
   body,html{background:#fff!important}
-  .nav,.sidebar,.btn-print,.recibo-wrap>div:first-child{display:none!important}
-  .layout{display:block;margin-top:0;height:auto}
-  .content{padding:2mm}
-  .recibo{box-shadow:none;max-width:100%;padding:4mm}
-  .rsec,.rt th,.ct th,.rcomp,.rneto,.rpie{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body > :not(.layout){display:none!important}
+  .layout{display:block!important;margin:0!important;height:auto!important}
+  .layout > :not(.content){display:none!important}
+  .content{display:block!important;overflow:visible!important;padding:0!important;background:#fff!important}
+  .content > :not(.recibo){display:none!important}
+  .recibo{box-shadow:none!important;border-radius:0;max-width:100%;padding:0!important}
+  .rnota{display:none!important}
+  .rsec,.rt th,.ct th,.rcomp,.rneto,.rpie,.rtitulo{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 
 /* ── FH: header ImpoBot (rediseño, estructura tipo dashboard) ── */
@@ -595,22 +602,22 @@ function generar(){
     TR('890017 - ART Suma Fija Dec 590/97','0.000','$ 1.905,00','$ 1.905,00');
 
   // Filas sueldo bruto
-  var rowsH = haberes.map(function(h){
+  var rowsHaberes = haberes.map(function(h){
     var un = (h.code==='0001'||h.code==='0012')?'30.000':'1.000';
     return TR(h.desc, un, fmt(h.monto), fmt(h.monto));
   }).join('');
+  var rowsAportes = '';
   if(importado){
     empActual.descuentos.filter(function(d){return !RecibosCalc.esGanancias(d);}).forEach(function(d){
-      rowsH += TR(d.desc||('Concepto '+d.code),'—','—','-'+fmt(d.monto));
+      rowsAportes += TR(d.desc||('Concepto '+d.code),'—','—',fmt(d.monto));
     });
   } else {
-    if(dJub)  rowsH += TR('810000 - Jubilacion','11%',fmt(base),'-'+fmt(dJub));
-    if(dPami) rowsH += TR('810001 - Ley 19032 INSSJP PAMI','3%',fmt(base),'-'+fmt(dPami));
-    if(dOS)   rowsH += TR('810002 - Obra Social','3%',fmt(base),'-'+fmt(dOS));
-    if(dSind) rowsH += TR('810006 - Descuento sindical','—','—','-'+fmt(dSind));
+    if(dJub)  rowsAportes += TR('810000 - Jubilación','11%',fmt(base),fmt(dJub));
+    if(dPami) rowsAportes += TR('810001 - Ley 19032 INSSJP PAMI','3%',fmt(base),fmt(dPami));
+    if(dOS)   rowsAportes += TR('810002 - Obra Social','3%',fmt(base),fmt(dOS));
+    if(dSind) rowsAportes += TR('810006 - Descuento sindical','—','—',fmt(dSind));
   }
-  if(dGan) rowsH += TR('Retención Impuesto a las Ganancias','—','—','-'+fmt(dGan));
-  if(redondeo) rowsH += TR('Ajuste por redondeo','—','—',(redondeo<0?'-':'+')+fmt(Math.abs(redondeo)));
+  if(dGan) rowsAportes += TR('Retención Impuesto a las Ganancias','—','—',fmt(dGan));
 
   var pN = pc(neto,bruto); var pJ=pc(dJub,bruto); var pP=pc(dPami,bruto);
   var pO=pc(dOS,bruto); var pG=pc(dGan,bruto); var pV=pc(totalCtb,bruto);
@@ -624,16 +631,12 @@ function generar(){
   ].filter(function(d){return d.v>0;}));
 
   var compRows =
-    '<tr><td class="rbold">Sueldo Neto ('+pN+'%)</td><td>'+fmtNeto(neto)+'</td></tr>'+
-    '<tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmtNeto(neto)+'</td></tr>'+
-    (dJub?'<tr><td class="rbold">Total Seg. Social ('+pJ+'%)</td><td>'+fmt(dJub)+'</td></tr><tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmt(dJub)+'</td></tr>':'')+
-    (dPami?'<tr><td class="rbold">Total PAMI ('+pP+'%)</td><td>'+fmt(dPami)+'</td></tr><tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmt(dPami)+'</td></tr>':'')+
-    (dOS?'<tr><td class="rbold">Total Obra Social ('+pO+'%)</td><td>'+fmt(dOS)+'</td></tr><tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmt(dOS)+'</td></tr>':'')+
-    (dGan?'<tr><td class="rbold">Total Imp. Ganancias ('+pG+'%)</td><td>'+fmt(dGan)+'</td></tr><tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmt(dGan)+'</td></tr>':'')+
-    (otrosDesc?'<tr><td class="rbold">Otros descuentos</td><td>'+fmt(otrosDesc)+'</td></tr>':'')+
-    (redondeo?'<tr><td class="rbold">Ajuste por redondeo</td><td>'+(redondeo<0?'-':'+')+fmt(Math.abs(redondeo))+'</td></tr>':'')+
-    (costoIndividualDisponible?'<tr><td class="rbold">Total Varios ('+pV+'%)</td><td>'+fmt(totalCtb)+'</td></tr>'+
-    '<tr><td style="padding-left:4mm;color:#666">Empleador</td><td>'+fmt(totalCtb)+'</td></tr>':'');
+    '<tr><td class="rbold">Sueldo neto ('+pN+'%)</td><td>'+fmtNeto(neto)+'</td></tr>'+
+    (dJub?'<tr><td>Jubilación ('+pJ+'%)</td><td>'+fmt(dJub)+'</td></tr>':'')+
+    (dPami?'<tr><td>PAMI ('+pP+'%)</td><td>'+fmt(dPami)+'</td></tr>':'')+
+    (dOS?'<tr><td>Obra social ('+pO+'%)</td><td>'+fmt(dOS)+'</td></tr>':'')+
+    (dGan?'<tr><td>Ganancias ('+pG+'%)</td><td>'+fmt(dGan)+'</td></tr>':'')+
+    (otrosDesc?'<tr><td>Otros descuentos</td><td>'+fmt(otrosDesc)+'</td></tr>':'');
 
   var html =
   '<div style="margin-bottom:12px">'+
@@ -643,32 +646,33 @@ function generar(){
   '<span style="font-size:.7rem;color:#8b949e">En el diálogo elegí "Guardar como PDF"</span>'+
   '</div>'+
   '<div class="recibo">'+
+  '<div class="rtitulo">RECIBO DE SUELDO<div class="rsubtitulo">Anexo III Dto. 407/26</div></div>'+
   '<div class="r-co">'+(g('e-razon')||'&nbsp;')+'</div>'+
   '<div class="r-dir">'+(g('e-dir')||'')+(g('e-dir')?' &nbsp;·&nbsp; ':'')+
   'CUIT EMPRESA: <b>'+(g('e-cuit')||'')+'</b></div>'+
   '<table class="rt">'+
-  '<tr><th>MES</th><th>AÑO</th><th>TIPO LIQ.</th><th>OBRA SOCIAL</th>'+
-  '<th>APELLIDO Y NOMBRE</th><th>SUELDO BRUTO</th><th>N° LEGAJO</th></tr>'+
-  '<tr><td style="text-align:center">'+mes+'</td><td style="text-align:center">'+anio+'</td>'+
-  '<td style="text-align:center">Mensual</td><td>'+os+'</td>'+
-  '<td style="font-weight:bold">'+nombre+'</td>'+
-  '<td style="text-align:right;font-weight:bold">'+fmt(bruto)+'</td>'+
-  '<td style="text-align:center">'+legajo+'</td></tr>'+
-  '<tr><th colspan="2">F.INGRESO</th><th>F.PAGO APORTES</th><th>C.U.I.L</th>'+
-  '<th>CATEGORÍA LABORAL</th><th>LUGAR DE PAGO</th><th>ANTIGÜEDAD</th></tr>'+
-  '<tr><td colspan="2" style="text-align:center">'+fing+'</td>'+
-  '<td style="text-align:center">'+(fpap||'PENDIENTE')+'</td>'+
-  '<td style="text-align:center">'+cuil+'</td>'+
-  '<td>'+categ+'</td><td>'+lugar+'</td><td>'+antig+'</td></tr>'+
+  '<tr><th>MES</th><th>AÑO</th><th>APELLIDO Y NOMBRE</th><th>N° LEGAJO</th><th>SUELDO BRUTO</th><th>ANTIGÜEDAD</th></tr>'+
+  '<tr><td style="text-align:center">'+(['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][Number(mes)]||mes)+'</td><td style="text-align:center">'+anio+'</td>'+
+  '<td style="font-weight:bold">'+nombre+'</td><td style="text-align:center">'+legajo+'</td>'+
+  '<td style="text-align:right;font-weight:bold">'+fmt(bruto)+'</td><td>'+antig+'</td></tr>'+
+  '<tr><th>FECHA INGRESO</th><th>CATEGORÍA LABORAL</th><th>C.U.I.L.</th><th colspan="2">LUGAR DE PAGO</th><th>FECHA DE PAGO</th></tr>'+
+  '<tr><td style="text-align:center">'+fing+'</td><td>'+categ+'</td><td style="text-align:center">'+cuil+'</td>'+
+  '<td colspan="2">'+lugar+'</td><td style="text-align:center">'+fpago+'</td></tr>'+
   '</table>'+
+  '<div class="ros">OBRA SOCIAL: '+os+' &nbsp; · &nbsp; F. PAGO APORTES: '+(fpap||'PENDIENTE')+'</div>'+
   (costoIndividualDisponible
     ? '<div class="rsec"><span>COSTO EMPLEADOR ESTIMADO</span><span>'+fmt(costoTotal)+'</span></div>'+
       '<table class="ct"><tr><th>CONCEPTO</th><th>UNIDAD</th><th class="r">BASE</th><th class="r">MONTO</th></tr>'+
       rowsCtb+'<tr class="sub"><td colspan="3" style="text-align:center">SUB TOTAL CONTRIBUCIONES EMPLEADOR</td><td class="r">'+fmt(totalCtb)+'</td></tr></table>'
     : '')+
   '<div class="rsec"><span>SUELDO BRUTO</span><span>'+fmt(bruto)+'</span></div>'+
+  '<div class="rsec">HABERES (REMUNERATIVOS Y NO REMUNERATIVOS)</div>'+
   '<table class="ct"><tr><th>CONCEPTO</th><th>UNIDAD</th><th class="r">BASE</th><th class="r">MONTO</th></tr>'+
-  rowsH+'</table>'+
+  rowsHaberes+'<tr class="sub"><td colspan="3">TOTAL HABERES</td><td class="r">'+fmt(bruto)+'</td></tr></table>'+
+  '<div class="rsec">APORTES DEL TRABAJADOR</div>'+
+  '<table class="ct"><tr><th>CONCEPTO</th><th>UNIDAD</th><th class="r">BASE</th><th class="r">MONTO</th></tr>'+
+  rowsAportes+'<tr class="sub"><td colspan="3">TOTAL APORTES Y RETENCIONES</td><td class="r">'+fmt(totalDesc)+'</td></tr>'+
+  (redondeo?'<tr><td colspan="3">Ajuste por redondeo</td><td class="r">'+(redondeo<0?'-':'+')+fmt(Math.abs(redondeo))+'</td></tr>':'')+'</table>'+
   '<div class="rcomp"><span>COMPOSICION SALARIAL: &nbsp; Remunerativo: <b>'+fmt(remunerativo)+'</b></span>'+
   '<span>No Remunerativo: <b>'+fmt(noRem)+'</b></span>'+
   '<span style="text-align:right">Descuentos: <b>'+fmt(totalDesc)+'</b></span></div>'+
@@ -677,11 +681,11 @@ function generar(){
   '<div class="rpago">Fecha de Pago: '+fpago+'</div>'+
   (cbu?'<div class="rpago">Depositado en Cuenta CBU: '+cbu+'</div>':'')+
   '<div class="rbottom">'+
-  '<table class="rctab"><tr><td colspan="2" style="font-weight:bold;text-align:center;border-bottom:1px solid #ccc;padding-bottom:2mm">Detalle de la composición salarial</td></tr>'+
+  '<table class="rctab"><tr><td colspan="2" style="font-weight:bold;text-align:center;border-bottom:1px solid #ccc;padding-bottom:2mm">DETALLE DE LA LIQUIDACIÓN</td></tr>'+
   compRows+'</table>'+
   '<div class="rpie"><div style="font-size:8pt;font-weight:bold;margin-bottom:2mm">Distribución del sueldo bruto</div>'+pie+'</div>'+
   '</div>'+
-  '<div class="rfirma"><div>Firma del empleado</div><div style="font-size:6.5pt">2608MEN03<br/>Página 1 de 1</div><div>'+(configEmpleador && configEmpleador.firma ? configEmpleador.firma : 'Empleador')+'</div></div>'+
+  '<div class="rfirma"><div>Firma del empleado</div><div style="font-size:6.5pt">Página 1 de 1</div><div>'+(configEmpleador && configEmpleador.firma ? configEmpleador.firma : 'Empleador')+'</div></div>'+
   '<div class="rnota">'+(costoIndividualDisponible
     ? 'Costo empleador estimado con parámetros generales. Verificar bases, régimen, ART, SCVO y F.931 antes de usar el importe.'
     : 'Las contribuciones patronales no se asignan a cada trabajador: el F.931 informa importes globales del empleador. Consultar la liquidación individual para calcular el costo de cada empleado.')+'</div>'+
