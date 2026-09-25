@@ -71,7 +71,11 @@ input:not(:placeholder-shown){border-color:#30363d}
 .rctab td{padding:.7mm 1.5mm;border-bottom:.3px solid #eee}
 .rctab td:last-child{text-align:right;font-weight:600}
 .rbold{font-weight:700}
-.rpie{width:55mm;text-align:center;flex-shrink:0}
+.rpie{width:68mm;text-align:center;flex-shrink:0;page-break-inside:avoid}
+.rpie svg{display:block;width:42mm;height:42mm;margin:2mm auto}
+.rpie-legend{display:grid;grid-template-columns:1fr 1fr;gap:1mm 2mm;font-size:7pt;text-align:left}
+.rpie-legend span{display:flex;align-items:center;gap:1mm;white-space:nowrap}
+.rpie-legend i{display:inline-block;width:2.5mm;height:2.5mm;flex:none}
 .rfirma{display:flex;justify-content:space-between;margin-top:6mm;gap:8mm}
 .rfirma div{flex:1;text-align:center;border-top:1px solid #333;padding-top:2mm;font-size:7pt;color:#555}
 .rnota{font-size:6.5pt;color:#888;text-align:center;margin-top:2mm}
@@ -81,7 +85,7 @@ input:not(:placeholder-shown){border-color:#30363d}
   .layout{display:block;margin-top:0;height:auto}
   .content{padding:2mm}
   .recibo{box-shadow:none;max-width:100%;padding:4mm}
-  .rsec,.rt th,.ct th,.rcomp,.rneto{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rsec,.rt th,.ct th,.rcomp,.rneto,.rpie{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 
 /* ── FH: header ImpoBot (rediseño, estructura tipo dashboard) ── */
@@ -105,6 +109,7 @@ input:not(:placeholder-shown){border-color:#30363d}
 @media(max-width:640px){.fh-strip .fh-meta-text{display:none}.fh-title{max-width:130px}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="recibos-calc.js"></script>
 <link rel="manifest" href="../manifest.json"/>
 <meta name="theme-color" content="#0b82f5"/>
 <meta name="mobile-web-app-capable" content="yes"/>
@@ -228,7 +233,7 @@ input:not(:placeholder-shown){border-color:#30363d}
     <div class="block-title">4. Sueldo (del LSD o manual)</div>
     <label>Sueldo bruto $</label><input type="number" id="d-bruto" placeholder="0"/>
     <label>Retención Ganancias $ (si aplica)</label><input type="number" id="d-gan" value="0"/>
-    <label style="display:flex;align-items:center;gap:8px;margin:8px 0"><input id="d-redondear" type="checkbox" style="width:auto"/> Redondear el neto a pesos enteros</label>
+    <label style="display:flex;align-items:center;gap:8px;margin:8px 0"><input id="d-redondear" type="checkbox" style="width:auto" checked/> Ajustar el neto a pesos enteros (muestra una línea de redondeo)</label>
     <button class="btn-gen" id="btn-gen">📄 Generar recibo</button>
   </div>
 
@@ -467,8 +472,7 @@ function seleccionarEmp(e){
   document.getElementById('d-legajo').value = e.legajo;
   document.getElementById('d-bruto').value  = e.bruto.toFixed(2);
   document.getElementById('d-fpap').value = configEmpleador.fechaAportes || '';
-  var gan = e.descuentos.find(function(d){return d.code==='0209';});
-  document.getElementById('d-gan').value = gan ? gan.monto.toFixed(2) : '0';
+  document.getElementById('d-gan').value = RecibosCalc.ganancias(e.descuentos).toFixed(2);
 
   // Rellenar datos desde el Excel config si está cargado
   var cuil = e.cuil;
@@ -537,30 +541,30 @@ function generar(){
 
   var TOPE = 4769631.49; // Octubre 2026
   var noRem = empActual && empActual.origen==='lsd' ? empActual.noRem||0 : 0;
-  var costoIndividualDisponible = !(empActual && empActual.origen==='lsd');
+  var importado = !!(empActual && (empActual.origen==='lsd'||empActual.origen==='manual'));
+  var costoIndividualDisponible = !importado;
   var remunerativo = bruto - noRem;
   var base = Math.min(remunerativo, TOPE);
 
   // Descuentos (del LSD si disponibles, sino calculados)
   var dJub, dPami, dOS, dSind, dGan;
-  if(empActual && empActual.origen==='lsd'){
+  if(importado){
     dJub  = find(empActual.descuentos,'0201');
     dPami = find(empActual.descuentos,'0202');
     dOS   = find(empActual.descuentos,'0203');
     dSind = find(empActual.descuentos,'0206');
-    dGan  = ganRet || find(empActual.descuentos,'0209');
+    dGan  = ganRet;
   } else {
     dJub  = base * 0.11;
     dPami = base * 0.03;
     dOS   = base * 0.03;
     dSind = 0; dGan = ganRet;
   }
-  var totalDesc = empActual && empActual.origen==='lsd'
-    ? empActual.totalDesc : dJub + dPami + dOS + dSind + dGan;
-  var netoExacto = Math.round((bruto - totalDesc)*100)/100;
-  var redondeo = gCheck('d-redondear') ? Math.round(netoExacto) - netoExacto : 0;
-  redondeo = Math.round(redondeo*100)/100;
-  var neto = Math.round((netoExacto + redondeo)*100)/100;
+  var calculo = RecibosCalc.liquidar(bruto,importado ? empActual.descuentos : [
+    {monto:dJub+dPami+dOS+dSind}
+  ],dGan,gCheck('d-redondear'));
+  var totalDesc=calculo.totalDesc,netoExacto=calculo.netoBase;
+  var redondeo=calculo.redondeo,neto=calculo.neto;
 
   // Contribuciones patronales — siempre calculadas + montos fijos
   var cPrev = base * 0.1077;  // 890000
@@ -595,29 +599,39 @@ function generar(){
     var un = (h.code==='0001'||h.code==='0012')?'30.000':'1.000';
     return TR(h.desc, un, fmt(h.monto), fmt(h.monto));
   }).join('');
-  if(dJub)  rowsH += TR('810000 - Jubilacion','11%',fmt(base),'$ -'+fmtR(dJub));
-  if(dPami) rowsH += TR('810001 - Ley 19032 INSSJP PAMI','3%',fmt(base),'$ -'+fmtR(dPami));
-  if(dOS)   rowsH += TR('810002 - Obra Social','3%',fmt(base),'$ -'+fmtR(dOS));
-  if(dSind) rowsH += TR('810006 - Descuento sindical','0.000',fmt(dSind),'$ -'+fmtR(dSind));
-  if(dGan)  rowsH += TR('810008 - Impuesto a las Ganancias','0.000',fmt(dGan),'$ -'+fmtR(dGan));
-  if(redondeo) rowsH += TR('Ajuste por redondeo','—','—',(redondeo<0?'-$ ':'+$ ')+fmtR(Math.abs(redondeo)));
+  if(importado){
+    empActual.descuentos.filter(function(d){return !RecibosCalc.esGanancias(d);}).forEach(function(d){
+      rowsH += TR(d.desc||('Concepto '+d.code),'—','—','-'+fmt(d.monto));
+    });
+  } else {
+    if(dJub)  rowsH += TR('810000 - Jubilacion','11%',fmt(base),'-'+fmt(dJub));
+    if(dPami) rowsH += TR('810001 - Ley 19032 INSSJP PAMI','3%',fmt(base),'-'+fmt(dPami));
+    if(dOS)   rowsH += TR('810002 - Obra Social','3%',fmt(base),'-'+fmt(dOS));
+    if(dSind) rowsH += TR('810006 - Descuento sindical','—','—','-'+fmt(dSind));
+  }
+  if(dGan) rowsH += TR('Retención Impuesto a las Ganancias','—','—','-'+fmt(dGan));
+  if(redondeo) rowsH += TR('Ajuste por redondeo','—','—',(redondeo<0?'-':'+')+fmt(Math.abs(redondeo)));
 
   var pN = pc(neto,bruto); var pJ=pc(dJub,bruto); var pP=pc(dPami,bruto);
   var pO=pc(dOS,bruto); var pG=pc(dGan,bruto); var pV=pc(totalCtb,bruto);
 
+  var otrosDesc=Math.max(0,Math.round((totalDesc-dJub-dPami-dOS-dSind-dGan)*100)/100);
   var pie = makePie([
-    {l:'Sueldo Neto',v:neto,c:'#1e40af'},{l:'Seg. Social',v:dJub,c:'#16a34a'},
+    {l:'Neto',v:netoExacto,c:'#1e40af'},{l:'Jubilación',v:dJub,c:'#16a34a'},
     {l:'PAMI',v:dPami,c:'#7e22ce'},{l:'Obra Social',v:dOS,c:'#c2410c'},
-    {l:'Ganancias',v:dGan,c:'#b91c1c'},{l:'Varios Emp.',v:totalCtb,c:'#a16207'},
+    {l:'Sindicato',v:dSind,c:'#64748b'},{l:'Ganancias',v:dGan,c:'#b91c1c'},
+    {l:'Otros',v:otrosDesc,c:'#a16207'},
   ].filter(function(d){return d.v>0;}));
 
   var compRows =
-    '<tr><td class="rbold">Sueldo Neto ('+pN+'%)</td><td>'+fmt(neto)+'</td></tr>'+
-    '<tr><td style="padding-left:4mm;color:#666">Empleador</td><td>'+fmt(neto)+'</td></tr>'+
+    '<tr><td class="rbold">Sueldo Neto ('+pN+'%)</td><td>'+fmtNeto(neto)+'</td></tr>'+
+    '<tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmtNeto(neto)+'</td></tr>'+
     (dJub?'<tr><td class="rbold">Total Seg. Social ('+pJ+'%)</td><td>'+fmt(dJub)+'</td></tr><tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmt(dJub)+'</td></tr>':'')+
     (dPami?'<tr><td class="rbold">Total PAMI ('+pP+'%)</td><td>'+fmt(dPami)+'</td></tr><tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmt(dPami)+'</td></tr>':'')+
     (dOS?'<tr><td class="rbold">Total Obra Social ('+pO+'%)</td><td>'+fmt(dOS)+'</td></tr><tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmt(dOS)+'</td></tr>':'')+
     (dGan?'<tr><td class="rbold">Total Imp. Ganancias ('+pG+'%)</td><td>'+fmt(dGan)+'</td></tr><tr><td style="padding-left:4mm;color:#666">Trabajador</td><td>'+fmt(dGan)+'</td></tr>':'')+
+    (otrosDesc?'<tr><td class="rbold">Otros descuentos</td><td>'+fmt(otrosDesc)+'</td></tr>':'')+
+    (redondeo?'<tr><td class="rbold">Ajuste por redondeo</td><td>'+(redondeo<0?'-':'+')+fmt(Math.abs(redondeo))+'</td></tr>':'')+
     (costoIndividualDisponible?'<tr><td class="rbold">Total Varios ('+pV+'%)</td><td>'+fmt(totalCtb)+'</td></tr>'+
     '<tr><td style="padding-left:4mm;color:#666">Empleador</td><td>'+fmt(totalCtb)+'</td></tr>':'');
 
@@ -658,14 +672,14 @@ function generar(){
   '<div class="rcomp"><span>COMPOSICION SALARIAL: &nbsp; Remunerativo: <b>'+fmt(remunerativo)+'</b></span>'+
   '<span>No Remunerativo: <b>'+fmt(noRem)+'</b></span>'+
   '<span style="text-align:right">Descuentos: <b>'+fmt(totalDesc)+'</b></span></div>'+
-  '<div class="rneto">SUELDO NETO $ &nbsp;&nbsp;&nbsp;&nbsp; '+fmt(neto)+'</div>'+
+  '<div class="rneto">SUELDO NETO &nbsp;&nbsp; '+fmtNeto(neto)+'</div>'+
   '<div class="rletras">Son Pesos: '+numLetras(Math.floor(neto))+' con '+String(Math.round(neto*100)%100).padStart(2,'0')+'/100</div>'+
   '<div class="rpago">Fecha de Pago: '+fpago+'</div>'+
   (cbu?'<div class="rpago">Depositado en Cuenta CBU: '+cbu+'</div>':'')+
   '<div class="rbottom">'+
   '<table class="rctab"><tr><td colspan="2" style="font-weight:bold;text-align:center;border-bottom:1px solid #ccc;padding-bottom:2mm">Detalle de la composición salarial</td></tr>'+
   compRows+'</table>'+
-  (costoIndividualDisponible ? '<div class="rpie"><div style="font-size:7.5pt;font-weight:bold;margin-bottom:2mm">Costo total empleador estimado</div>'+pie+'</div>' : '')+
+  '<div class="rpie"><div style="font-size:8pt;font-weight:bold;margin-bottom:2mm">Distribución del sueldo bruto</div>'+pie+'</div>'+
   '</div>'+
   '<div class="rfirma"><div>Firma del empleado</div><div style="font-size:6.5pt">2608MEN03<br/>Página 1 de 1</div><div>'+(configEmpleador && configEmpleador.firma ? configEmpleador.firma : 'Empleador')+'</div></div>'+
   '<div class="rnota">'+(costoIndividualDisponible
@@ -689,6 +703,7 @@ function fmt(x){
   return '$ '+s[0]+','+s[1];
 }
 function fmtR(x){ return fmt(x).replace('$ ',''); }
+function fmtNeto(x){return gCheck('d-redondear')?'$ '+Math.round(x).toLocaleString('es-AR'):fmt(x);}
 function TR(concepto,unidad,base,monto,bold){
   var s=bold?' style="background:#e0e0e0;font-weight:bold"':'';
   return '<tr'+s+'><td>'+concepto+'</td><td style="text-align:center">'+unidad+'</td>'+
@@ -721,19 +736,19 @@ function numLetras(n){
 }
 function makePie(data){
   var tot=data.reduce(function(s,d){return s+d.v;},0); if(!tot) return '';
-  var cx=20,cy=20,r=17,a=-Math.PI/2,svg='<svg viewBox="0 0 78 46" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:148px">';
-  data.forEach(function(d){
+  var cx=20,cy=20,r=19,a=-Math.PI/2;
+  var svg='<svg viewBox="0 0 40 40" role="img" aria-label="Distribución del sueldo bruto" xmlns="http://www.w3.org/2000/svg">';
+  if(data.length===1)svg+='<circle cx="20" cy="20" r="19" fill="'+data[0].c+'"/>';
+  else data.forEach(function(d){
     var sl=(d.v/tot)*Math.PI*2,x1=cx+r*Math.cos(a),y1=cy+r*Math.sin(a);
     a+=sl;
     var x2=cx+r*Math.cos(a),y2=cy+r*Math.sin(a),lg=sl>Math.PI?1:0;
-    svg+='<path d="M'+cx+','+cy+' L'+x1.toFixed(1)+','+y1.toFixed(1)+' A'+r+','+r+' 0 '+lg+',1 '+x2.toFixed(1)+','+y2.toFixed(1)+' Z" fill="'+d.c+'" stroke="#fff" stroke-width=".3"/>';
+    svg+='<path d="M'+cx+','+cy+' L'+x1.toFixed(3)+','+y1.toFixed(3)+' A'+r+','+r+' 0 '+lg+',1 '+x2.toFixed(3)+','+y2.toFixed(3)+' Z" fill="'+d.c+'" stroke="#fff" stroke-width=".2"/>';
   });
-  var ly=3; data.forEach(function(d){
-    svg+='<rect x="42" y="'+ly+'" width="3" height="2.5" fill="'+d.c+'"/>';
-    svg+='<text x="47" y="'+(ly+2)+'" font-size="2.2" fill="#333">'+d.l+'</text>';
-    ly+=5;
-  });
-  return svg+'</svg>';
+  var legend=data.map(function(d){
+    return '<span><i style="background:'+d.c+'"></i>'+d.l+' '+((d.v/tot)*100).toFixed(1).replace('.',',')+'%</span>';
+  }).join('');
+  return svg+'</svg><div class="rpie-legend">'+legend+'</div>';
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1017,7 +1032,7 @@ function parsearManual(file){
           todosEmpleados.push({
             cuil:g.cuil, legajo:'', bruto:bruto, neto:neto,
             haberes:g.haberes, descuentos:g.descuentos,
-            mes:mes, anio:anio,
+            mes:mes, anio:anio, origen:'manual',
           });
         });
         msg.push(orden.length+' recibos a generar');
