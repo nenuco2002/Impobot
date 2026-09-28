@@ -90,7 +90,8 @@ input:not(:placeholder-shown){border-color:#30363d}
   .layout > :not(.content){display:none!important}
   .content{display:block!important;overflow:visible!important;padding:0!important;background:#fff!important}
   .content > :not(.recibo){display:none!important}
-  .recibo{box-shadow:none!important;border-radius:0;max-width:100%;padding:0!important}
+  .recibo{box-shadow:none!important;border-radius:0;max-width:100%;padding:0!important;page-break-after:always}
+  .recibo:last-child{page-break-after:auto}
   .rnota{display:none!important}
   .rsec,.rt th,.ct th,.rcomp,.rneto,.rpie,.rtitulo{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
@@ -178,6 +179,7 @@ input:not(:placeholder-shown){border-color:#30363d}
     </div>
     <div id="msg"></div>
     <div id="emp-lista"></div>
+    <button class="btn-gen" id="btn-gen-todos" style="display:none;background:#238636;margin-top:6px">🖨 Generar TODOS los recibos</button>
 <div id="aviso-manual" style="display:none;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:7px;padding:8px 10px;font-size:.7rem;color:#fcd34d;margin-top:8px;line-height:1.5">
   ⚠ <b>El LSD no contiene datos personales.</b><br/>
   Completá manualmente: <b>Nombre, Obra Social, Categoría, F.Ingreso, F.Pago aportes, Fecha de pago y CBU</b>.
@@ -469,17 +471,25 @@ function renderLista(){
     };})(emp, i));
     lista.appendChild(div);
   });
+  // Mostrar/ocultar botón de generar todos juntos
+  document.getElementById('btn-gen-todos').style.display = todosEmpleados.length>1 ? 'block' : 'none';
   // Seleccionar el primero automáticamente
   lista.children[0].click();
 }
 
-function seleccionarEmp(e){
+function rellenarCampos(e){
   empActual = e;
   document.getElementById('d-cuil').value   = fmtCuil(e.cuil);
   document.getElementById('d-legajo').value = e.legajo;
   document.getElementById('d-bruto').value  = e.bruto.toFixed(2);
   document.getElementById('d-fpap').value = configEmpleador.fechaAportes || '';
   document.getElementById('d-gan').value = RecibosCalc.ganancias(e.descuentos).toFixed(2);
+
+  // Limpiar campos que solo vienen del Excel de config (para no arrastrar
+  // datos del empleado anterior si este no tiene fila en el Excel)
+  ['d-nombre','d-categ','d-fing','d-cbu','d-os','d-antig'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
 
   // Rellenar datos desde el Excel config si está cargado
   var cuil = e.cuil;
@@ -518,16 +528,24 @@ function seleccionarEmp(e){
       if(el && !el.value) el.style.borderColor = '#f59e0b';
     });
   }
+}
+
+function seleccionarEmp(e){
+  rellenarCampos(e);
   generar();
 }
 
 // ── BOTÓN GENERAR ────────────────────────────────────────────
 document.getElementById('btn-gen').addEventListener('click', function(){ generar(); });
+document.getElementById('btn-gen-todos').addEventListener('click', function(){ generarTodos(); });
 
 // ── GENERAR RECIBO ────────────────────────────────────────────
-function generar(){
+// soloRecibo=true: devuelve solo el HTML del <div class="recibo"> (para "generar todos"),
+// sin tocar #content ni mostrar el botón de imprimir individual.
+function generar(soloRecibo){
   var bruto = parseFloat(document.getElementById('d-bruto').value)||0;
   if(!bruto){
+    if(soloRecibo) return '';
     document.getElementById('content').innerHTML =
       '<div class="empty"><div class="ico">⚠</div><h2>Ingresá el sueldo bruto</h2>'+
       '<p>Completá el campo "Sueldo bruto $" o cargá el archivo LSD primero.</p></div>';
@@ -644,13 +662,15 @@ function generar(){
     (dGan?'<tr><td>Ganancias ('+pG+'%)</td><td>'+fmt(dGan)+'</td></tr>':'')+
     (otrosDesc?'<tr><td>Otros descuentos</td><td>'+fmt(otrosDesc)+'</td></tr>':'');
 
-  var html =
+  var htmlWrap =
   '<div style="margin-bottom:12px">'+
   (fechaAnterior?'<div class="msg warn">Revisá la fecha de pago: es anterior al período del recibo. Corregila en el formulario antes de imprimir.</div>':'')+
   (!fpap?'<div class="msg warn">Falta F. PAGO APORTES: completala antes de imprimir el recibo.</div>':'')+
   '<button class="btn-print" onclick="window.print()">🖨 Imprimir / PDF</button>'+
   '<span style="font-size:.7rem;color:#8b949e">En el diálogo elegí "Guardar como PDF"</span>'+
-  '</div>'+
+  '</div>';
+
+  var htmlRecibo =
   '<div class="recibo">'+
   '<div class="rtitulo">RECIBO DE SUELDO<div class="rsubtitulo">Anexo III Dto. 407/26</div></div>'+
   '<div class="r-co">'+(g('e-razon')||'&nbsp;')+'</div>'+
@@ -695,7 +715,34 @@ function generar(){
   '<div class="rnota">Costo empleador estimado con parámetros generales. Verificar bases, régimen, ART, SCVO y F.931 antes de usar el importe.</div>'+
   '</div>';
 
-  document.getElementById('content').innerHTML = html;
+  if(soloRecibo) return htmlRecibo;
+
+  document.getElementById('content').innerHTML = htmlWrap + htmlRecibo;
+}
+
+// ── GENERAR TODOS LOS RECIBOS JUNTOS (para imprimir/descargar en un solo PDF) ──
+function generarTodos(){
+  if(!todosEmpleados.length) return;
+  var partes = [], omitidos = 0;
+  todosEmpleados.forEach(function(e){
+    rellenarCampos(e);
+    var h = generar(true);
+    if(h) partes.push(h); else omitidos++;
+  });
+  if(!partes.length){
+    document.getElementById('content').innerHTML =
+      '<div class="empty"><div class="ico">⚠</div><h2>No se pudo generar ningún recibo</h2>'+
+      '<p>Verificá que los empleados tengan sueldo bruto cargado.</p></div>';
+    return;
+  }
+  document.getElementById('content').innerHTML =
+    '<div style="margin-bottom:12px">'+
+    '<button class="btn-print" onclick="window.print()">🖨 Imprimir / PDF (todos)</button>'+
+    '<span style="font-size:.7rem;color:#8b949e">'+partes.length+' recibo(s) generado(s)'+
+    (omitidos?' &nbsp;·&nbsp; '+omitidos+' omitido(s) sin sueldo bruto':'')+
+    '. En el diálogo elegí "Guardar como PDF"</span>'+
+    '</div>'+
+    partes.join('');
 }
 
 // ── HELPERS ──────────────────────────────────────────────────
