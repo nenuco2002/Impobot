@@ -76,8 +76,8 @@ input:not(:placeholder-shown){border-color:#30363d}
 .rpie-legend{display:grid;grid-template-columns:1fr 1fr;gap:1mm 2mm;font-size:7pt;text-align:left}
 .rpie-legend span{display:flex;align-items:center;gap:1mm;white-space:nowrap}
 .rpie-legend i{display:inline-block;width:2.5mm;height:2.5mm;flex:none}
-.rfirma{display:flex;justify-content:space-between;margin-top:6mm;gap:8mm}
-.rfirma div{flex:1;text-align:center;border-top:1px solid #333;padding-top:2mm;font-size:7pt;color:#555}
+.rfirma{display:flex;justify-content:space-between;margin-top:8mm;gap:8mm}
+.rfirma div{flex:1;text-align:center;border-top:1px dashed #333;padding-top:2mm;font-size:7pt;color:#555}
 .rnota{font-size:6.5pt;color:#888;text-align:center;margin-top:2mm}
 .rtitulo{text-align:center;color:#173f83;font-size:12pt;font-weight:700;border-bottom:2px solid #3476bd;padding-bottom:2mm;margin-bottom:3mm}
 .rsubtitulo{font-size:7.5pt;font-weight:400;color:#374b69}
@@ -661,24 +661,38 @@ function generar(soloRecibo){
   }
   if(dGan) rowsAportes += TR('Retención Impuesto a las Ganancias','—','—',fmt(dGan));
 
-  var pN = pc(neto,bruto); var pJ=pc(dJub,bruto); var pP=pc(dPami,bruto);
-  var pO=pc(dOS,bruto); var pG=pc(dGan,bruto); var pV=pc(totalCtb,bruto);
-
-  var otrosDesc=Math.max(0,Math.round((totalDesc-dJub-dPami-dOS-dSind-dGan)*100)/100);
-  var pie = makePie([
-    {l:'Neto',v:netoExacto,c:'#1e40af'},{l:'Jubilación',v:dJub,c:'#16a34a'},
-    {l:'PAMI',v:dPami,c:'#7e22ce'},{l:'Obra Social',v:dOS,c:'#c2410c'},
-    {l:'Sindicato',v:dSind,c:'#64748b'},{l:'Ganancias',v:dGan,c:'#b91c1c'},
-    {l:'Otros',v:otrosDesc,c:'#a16207'},
-  ].filter(function(d){return d.v>0;}));
-
-  var compRows =
-    '<tr><td class="rbold">Sueldo neto ('+pN+'%)</td><td>'+fmtNeto(neto)+'</td></tr>'+
-    (dJub?'<tr><td>Jubilación ('+pJ+'%)</td><td>'+fmt(dJub)+'</td></tr>':'')+
-    (dPami?'<tr><td>PAMI ('+pP+'%)</td><td>'+fmt(dPami)+'</td></tr>':'')+
-    (dOS?'<tr><td>Obra social ('+pO+'%)</td><td>'+fmt(dOS)+'</td></tr>':'')+
-    (dGan?'<tr><td>Ganancias ('+pG+'%)</td><td>'+fmt(dGan)+'</td></tr>':'')+
-    (otrosDesc?'<tr><td>Otros descuentos</td><td>'+fmt(otrosDesc)+'</td></tr>':'');
+  // Detalle del costo laboral (empleador/trabajador) por categoría + su torta
+  var detalleCostoLaboral = calcularDetalleCostoLaboral({
+    filasCtb: (configContribs.length && importado) ? filasCtb : null,
+    legacyEmpleadorPorCat: (configContribs.length && importado) ? null : (esDirector ? {
+      'ART': cART,
+      'SCVO': cSCVO
+    } : {
+      'Seguridad Social': cPrev+cFNE+cAsig,
+      'INSSJP': cPami,
+      'Obra Social': cOS+cFSR,
+      'ART': cART,
+      'SCVO': cSCVO
+    }),
+    importado: importado, descuentos: importado ? empActual.descuentos : null,
+    esDirector: esDirector, dJub: dJub, dPami: dPami, dOS: dOS, dSind: dSind
+  });
+  var coloresCatCostoLaboral = {
+    'Seguridad Social':'#1e3a8a','INSSJP':'#60a5fa','Obra Social':'#86efac',
+    'Obra Social Diferencial':'#4ade80','Sindical':'#fbbf24','ART':'#dc2626',
+    'SCVO':'#a78bfa','Otros':'#94a3b8'
+  };
+  function TRD(cat,emp,trab,tot){
+    return '<tr><td>'+cat+'</td><td class="r">'+emp+'</td><td class="r">'+trab+'</td><td class="r">'+tot+'</td></tr>';
+  }
+  var rowsDetalleCostoLaboral = detalleCostoLaboral.map(function(f){
+    return TRD(f.cat, fmt(f.emp), fmt(f.trab), fmt(f.emp+f.trab));
+  }).join('') + TRD('Sueldo Neto','-','-',fmtNeto(neto));
+  var pie = makePie(
+    detalleCostoLaboral.map(function(f){
+      return {l:f.cat, v:f.emp+f.trab, c: coloresCatCostoLaboral[f.cat]||'#94a3b8'};
+    }).concat([{l:'Sueldo Neto', v:netoExacto, c:'#14b8a6'}]).filter(function(d){return d.v>0;})
+  );
 
   var htmlWrap =
   '<div style="margin-bottom:12px">'+
@@ -724,12 +738,13 @@ function generar(soloRecibo){
   '<div class="rletras">Son Pesos: '+numLetras(Math.floor(neto))+' con '+String(Math.round(neto*100)%100).padStart(2,'0')+'/100</div>'+
   '<div class="rpago">Fecha de Pago: '+fpago+'</div>'+
   (cbu?'<div class="rpago">Depositado en Cuenta CBU: '+cbu+'</div>':'')+
+  '<div class="rsec">DETALLE DEL COSTO LABORAL (EMPLEADOR / TRABAJADOR)</div>'+
   '<div class="rbottom">'+
-  '<table class="rctab"><tr><td colspan="2" style="font-weight:bold;text-align:center;border-bottom:1px solid #ccc;padding-bottom:2mm">DETALLE DE LA LIQUIDACIÓN</td></tr>'+
-  compRows+'</table>'+
-  '<div class="rpie"><div style="font-size:8pt;font-weight:bold;margin-bottom:2mm">Distribución del sueldo bruto</div>'+pie+'</div>'+
+  '<table class="ct rctab"><tr><th>CATEGORIA</th><th class="r">EMPLEADOR</th><th class="r">TRABAJADOR</th><th class="r">TOTAL</th></tr>'+
+  rowsDetalleCostoLaboral+'</table>'+
+  '<div class="rpie">'+pie+'</div>'+
   '</div>'+
-  '<div class="rfirma"><div>Firma del empleado</div><div style="font-size:6.5pt">Página 1 de 1</div><div>'+(configEmpleador && configEmpleador.firma ? configEmpleador.firma : 'Empleador')+'</div></div>'+
+  '<div class="rfirma"><div>Firma Empleado</div><div>'+(configEmpleador && configEmpleador.firma ? configEmpleador.firma : 'Firma Empleador')+'</div></div>'+
   '<div class="rnota">Costo empleador estimado con parámetros generales. Verificar bases, régimen, ART, SCVO y F.931 antes de usar el importe.</div>'+
   '</div>';
 
@@ -795,6 +810,60 @@ function montoPorCodigos(emp, codigos){
     if(!isNaN(c) && codigos.indexOf(c) >= 0) total += (parseFloat(it.monto)||0);
   });
   return total;
+}
+// Categoría de un concepto de descuento del empleado (para la tabla de "Detalle
+// del costo laboral"), usando la hoja Mapeo del Excel si está cargada.
+function categoriaConcepto(code){
+  if(Object.keys(configMapeo).length){
+    var c4 = String(parseInt(code)||0);
+    if(configMapeo[c4] && configMapeo[c4].cat) return configMapeo[c4].cat;
+    var cpad = ('0000'+code).slice(-4);
+    if(configMapeo[cpad] && configMapeo[cpad].cat) return configMapeo[cpad].cat;
+  }
+  var c = String(parseInt(code)||0);
+  if(c==='201') return 'Seguridad Social';
+  if(c==='202') return 'INSSJP';
+  if(c==='203') return 'Obra Social';
+  if(['206','207','501','502','503'].indexOf(c)>=0) return 'Sindical';
+  return 'Otros';
+}
+// Agrupa el costo empleador (filasCtb del motor del Excel, o el detalle legacy
+// por categoría) y los aportes del trabajador en una sola tabla Empleador/
+// Trabajador/Total por categoría, para el recibo.
+function calcularDetalleCostoLaboral(opts){
+  var totales = {}; // cat -> {emp:0, trab:0}
+  function add(cat, lado, monto){
+    if(!monto) return;
+    cat = cat || 'Otros';
+    if(!totales[cat]) totales[cat] = {emp:0, trab:0};
+    totales[cat][lado] += monto;
+  }
+  if(opts.filasCtb){
+    opts.filasCtb.forEach(function(f){ add(f.cat, 'emp', f.monto); });
+  } else if(opts.legacyEmpleadorPorCat){
+    Object.keys(opts.legacyEmpleadorPorCat).forEach(function(cat){
+      add(cat, 'emp', opts.legacyEmpleadorPorCat[cat]);
+    });
+  }
+  if(!opts.esDirector){
+    if(opts.importado && opts.descuentos){
+      opts.descuentos.filter(function(d){return !RecibosCalc.esGanancias(d);}).forEach(function(d){
+        add(categoriaConcepto(d.code), 'trab', d.monto);
+      });
+    } else {
+      add('Seguridad Social','trab',opts.dJub);
+      add('INSSJP','trab',opts.dPami);
+      add('Obra Social','trab',opts.dOS);
+      add('Sindical','trab',opts.dSind);
+    }
+  }
+  var orden = ['Seguridad Social','INSSJP','Obra Social','Obra Social Diferencial','Sindical','ART','SCVO','Otros'];
+  var filas = orden.filter(function(c){return totales[c] && (totales[c].emp || totales[c].trab);})
+    .map(function(c){ return {cat:c, emp:totales[c].emp, trab:totales[c].trab}; });
+  Object.keys(totales).forEach(function(c){
+    if(orden.indexOf(c) < 0) filas.push({cat:c, emp:totales[c].emp, trab:totales[c].trab});
+  });
+  return filas;
 }
 function calcularContribucionesExcel(emp, jornada, esDirector){
   var esMedia = jornada === 'media';
