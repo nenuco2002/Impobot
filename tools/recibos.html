@@ -504,6 +504,7 @@ function rellenarCampos(e){
     if(emp.os || emp.rnos) document.getElementById('d-os').value =
       (emp.os||'')+(emp.rnos?' (RNOS '+emp.rnos+')':'');
     if(emp.fpap)    document.getElementById('d-fpap').value   = emp.fpap;
+    e.jornada = emp.jornada || 'completa';
     // Calcular antigüedad
     if(emp.fing){
       var fi = emp.fing.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
@@ -564,47 +565,77 @@ function generar(soloRecibo){
   var fechaAnterior = fechaPartes && (Number(fechaPartes[3])<Number(anio) ||
     (Number(fechaPartes[3])===Number(anio) && Number(fechaPartes[2])<Number(mes)));
 
-  var TOPE = 4769631.49; // Octubre 2026
+  var TOPE = 4769631.49; // Octubre 2026 (solo se usa en el cálculo de respaldo, sin Excel)
   var noRem = empActual && empActual.origen==='lsd' ? empActual.noRem||0 : 0;
   var importado = !!(empActual && (empActual.origen==='lsd'||empActual.origen==='manual'));
   var costoIndividualDisponible = true; // El costo empleador se muestra siempre, venga el dato de LSD o carga manual
   var remunerativo = bruto - noRem;
   var base = Math.min(remunerativo, TOPE);
+  // Director / Socio Gerente (Anexo III Dto. 407/26): no aporta al SIPA/PAMI/Obra
+  // Social/Sindicato por esta vía (va por Autónomos) — en el recibo solo se le
+  // liquidan las líneas de "Contribuciones patronales" marcadas "Aplica a Director"
+  // (normalmente ART y FFEP) y, del lado del empleado, solo Ganancias si corresponde.
+  var esDirector = /director/i.test(categ) || /socio\s*gerente/i.test(categ);
+  var jornada = (empActual && empActual.jornada) || 'completa';
 
   // Descuentos (del LSD si disponibles, sino calculados)
   var dJub, dPami, dOS, dSind, dGan;
   if(importado){
-    dJub  = find(empActual.descuentos,'0201');
-    dPami = find(empActual.descuentos,'0202');
-    dOS   = find(empActual.descuentos,'0203');
-    dSind = find(empActual.descuentos,'0206');
+    dJub  = esDirector ? 0 : find(empActual.descuentos,'0201');
+    dPami = esDirector ? 0 : find(empActual.descuentos,'0202');
+    dOS   = esDirector ? 0 : find(empActual.descuentos,'0203');
+    dSind = esDirector ? 0 : find(empActual.descuentos,'0206');
     dGan  = ganRet;
   } else {
-    dJub  = base * 0.11;
-    dPami = base * 0.03;
-    dOS   = base * 0.03;
+    dJub  = esDirector ? 0 : base * 0.11;
+    dPami = esDirector ? 0 : base * 0.03;
+    dOS   = esDirector ? 0 : base * 0.03;
     dSind = 0; dGan = ganRet;
   }
-  var calculo = RecibosCalc.liquidar(bruto,importado ? empActual.descuentos : [
-    {monto:dJub+dPami+dOS+dSind}
-  ],dGan,gCheck('d-redondear'));
+  var descuentosCalculo = importado
+    ? (esDirector ? empActual.descuentos.filter(function(d){return RecibosCalc.esGanancias(d);}) : empActual.descuentos)
+    : [{monto:dJub+dPami+dOS+dSind}];
+  var calculo = RecibosCalc.liquidar(bruto,descuentosCalculo,dGan,gCheck('d-redondear'));
   var totalDesc=calculo.totalDesc,netoExacto=calculo.netoBase;
   var redondeo=calculo.redondeo,neto=calculo.neto;
 
-  // Contribuciones patronales — siempre calculadas + montos fijos
-  // Los Socios Gerentes (Anexo III Dto. 407/26) no aportan al SIPA/PAMI/Obra
-  // Social/FSR/FNE/Asignaciones Familiares por esta vía (van por Autónomos):
-  // solo ART y SCVO.
-  var esSocioGerente = /socio\s*gerente/i.test(categ);
-  var cPrev = base * 0.1077;  // 890000
-  var cPami = base * 0.0159;  // 890001
-  var cOS   = bruto * 0.051;  // 890004
-  var cFSR  = bruto * 0.009;  // 890005
-  var cFNE  = base * 0.0094;  // 890006
-  var cSCVO = 424.62;          // 890007 FIJO Dec.590/97
-  var cAsig = base * 0.047;   // 890010
-  var cART  = 1905.00;         // 890017 FIJO Dec.590/97
-  var totalCtb = esSocioGerente ? (cSCVO+cART) : (cPrev+cPami+cOS+cFSR+cFNE+cSCVO+cAsig+cART);
+  // Contribuciones patronales.
+  // Si hay un Excel de config con la hoja "Contribuciones patronales" cargado y el
+  // sueldo viene por conceptos con código (LSD o manual), se liquida con ESE motor:
+  // cada línea = Base(códigos LSD) × Porcentaje + Fijo, con Tope de base, Detracción
+  // según jornada completa/media, "Duplica Media" y "Aplica a Director". Si no hay
+  // Excel de contribuciones cargado, se usa el cálculo genérico SICOSS de respaldo.
+  var totalCtb, rowsCtb;
+  if(configContribs.length && importado){
+    var filasCtb = calcularContribucionesExcel(empActual, jornada, esDirector);
+    totalCtb = filasCtb.reduce(function(s,f){return s+f.monto;},0);
+    rowsCtb = filasCtb.map(function(f){
+      var unidad = f.pct ? f.pct.toFixed(2)+'%' : '0.000';
+      var baseCol = f.pct ? fmt(f.base) : fmt(f.fijo);
+      return TR(f.desc, unidad, baseCol, fmt(f.monto));
+    }).join('');
+  } else {
+    var cPrev = base * 0.1077;  // 890000
+    var cPami = base * 0.0159;  // 890001
+    var cOS   = bruto * 0.051;  // 890004
+    var cFSR  = bruto * 0.009;  // 890005
+    var cFNE  = base * 0.0094;  // 890006
+    var cSCVO = 424.62;          // 890007 FIJO Dec.590/97
+    var cAsig = base * 0.047;   // 890010
+    var cART  = 1905.00;         // 890017 FIJO Dec.590/97
+    totalCtb = esDirector ? (cSCVO+cART) : (cPrev+cPami+cOS+cFSR+cFNE+cSCVO+cAsig+cART);
+    rowsCtb = esDirector
+      ? TR('890007 - SCVO Seguro de Vida Obligatorio','0.000','$ 424,62','$ 424,62')+
+        TR('890017 - ART Suma Fija Dec 590/97','0.000','$ 1.905,00','$ 1.905,00')
+      : TR('890000 - Contribucion Previsional','10.77%',fmt(base),fmt(cPrev))+
+        TR('890001 - Contribucion Ley 19032 INSSJP','1.59%',fmt(base),fmt(cPami))+
+        TR('890004 - Contribucion Obra Social','5.10%',fmt(bruto),fmt(cOS))+
+        TR('890005 - Contribucion FSR ex ANSSAL','0.90%',fmt(bruto),fmt(cFSR))+
+        TR('890006 - Contribucion Fondo Nacional de Empleo','0.94%',fmt(base),fmt(cFNE))+
+        TR('890007 - SCVO Seguro de Vida Obligatorio','0.000','$ 424,62','$ 424,62')+
+        TR('890010 - Contribucion Asignaciones Familiares','4.70%',fmt(base),fmt(cAsig))+
+        TR('890017 - ART Suma Fija Dec 590/97','0.000','$ 1.905,00','$ 1.905,00');
+  }
   var costoTotal = bruto + totalCtb;
 
   // Haberes (del LSD si disponibles)
@@ -612,30 +643,17 @@ function generar(soloRecibo){
     ? empActual.haberes
     : [{code:'0001',desc:'110500 - Sueldo',monto:bruto}];
 
-  // Filas contribuciones empleador
-  var rowsCtb = esSocioGerente
-    ? TR('890007 - SCVO Seguro de Vida Obligatorio','0.000','$ 424,62','$ 424,62')+
-      TR('890017 - ART Suma Fija Dec 590/97','0.000','$ 1.905,00','$ 1.905,00')
-    : TR('890000 - Contribucion Previsional','10.77%',fmt(base),fmt(cPrev))+
-      TR('890001 - Contribucion Ley 19032 INSSJP','1.59%',fmt(base),fmt(cPami))+
-      TR('890004 - Contribucion Obra Social','5.10%',fmt(bruto),fmt(cOS))+
-      TR('890005 - Contribucion FSR ex ANSSAL','0.90%',fmt(bruto),fmt(cFSR))+
-      TR('890006 - Contribucion Fondo Nacional de Empleo','0.94%',fmt(base),fmt(cFNE))+
-      TR('890007 - SCVO Seguro de Vida Obligatorio','0.000','$ 424,62','$ 424,62')+
-      TR('890010 - Contribucion Asignaciones Familiares','4.70%',fmt(base),fmt(cAsig))+
-      TR('890017 - ART Suma Fija Dec 590/97','0.000','$ 1.905,00','$ 1.905,00');
-
   // Filas sueldo bruto
   var rowsHaberes = haberes.map(function(h){
     var un = (h.code==='0001'||h.code==='0012')?'30.000':'1.000';
     return TR(h.desc, un, fmt(h.monto), fmt(h.monto));
   }).join('');
   var rowsAportes = '';
-  if(importado){
+  if(importado && !esDirector){
     empActual.descuentos.filter(function(d){return !RecibosCalc.esGanancias(d);}).forEach(function(d){
       rowsAportes += TR(d.desc||('Concepto '+d.code),'—','—',fmt(d.monto));
     });
-  } else {
+  } else if(!importado){
     if(dJub)  rowsAportes += TR('810000 - Jubilación','11%',fmt(base),fmt(dJub));
     if(dPami) rowsAportes += TR('810001 - Ley 19032 INSSJP PAMI','3%',fmt(base),fmt(dPami));
     if(dOS)   rowsAportes += TR('810002 - Obra Social','3%',fmt(base),fmt(dOS));
@@ -749,6 +767,51 @@ function generarTodos(){
 function g(id){ return (document.getElementById(id)||{}).value||''; }
 function gCheck(id){ return !!(document.getElementById(id)||{}).checked; }
 function find(arr, code){ return (arr.find(function(x){return x.code===code;})||{monto:0}).monto; }
+
+// ── MOTOR DE CONTRIBUCIONES PATRONALES DESDE EL EXCEL DE CONFIG ──────────
+// Hoja "Contribuciones patronales": cada fila = Base(códigos LSD) × % + Fijo,
+// con Tope de base, Detracción (según jornada completa/media), "Duplica Media"
+// y "Aplica a Director" (ver comentarios de la hoja "Ejemplo + Instrucciones").
+function parseListaCodigos(base){
+  var codigos = [];
+  String(base||'').split(',').forEach(function(tok){
+    tok = tok.trim();
+    if(!tok) return;
+    var rango = tok.match(/^(\d+)\s*-\s*(\d+)$/);
+    if(rango){
+      for(var i=parseInt(rango[1],10); i<=parseInt(rango[2],10); i++) codigos.push(i);
+    } else {
+      var n = parseInt(tok,10);
+      if(!isNaN(n)) codigos.push(n);
+    }
+  });
+  return codigos;
+}
+function montoPorCodigos(emp, codigos){
+  var items = [].concat(emp.haberes||[], emp.descuentos||[], emp.contribs||[]);
+  var total = 0;
+  items.forEach(function(it){
+    var c = parseInt(it.code, 10);
+    if(!isNaN(c) && codigos.indexOf(c) >= 0) total += (parseFloat(it.monto)||0);
+  });
+  return total;
+}
+function calcularContribucionesExcel(emp, jornada, esDirector){
+  var esMedia = jornada === 'media';
+  var filas = [];
+  configContribs.forEach(function(row){
+    if(esDirector && !row.aplicaDirector) return; // Director: solo ART/FFEP (u otras marcadas)
+    var codigos = parseListaCodigos(row.base);
+    var baseBruta = montoPorCodigos(emp, codigos);
+    if(esMedia && row.duplicaMedia) baseBruta *= 2;
+    if(row.tope) baseBruta = Math.min(baseBruta, row.tope);
+    var detraccion = esMedia ? (row.detraccionMedia !== null ? row.detraccionMedia : row.detraccion) : row.detraccion;
+    var baseFinal = Math.max(0, baseBruta - (detraccion||0));
+    var monto = baseFinal*(row.pct/100) + row.fijo;
+    filas.push({desc:row.desc, pct:row.pct, fijo:row.fijo, base:baseFinal, monto:monto, cat:row.cat});
+  });
+  return filas;
+}
 function pc(v,t){ return t?((v/t)*100).toFixed(2):'0.00'; }
 function fmtCuil(c){ return c&&c.length===11?c.substring(0,2)+'-'+c.substring(2,10)+'-'+c.substring(10):c; }
 function fmt(x){
@@ -886,6 +949,7 @@ function parsearExcel(file){
             fing:     fing,
             cbu:      cbu,
             banco:    String(row['Banco']||'').trim(),
+            jornada:  (String(row['Jornada']||'').trim().toLowerCase()==='media') ? 'media' : 'completa',
             fpap:     row['Fecha pago aportes'] instanceof Date
               ? row['Fecha pago aportes'].toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'})
               : String(row['Fecha pago aportes']||'').trim(),
@@ -934,12 +998,19 @@ function parsearExcel(file){
         rows.forEach(function(row){
           var desc = String(row['Descripcion']||'').trim();
           if(!desc || desc.indexOf('[Ayuda]') >= 0) return;
+          var detMedia = row['Detraccion Media'];
           configContribs.push({
             desc:  desc,
             pct:   parseFloat(row['Porcentaje'])||0,
             fijo:  parseFloat(row['Fijo'])||0,
             base:  String(row['Base']||'').trim(),
             cat:   String(row['Categoria']||'').trim(),
+            tope:  parseFloat(row['Tope'])||0,
+            detraccion: parseFloat(row['Detraccion'])||0,
+            // Vacío ("" o undefined) = usar Detraccion (jornada completa) también para media.
+            detraccionMedia: (detMedia===''||detMedia==null) ? null : (parseFloat(detMedia)||0),
+            duplicaMedia: /^s/i.test(String(row['Duplica Media']||'').trim()),
+            aplicaDirector: /^s/i.test(String(row['Aplica a Director']||'').trim()),
           });
         });
         console.log('Contribuciones OK:', configContribs.length);
