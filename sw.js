@@ -1,5 +1,5 @@
 // ImpoBot Service Worker — Cache primero para assets estáticos
-var CACHE = 'impobot-v14'; // bump para forzar reinstalación del SW y descartar el precache viejo
+var CACHE = 'impobot-v15'; // bump para forzar reinstalación del SW y descartar el precache viejo
 var ASSETS = [
   '/',
   '/index.html',
@@ -33,9 +33,18 @@ var ASSETS = [
 ];
 
 self.addEventListener('install', function(e){
+  // Precache "best effort": si UN solo asset falla (ej. un adblocker o antivirus bloqueando
+  // bot.js u otro archivo), cache.addAll() aborta TODA la instalación y el SW nuevo nunca
+  // se activa, dejando al navegador pegado para siempre en la versión vieja sin importar
+  // cuántas veces se recargue. Por eso cacheamos cada asset por separado e ignoramos los
+  // que fallen, para que la instalación (y por lo tanto la actualización) siempre pueda avanzar.
   e.waitUntil(
     caches.open(CACHE).then(function(cache){
-      return cache.addAll(ASSETS);
+      return Promise.all(ASSETS.map(function(url){
+        return cache.add(url).catch(function(err){
+          console.log('[ImpoBot SW] no se pudo precachear (se ignora):', url, err);
+        });
+      }));
     })
   );
   self.skipWaiting();
