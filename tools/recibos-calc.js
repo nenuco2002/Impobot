@@ -12,7 +12,7 @@
     if(!Number.isFinite(actual)||actual<0)throw Error('La retención de Ganancias debe ser un importe válido.');
     var total=(descuentos||[]).reduce(function(s,d){return s+centavos(d.monto);},0)-centavos(anterior)+centavos(actual);
     var antes=centavos(bruto)-total;
-    var ajuste=redondear?Math.round(antes/100)*100-antes:0;
+    var ajuste=redondear?Math.ceil(antes/100)*100-antes:0; // siempre redondea para arriba (nunca resta)
     return {totalDesc:total/100,netoBase:antes/100,redondeo:ajuste/100,neto:(antes+ajuste)/100};
   }
   return {esGanancias:esGanancias,ganancias:ganancias,liquidar:liquidar};

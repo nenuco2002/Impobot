@@ -8,8 +8,8 @@ test('identifica retención de Ganancias aunque el código venga como 208', () =
   const recibo=calc.liquidar(8576625,discounts,1507093.96,true);
   assert.equal(recibo.totalDesc,1507093.96);
   assert.equal(recibo.netoBase,7069531.04);
-  assert.equal(recibo.redondeo,-0.04);
-  assert.equal(recibo.neto,7069531);
+  assert.equal(recibo.redondeo,0.96);
+  assert.equal(recibo.neto,7069532);
 });
 
 test('editar Ganancias modifica neto y evita descontarla dos veces', () => {
@@ -21,4 +21,15 @@ test('editar Ganancias modifica neto y evita descontarla dos veces', () => {
 
 test('mantiene los centavos si se desactiva el ajuste', () => {
   assert.equal(calc.liquidar(1000.12,[],0,false).neto,1000.12);
+});
+
+test('el redondeo siempre suma, nunca resta (redondea para arriba)', () => {
+  // .01 ya alcanza para subir al peso siguiente, nunca baja al anterior
+  const r=calc.liquidar(1000.01,[],0,true);
+  assert.equal(r.redondeo,0.99);
+  assert.equal(r.neto,1001);
+  // un neto ya exacto en pesos no se toca
+  const r2=calc.liquidar(1000,[],0,true);
+  assert.equal(r2.redondeo,0);
+  assert.equal(r2.neto,1000);
 });
