@@ -1,5 +1,5 @@
 // ImpoBot Service Worker — Cache primero para assets estáticos
-var CACHE = 'impobot-v13'; // bump para forzar reinstalación del SW y descartar el precache viejo
+var CACHE = 'impobot-v14'; // bump para forzar reinstalación del SW y descartar el precache viejo
 var ASSETS = [
   '/',
   '/index.html',
