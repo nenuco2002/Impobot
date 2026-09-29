@@ -371,6 +371,7 @@ function parseLSD(txt){
   txt = txt.replace(/\r/g,'');
   var lineas = txt.split('\n');
   var emps = {}, orden = [];
+  var fechaPagoDetectada = '';
   var sinMapear = [...new Set(lineas.filter(function(l){return l.substring(0,2)==='03';})
     .map(function(l){return l.substring(19,23);})
     .filter(function(code){return !configMapeo[code];}))];
@@ -402,9 +403,17 @@ function parseLSD(txt){
         if(ch>='0'&&ch<='9') leg+=ch;
         else if(leg) break;
       }
+      // Fecha de pago: registro "02", posición fija 98-106, formato AAAAMMDD.
+      var fpagoRaw = l.length>=106 ? l.substring(98,106) : '';
+      var fpagoTxt = /^\d{8}$/.test(fpagoRaw)
+        ? fpagoRaw.substring(6,8)+'/'+fpagoRaw.substring(4,6)+'/'+fpagoRaw.substring(0,4)
+        : '';
+      if(fpagoTxt && !fechaPagoDetectada) fechaPagoDetectada = fpagoTxt;
       if(!emps[cuil]){
-        emps[cuil]={cuil:cuil,legajo:leg,haberes:[],descuentos:[],contribs:[],origen:'lsd'};
+        emps[cuil]={cuil:cuil,legajo:leg,haberes:[],descuentos:[],contribs:[],origen:'lsd',fpagoTxt:fpagoTxt};
         orden.push(cuil);
+      } else if(fpagoTxt){
+        emps[cuil].fpagoTxt = fpagoTxt;
       }
     }
 
@@ -444,6 +453,7 @@ function parseLSD(txt){
     setMsg('No se detectaron empleados con datos. Verificá el formato del archivo.', false);
     return;
   }
+  if(fechaPagoDetectada) document.getElementById('d-fpago').value = fechaPagoDetectada;
   document.getElementById('aviso-manual').style.display='block';
   setMsg('✓ '+todosEmpleados.length+' empleados cargados. Hacé clic en cada uno.', true);
   renderLista();
@@ -484,6 +494,7 @@ function rellenarCampos(e){
   document.getElementById('d-bruto').value  = e.bruto.toFixed(2);
   document.getElementById('d-fpap').value = configEmpleador.fechaAportes || '';
   document.getElementById('d-gan').value = RecibosCalc.ganancias(e.descuentos).toFixed(2);
+  if(e.fpagoTxt) document.getElementById('d-fpago').value = e.fpagoTxt;
 
   // Limpiar campos que solo vienen del Excel de config (para no arrastrar
   // datos del empleado anterior si este no tiene fila en el Excel)
