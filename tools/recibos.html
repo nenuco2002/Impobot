@@ -733,7 +733,7 @@ function generar(soloRecibo){
       '<table class="ct"><tr><th>CONCEPTO</th><th>UNIDAD</th><th class="r">BASE</th><th class="r">MONTO</th></tr>'+
       rowsCtb+'</table>'+
       '<div class="rsec"><span>Subtotal Contribuciones</span><span>'+fmt(totalCtb)+'</span></div>'+
-      '<div class="ros">Lugar de pago de cargas sociales: '+lugar+' &nbsp; · &nbsp; Fecha de pago de cargas sociales: '+fpago+'</div>'
+      '<div class="ros">Lugar de pago de cargas sociales: '+lugar+' &nbsp; · &nbsp; Fecha de pago de cargas sociales: '+(fpap||'PENDIENTE')+'</div>'
     : '')+
   '<div class="rsec"><span>SUELDO BRUTO</span><span>'+fmt(bruto)+'</span></div>'+
   '<div class="rsec">HABERES (REMUNERATIVOS Y NO REMUNERATIVOS)</div>'+
