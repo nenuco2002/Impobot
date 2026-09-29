@@ -1058,7 +1058,7 @@ function parsearExcel(file){
           else if(dato.indexOf('cuit') >= 0)         configEmpleador.cuit = val;
           else if(dato.indexOf('firma') >= 0)        configEmpleador.firma = val;
           else if(dato.indexOf('lugar') >= 0)        configEmpleador.lugar = val;
-          else if(dato.indexOf('fecha') >= 0 && dato.indexOf('aporte') >= 0) configEmpleador.fechaAportes = val;
+          else if(dato.indexOf('aporte') >= 0)       configEmpleador.fechaAportes = val;
           else if(dato.indexOf('fecha') >= 0)        configEmpleador.fechaPago = val;
         });
         // Rellenar formulario con datos del empleador
