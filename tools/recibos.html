@@ -708,7 +708,6 @@ function generar(soloRecibo){
   var htmlWrap =
   '<div style="margin-bottom:12px">'+
   (fechaAnterior?'<div class="msg warn">Revisá la fecha de pago: es anterior al período del recibo. Corregila en el formulario antes de imprimir.</div>':'')+
-  (!fpap?'<div class="msg warn">Falta F. PAGO APORTES: completala antes de imprimir el recibo.</div>':'')+
   '<button class="btn-print" onclick="window.print()">🖨 Imprimir / PDF</button>'+
   '<span style="font-size:.7rem;color:#8b949e">En el diálogo elegí "Guardar como PDF"</span>'+
   '</div>';
@@ -728,7 +727,7 @@ function generar(soloRecibo){
   '<tr><td style="text-align:center">'+fing+'</td><td>'+categ+'</td><td style="text-align:center">'+cuil+'</td>'+
   '<td colspan="2">'+lugar+'</td><td style="text-align:center">'+fpago+'</td></tr>'+
   '</table>'+
-  '<div class="ros">OBRA SOCIAL: '+os+' &nbsp; · &nbsp; F. PAGO APORTES: '+(fpap||'PENDIENTE')+'</div>'+
+  '<div class="ros">OBRA SOCIAL: '+os+'</div>'+
   (costoIndividualDisponible
     ? '<div class="rsec"><span>COSTO EMPLEADOR ESTIMADO</span><span>'+fmt(costoTotal)+'</span></div>'+
       '<table class="ct"><tr><th>CONCEPTO</th><th>UNIDAD</th><th class="r">BASE</th><th class="r">MONTO</th></tr>'+
