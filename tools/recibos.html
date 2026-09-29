@@ -551,6 +551,60 @@ function seleccionarEmp(e){
 document.getElementById('btn-gen').addEventListener('click', function(){ generar(); });
 document.getElementById('btn-gen-todos').addEventListener('click', function(){ generarTodos(); });
 
+// ── AJUSTE AUTOMÁTICO PARA QUE EL RECIBO SIEMPRE ENTRE EN UNA SOLA HOJA ──
+// Mide cada .recibo con el ancho exacto que va a tener al imprimir (hoja A4
+// menos los márgenes de @page) y, si el alto resultante no entra en una sola
+// hoja, calcula un factor de reducción (zoom) para que el recibo completo
+// quede en una única página. El zoom sólo se aplica al imprimir/exportar a
+// PDF (beforeprint/afterprint): en pantalla el recibo se ve siempre a tamaño
+// normal.
+var MM_TO_PX = 96/25.4;
+var PAGINA_ANCHO_MM = 190; // A4 210mm - 10mm de margen a cada lado (ver @page)
+var PAGINA_ALTO_MM  = 277; // A4 297mm - 10mm de margen a cada lado
+
+function ajustarEscalaImpresion(){
+  document.querySelectorAll('.recibo').forEach(function(recibo){
+    var clone = recibo.cloneNode(true);
+    clone.style.position = 'absolute';
+    clone.style.visibility = 'hidden';
+    clone.style.pointerEvents = 'none';
+    clone.style.left = '-99999px';
+    clone.style.top = '0';
+    clone.style.margin = '0';
+    clone.style.boxShadow = 'none';
+    clone.style.borderRadius = '0';
+    clone.style.padding = '0';
+    clone.style.width = PAGINA_ANCHO_MM + 'mm';
+    clone.style.maxWidth = PAGINA_ANCHO_MM + 'mm';
+    clone.style.boxSizing = 'border-box';
+    clone.removeAttribute('data-print-scale');
+    document.body.appendChild(clone);
+    var alturaPx = clone.offsetHeight;
+    document.body.removeChild(clone);
+    var disponiblePx = PAGINA_ALTO_MM * MM_TO_PX;
+    var escala = alturaPx > disponiblePx ? Math.max(0.55, (disponiblePx/alturaPx)*0.985) : 1;
+    if(escala < 1) recibo.setAttribute('data-print-scale', escala.toFixed(4));
+    else recibo.removeAttribute('data-print-scale');
+  });
+}
+
+var _escalaImpresionAplicada = false;
+window.addEventListener('beforeprint', function(){
+  // Se recalcula al vuelo (por si el contenido cambió) y recién ahí se aplica
+  // el zoom, así el ajuste queda siempre al día justo antes de imprimir.
+  ajustarEscalaImpresion();
+  document.querySelectorAll('.recibo').forEach(function(recibo){
+    var s = recibo.getAttribute('data-print-scale');
+    if(s) recibo.style.zoom = s;
+  });
+  _escalaImpresionAplicada = true;
+});
+window.addEventListener('afterprint', function(){
+  if(!_escalaImpresionAplicada) return;
+  document.querySelectorAll('.recibo').forEach(function(recibo){ recibo.style.zoom = ''; });
+  _escalaImpresionAplicada = false;
+});
+
 // ── GENERAR RECIBO ────────────────────────────────────────────
 // soloRecibo=true: devuelve solo el HTML del <div class="recibo"> (para "generar todos"),
 // sin tocar #content ni mostrar el botón de imprimir individual.
@@ -763,6 +817,7 @@ function generar(soloRecibo){
   if(soloRecibo) return htmlRecibo;
 
   document.getElementById('content').innerHTML = htmlWrap + htmlRecibo;
+  ajustarEscalaImpresion();
 }
 
 // ── GENERAR TODOS LOS RECIBOS JUNTOS (para imprimir/descargar en un solo PDF) ──
@@ -788,6 +843,7 @@ function generarTodos(){
     '. En el diálogo elegí "Guardar como PDF"</span>'+
     '</div>'+
     partes.join('');
+  ajustarEscalaImpresion();
 }
 
 // ── HELPERS ──────────────────────────────────────────────────
