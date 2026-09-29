@@ -193,6 +193,33 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
 .bmc-float{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;align-items:center;gap:7px;background:#FFDD00;color:#000;font-weight:800;font-size:.78rem;padding:10px 16px;border-radius:50px;text-decoration:none;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .2s}
 .bmc-float:hover{transform:scale(1.05)}
 
+/* ── ASISTENTE IMPOBOT (chat) ── */
+.chat-fab{position:fixed;bottom:178px;right:20px;z-index:998;width:52px;height:52px;border-radius:50%;padding:0;border:none;cursor:pointer;background:linear-gradient(135deg,var(--blue-d),var(--blue-l));box-shadow:0 6px 20px rgba(11,130,245,.4);display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.chat-fab:hover{transform:scale(1.07)}
+.chat-fab img{width:34px;height:34px;border-radius:50%}
+.chat-fab .dot{position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid #fff}
+.chat-panel{position:fixed;bottom:238px;right:20px;z-index:1001;width:330px;max-width:calc(100vw - 28px);max-height:min(480px,calc(100vh - 260px));display:flex;flex-direction:column;background:#fff;border-radius:16px;box-shadow:0 24px 60px rgba(9,15,28,.35);overflow:hidden;border:1px solid var(--border)}
+.chat-panel[hidden]{display:none}
+.chat-head{background:linear-gradient(135deg,var(--navy-1),var(--navy-2));color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.chat-head img{width:30px;height:30px;border-radius:50%}
+.chat-head b{font-size:.82rem;display:block}
+.chat-head small{display:block;font-size:.62rem;color:#8fd8ff}
+.chat-head button{margin-left:auto;background:rgba(255,255,255,.1);border:none;color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:.85rem;line-height:1}
+.chat-head button:hover{background:rgba(255,255,255,.2)}
+.chat-body{padding:12px 14px;display:flex;flex-direction:column;gap:9px;background:var(--surface-2);overflow-y:auto;flex:1;min-height:180px}
+.bubble{max-width:88%;padding:8px 11px;border-radius:12px;font-size:.78rem;line-height:1.5;white-space:pre-wrap}
+.bubble.bot{background:#fff;border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:3px;color:var(--ink)}
+.bubble.user{background:var(--blue);color:#fff;align-self:flex-end;border-bottom-right-radius:3px}
+.bubble.typing{color:var(--ink-3);font-style:italic}
+.chat-foot{border-top:1px solid var(--border);background:#fff;flex-shrink:0}
+.chat-input{display:flex;gap:8px;padding:10px 12px}
+.chat-input input{flex:1;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:9px 14px;font-size:.78rem;font-family:'Inter',sans-serif;outline:none;color:var(--ink)}
+.chat-input input:focus{border-color:var(--blue)}
+.chat-input button{width:34px;height:34px;border-radius:50%;background:var(--blue);color:#fff;border:none;cursor:pointer;font-size:.85rem;flex-shrink:0}
+.chat-input button:disabled{opacity:.5;cursor:default}
+.chat-disclaimer{font-size:.6rem;color:var(--ink-3);text-align:center;padding:0 12px 9px}
+@media(max-width:480px){.chat-panel{right:14px;bottom:222px}.chat-fab{right:14px}}
+
 .wide-wrap{max-width:1280px;margin:0 auto;padding:0 28px 26px}
 @media(max-width:600px){.wide-wrap{padding-left:14px;padding-right:14px}}
 </style>
@@ -644,6 +671,29 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
   Consultar
 </a>
 <a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" class="bmc-float">☕ Café</a>
+
+<!-- Asistente ImpoBot (chat) -->
+<div class="chat-panel" id="chat-panel" hidden>
+  <div class="chat-head">
+    <img src="logo.png" alt="ImpoBot"/>
+    <div><b>Asistente ImpoBot</b><small>● En línea</small></div>
+    <button onclick="cerrarChat()" title="Cerrar" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="chat-body" id="chat-body">
+    <div class="bubble bot">¡Hola! Soy ImpoBot 🤖 Puedo ayudarte a entender impuestos, sueldos y vencimientos. ¿En qué te puedo ayudar?</div>
+  </div>
+  <div class="chat-foot">
+    <form class="chat-input" onsubmit="return enviarChat(event)">
+      <input type="text" id="chat-input" placeholder="Escribí tu consulta…" maxlength="500" autocomplete="off"/>
+      <button type="submit" id="chat-send" aria-label="Enviar">➤</button>
+    </form>
+    <div class="chat-disclaimer">Información orientativa. No reemplaza a tu contador.</div>
+  </div>
+</div>
+<button class="chat-fab" onclick="toggleChat()" title="Preguntale a ImpoBot" aria-label="Abrir chat">
+  <img src="logo.png" alt=""/><span class="dot"></span>
+</button>
+
 <button onclick="abrirBugReport()" title="Reportar un problema"
   style="position:fixed;bottom:126px;right:20px;z-index:998;background:#fff;border:1px solid var(--border);width:44px;height:44px;border-radius:50%;padding:0;cursor:pointer;box-shadow:0 2px 12px rgba(16,24,40,.18);transition:all .2s;overflow:hidden"
   onmouseover="this.style.borderColor='var(--blue-l)';this.style.transform='scale(1.06)'"
@@ -717,6 +767,79 @@ function enviarBug(e){
     .catch(function(){
       window.location='mailto:impobot.ar@gmail.com?subject=Bug en '+tool+'&body='+encodeURIComponent(desc);
     });
+}
+// ── Asistente ImpoBot (chat) ──────────────────────────────
+var chatHistory = [];
+var chatEnviando = false;
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+function toggleChat(){
+  var panel = document.getElementById('chat-panel');
+  if(panel.hidden){
+    panel.hidden = false;
+    document.getElementById('chat-input').focus();
+  } else {
+    panel.hidden = true;
+  }
+}
+function cerrarChat(){
+  document.getElementById('chat-panel').hidden = true;
+}
+
+function agregarBurbuja(texto, clase){
+  var body = document.getElementById('chat-body');
+  var div = document.createElement('div');
+  div.className = 'bubble ' + clase;
+  div.innerHTML = escapeHtml(texto);
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+  return div;
+}
+
+function enviarChat(e){
+  e.preventDefault();
+  if(chatEnviando) return false;
+  var input = document.getElementById('chat-input');
+  var msg = input.value.trim();
+  if(!msg) return false;
+
+  agregarBurbuja(msg, 'user');
+  chatHistory.push({role:'user', content: msg});
+  input.value = '';
+  chatEnviando = true;
+  document.getElementById('chat-send').disabled = true;
+  var typing = agregarBurbuja('escribiendo…', 'bot typing');
+
+  fetch('/.netlify/functions/chat', {
+    method: 'POST',
+    headers: {'content-type':'application/json'},
+    body: JSON.stringify({message: msg, history: chatHistory.slice(0, -1)})
+  })
+  .then(function(r){ return r.json().then(function(data){ return {ok:r.ok, data:data}; }); })
+  .then(function(res){
+    typing.remove();
+    if(!res.ok || !res.data || !res.data.answer){
+      agregarBurbuja('No pude responder eso ahora. Probá de nuevo en un momento, o usá directamente las calculadoras del sitio.', 'bot');
+      return;
+    }
+    agregarBurbuja(res.data.answer, 'bot');
+    chatHistory.push({role:'assistant', content: res.data.answer});
+  })
+  .catch(function(){
+    typing.remove();
+    agregarBurbuja('No pude conectarme. Revisá tu conexión y probá de nuevo.', 'bot');
+  })
+  .finally(function(){
+    chatEnviando = false;
+    document.getElementById('chat-send').disabled = false;
+  });
+
+  return false;
 }
 </script>
 
