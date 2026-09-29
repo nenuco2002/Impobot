@@ -721,7 +721,9 @@ function generar(soloRecibo){
   (costoIndividualDisponible
     ? '<div class="rsec"><span>COSTO EMPLEADOR ESTIMADO</span><span>'+fmt(costoTotal)+'</span></div>'+
       '<table class="ct"><tr><th>CONCEPTO</th><th>UNIDAD</th><th class="r">BASE</th><th class="r">MONTO</th></tr>'+
-      rowsCtb+'<tr class="sub"><td colspan="3" style="text-align:center">SUB TOTAL CONTRIBUCIONES EMPLEADOR</td><td class="r">'+fmt(totalCtb)+'</td></tr></table>'
+      rowsCtb+'</table>'+
+      '<div class="rsec"><span>Subtotal Contribuciones</span><span>'+fmt(totalCtb)+'</span></div>'+
+      '<div class="ros">Lugar de pago de cargas sociales: '+lugar+' &nbsp; · &nbsp; Fecha de pago de cargas sociales: '+fpago+'</div>'
     : '')+
   '<div class="rsec"><span>SUELDO BRUTO</span><span>'+fmt(bruto)+'</span></div>'+
   '<div class="rsec">HABERES (REMUNERATIVOS Y NO REMUNERATIVOS)</div>'+
