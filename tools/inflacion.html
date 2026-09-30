@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Calculadora de Inflación (IPC) — ImpoBot</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#2d4f68;--card:#35546f;--card2:#35546f;--border:#4d7a96;--text:#f0f6fb;--sub:#9dbdd6;--blue:#0b82f5;--blue-l:#60a5fa;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--cyan:#38bdf8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:60px}
+.shell{max-width:1100px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden;margin-bottom:16px}
+.card-hd{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.card-hd .icon{font-size:1rem}
+.card-hd .title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-l)}
+.card-hd .sub{font-size:.65rem;color:var(--sub);margin-left:auto}
+.card-body{padding:16px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:.72rem;font-weight:600;color:var(--sub)}
+.field input,.field select{background:var(--ink);border:1px solid var(--border);color:var(--text);font-size:.9rem;font-weight:600;padding:9px 11px;border-radius:8px;font-family:'Inter',sans-serif;outline:none}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.form-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:12px;align-items:end}
+@media(max-width:700px){.form-grid{grid-template-columns:1fr}}
+.btn-calc{grid-column:1/-1;background:linear-gradient(135deg,var(--blue),#0ea5e9);color:#fff;border:none;padding:11px 18px;border-radius:9px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s}
+.btn-calc:hover{opacity:.9}
+.swap-btn{background:var(--ink);border:1px solid var(--border);color:var(--sub);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:.9rem;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.swap-btn:hover{color:var(--text);border-color:var(--blue)}
+.result-hero{padding:22px 16px;text-align:center;background:rgba(11,130,245,.06);border-bottom:1px solid var(--border)}
+.result-hero .lbl{font-size:.7rem;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.result-hero .monto{font-size:2.1rem;font-weight:800;color:#fff;font-family:'Courier New',monospace}
+.result-hero .sub2{font-size:.76rem;color:var(--sub);margin-top:6px}
+.val-row{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(26,47,69,.5);font-size:.82rem}
+.val-row:last-child{border-bottom:none}
+.val-row .lbl{color:var(--sub);flex:1}
+.val-row .val{font-weight:700;color:#fff;font-family:'Courier New',monospace;font-size:.85rem}
+.val-row .val.green{color:var(--green)}
+.val-row .val.red{color:var(--red)}
+.val-row .val.amber{color:var(--amber)}
+.mini-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.mini-table th{text-align:left;padding:8px 14px;color:var(--sub);font-weight:600;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+.mini-table td{padding:7px 14px;border-bottom:1px solid rgba(26,47,69,.4)}
+.mini-table tr:last-child td{border-bottom:none}
+.mini-table .mm{color:var(--sub)}
+.mini-table .pct{font-family:'Courier New',monospace;font-weight:700;text-align:right}
+.chip{display:inline-block;font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:9px;background:rgba(56,189,248,.12);color:var(--cyan)}
+.nota-act{font-size:.7rem;color:var(--sub);padding:10px 16px;background:rgba(11,130,245,.04);border-top:1px solid var(--border)}
+
+/* ── FH: header ImpoBot (rediseño, estructura tipo dashboard) ── */
+.fh-head{position:sticky;top:0;z-index:500;font-family:'Inter',system-ui,sans-serif}
+.fh-bar{height:46px;display:flex;align-items:center;gap:10px;padding:0 16px;background:linear-gradient(135deg,#0b1220,#141d2e);border-bottom:1px solid rgba(255,255,255,.06)}
+.fh-brand{display:flex;align-items:center;gap:7px;text-decoration:none;flex-shrink:0}
+.fh-brand img{width:24px;height:24px;border-radius:50%;display:block}
+.fh-word{font-size:.86rem;font-weight:800;color:#eaf1f8;letter-spacing:-.02em;white-space:nowrap}
+.fh-word b{color:#38bdf8;font-weight:800}
+.fh-sep{width:1px;height:20px;background:rgba(255,255,255,.15);flex-shrink:0}
+.fh-title{font-size:.78rem;font-weight:700;color:#eaf1f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fh-tools{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.fh-chip{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-size:.75rem;text-decoration:none;background:rgba(255,255,255,.07);transition:background .15s}
+.fh-chip:hover{background:rgba(255,255,255,.14)}
+.fh-strip{height:28px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px;background:linear-gradient(90deg,#0b82f5,#0ea5e9);font-size:.66rem;font-weight:600;color:#eaf6ff;overflow:hidden}
+.fh-crumb a{color:#eaf6ff;opacity:.85;text-decoration:none}
+.fh-crumb a:hover{opacity:1;text-decoration:underline}
+.fh-crumb i{opacity:.6;margin:0 4px;font-style:normal}
+.fh-meta{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
+.fh-badge{background:rgba(255,255,255,.2);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.02em}
+@media(max-width:640px){.fh-strip .fh-meta-text{display:none}.fh-title{max-width:130px}}
+</style>
+<link rel="manifest" href="../manifest.json"/>
+<meta name="theme-color" content="#0b82f5"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<link rel="apple-touch-icon" href="../logo.png"/>
+<style>
+.guia-wrap{margin:0 0 16px;border:1px solid rgba(77,122,150,.35);border-radius:10px;overflow:hidden}
+.guia-wrap summary{cursor:pointer;padding:10px 16px;background:rgba(30,58,78,.6);color:var(--sub,#9dbdd6);font-size:.8rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+.guia-wrap summary:hover{color:var(--text,#f0f6fb)}
+.guia-wrap[open] summary{color:var(--text,#f0f6fb);background:rgba(30,58,78,.9)}
+.guia-body{padding:14px 18px;background:rgba(30,58,78,.4);font-size:.82rem;line-height:1.65;color:var(--text,#f0f6fb)}
+.guia-body ol{margin:8px 0 8px 18px;padding:0}
+.guia-body li{margin-bottom:5px}
+.guia-nota{margin-top:10px;padding:8px 12px;background:rgba(245,158,11,.07);border-left:3px solid #f59e0b;border-radius:4px;font-size:.75rem;color:var(--sub,#9dbdd6)}
+</style>
+</head>
+<body>
+<header class="fh-head">
+  <div class="fh-bar">
+    <a class="fh-brand" href="../index.html">
+      <img src="../logo-sm.png" alt="ImpoBot"/>
+      <span class="fh-word"><b>impo</b>bot</span>
+    </a>
+    <span class="fh-sep"></span>
+    <span class="fh-title">📈 Calculadora de Inflación (IPC)</span>
+    <div class="fh-tools">
+      <a class="fh-chip" style="background:#FFDD00;color:#000" href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" title="Buy Me a Coffee">☕</a>
+      <a class="fh-chip" style="background:#FF5E5B;color:#fff" href="https://ko-fi.com/impobot" target="_blank" rel="noopener" title="Ko-fi">💙</a>
+    </div>
+  </div>
+  <div class="fh-strip">
+    <span class="fh-crumb"><a href="../index.html">Herramientas</a><i>›</i><strong>Calculadora de Inflación</strong></span>
+    <span class="fh-meta"><span class="fh-meta-text">IPC Nivel General Nacional</span><span class="fh-badge">INDEC</span></span>
+  </div>
+</header>
+
+<div class="shell">
+  <div style="margin-bottom:16px">
+    <details class="guia-wrap">
+      <summary>❓ ¿Cómo usar la Calculadora de Inflación?</summary>
+      <div class="guia-body">
+        <ol>
+          <li>Ingresá un <strong>monto</strong> y elegí el <strong>mes de origen</strong> y el <strong>mes de destino</strong>.</li>
+          <li>La herramienta actualiza el monto aplicando la variación del <strong>IPC Nivel General Nacional</strong> (base diciembre 2016 = 100) publicado por INDEC entre ambos períodos.</li>
+          <li>Funciona en los dos sentidos: podés llevar un monto <strong>del pasado a hoy</strong> (actualizar) o de <strong>hoy hacia atrás</strong> (deflactar) — usá el botón ⇄ para invertir el período.</li>
+          <li>También se muestra la <strong>variación % acumulada</strong> entre los dos meses y la <strong>variación anualizada</strong> equivalente.</li>
+        </ol>
+        <div class="guia-nota">ℹ️ Se usa el índice Nacional, Nivel General (no discrimina por región ni por rubro), igual que la calculadora oficial de INDEC en su versión "Nacional / Nivel general". Datos: Serie de Tiempo IPC de INDEC / Min. de Economía, actualizados a agosto 2026.</div>
+      </div>
+    </details>
+    <h1 style="font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:5px">Calculadora de Inflación (IPC) 🇦🇷</h1>
+    <p style="font-size:.82rem;color:var(--sub)">Actualizá cualquier monto según la inflación oficial de INDEC entre dos meses. Útil para honorarios, alquileres, deudas, indemnizaciones y cualquier ajuste por IPC.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <span class="icon">🧮</span>
+      <span class="title">Calcular actualización por IPC</span>
+      <span class="sub">Nivel general · Nacional</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="field">
+          <label for="monto">Monto ($)</label>
+          <input type="number" id="monto" value="100000" min="0" step="0.01"/>
+        </div>
+        <div class="field">
+          <label for="mes-desde">Desde (mes de origen)</label>
+          <select id="mes-desde"></select>
+        </div>
+        <div class="field">
+          <label for="mes-hasta">Hasta (mes de destino)</label>
+          <select id="mes-hasta"></select>
+        </div>
+        <div style="grid-column:1/-1;display:flex;justify-content:flex-end">
+          <button type="button" class="swap-btn" onclick="invertir()" title="Invertir período">⇄</button>
+        </div>
+        <button type="button" class="btn-calc" onclick="calcular()">Calcular actualización</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="card-resultado" style="display:none">
+    <div class="result-hero">
+      <div class="lbl">Monto actualizado</div>
+      <div class="monto" id="r-monto">$ 0,00</div>
+      <div class="sub2" id="r-frase"></div>
+    </div>
+    <div class="val-row"><span class="lbl">Variación acumulada del período</span><span class="val" id="r-var-total">—</span></div>
+    <div class="val-row"><span class="lbl">Variación anualizada equivalente</span><span class="val" id="r-var-anual">—</span></div>
+    <div class="val-row"><span class="lbl">Diferencia ($)</span><span class="val" id="r-dif">—</span></div>
+    <div class="val-row"><span class="lbl">Índice IPC — mes de origen / mes de destino</span><span class="val" id="r-indices">—</span></div>
+    <div class="nota-act">Fuente: INDEC — Índice de Precios al Consumidor, Nivel General, Cobertura Nacional (base dic-2016=100). Uso orientativo — para actualizaciones judiciales o contractuales verificar el índice exigido específicamente (puede requerir IPC por región, RIPTE, UVA, CVS u otro).</div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <span class="icon">📊</span>
+      <span class="title">IPC Nacional — variación mensual reciente</span>
+      <span class="sub" id="tabla-sub">últimos 12 meses</span>
+    </div>
+    <table class="mini-table">
+      <thead><tr><th>Mes</th><th style="text-align:right">Var. mensual</th><th style="text-align:right">Var. interanual</th></tr></thead>
+      <tbody id="tabla-body"></tbody>
+    </table>
+  </div>
+
+  <p style="font-size:.68rem;color:var(--sub);text-align:center;margin-top:8px">Fuente: INDEC / Serie de Tiempo — IPC Nacional Nivel General, base diciembre 2016 = 100. Última actualización: agosto 2026.</p>
+</div>
+
+<script>
+// IPC Nacional, Nivel General, base dic-2016=100. Fuente: INDEC (Serie de Tiempo, Min. de Economía).
+var IPC = {'2016-12':100.0,'2017-01':101.5859,'2017-02':103.6859,'2017-03':106.1476,'2017-04':108.9667,'2017-05':110.5301,'2017-06':111.8477,'2017-07':113.7852,'2017-08':115.3819,'2017-09':117.5719,'2017-10':119.3528,'2017-11':120.994,'2017-12':124.7956,'2018-01':126.9887,'2018-02':130.0606,'2018-03':133.1054,'2018-04':136.7512,'2018-05':139.5893,'2018-06':144.8053,'2018-07':149.2966,'2018-08':155.1034,'2018-09':165.2383,'2018-10':174.1473,'2018-11':179.6388,'2018-12':184.2552,'2019-01':189.6101,'2019-02':196.7501,'2019-03':205.9571,'2019-04':212.9596414,'2019-05':219.5691,'2019-06':225.537,'2019-07':230.494,'2019-08':239.6077,'2019-09':253.7102,'2019-10':262.0661,'2019-11':273.2158,'2019-12':283.4442,'2020-01':289.8299,'2020-02':295.666,'2020-03':305.5515,'2020-04':310.1243,'2020-05':314.9087,'2020-06':321.9738,'2020-07':328.2014,'2020-08':337.0632,'2020-09':346.6207,'2020-10':359.657,'2020-11':371.0211,'2020-12':385.8826,'2021-01':401.5071,'2021-02':415.8595,'2021-03':435.8657,'2021-04':453.6503,'2021-05':468.725,'2021-06':483.6049,'2021-07':498.0987,'2021-08':510.3942,'2021-09':528.4968,'2021-10':547.0802,'2021-11':560.9184,'2021-12':582.4575,'2022-01':605.0317,'2022-02':633.4341,'2022-03':676.0566,'2022-04':716.9399,'2022-05':753.147,'2022-06':793.0278,'2022-07':851.761,'2022-08':911.1316,'2022-09':967.3076,'2022-10':1028.706,'2022-11':1079.2787,'2022-12':1134.5875,'2023-01':1202.979,'2023-02':1282.7091,'2023-03':1381.1601,'2023-04':1497.2147,'2023-05':1613.5895,'2023-06':1709.6115,'2023-07':1818.0838,'2023-08':2044.2832,'2023-09':2304.9242,'2023-10':2496.273,'2023-11':2816.0628,'2023-12':3533.1922,'2024-01':4261.5324,'2024-02':4825.7881,'2024-03':5357.0929,'2024-04':5830.2271,'2024-05':6073.7,'2024-06':6351.7145,'2024-07':6607.7479,'2024-08':6883.4412,'2024-09':7122.2421,'2024-10':7313.9542,'2024-11':7491.4314,'2024-12':7694.0075,'2025-01':7864.1257,'2025-02':8052.9927,'2025-03':8353.3158,'2025-04':8585.6078,'2025-05':8714.4871,'2025-06':8855.5681,'2025-07':9023.973,'2025-08':9193.2441,'2025-09':9384.0922,'2025-10':9603.8623,'2025-11':9841.3581,'2025-12':10121.3715,'2026-01':10413.0309,'2026-02':10714.6255,'2026-03':11077.0608,'2026-04':11363.0904,'2026-05':11607.3937,'2026-06':11826.4103,'2026-07':12076.3937,'2026-08':12276.766};
+
+var PERIODOS = Object.keys(IPC); // ya en orden cronológico
+var MESES_NOM = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function etiquetaPeriodo(p){
+  var partes = p.split('-');
+  var m = parseInt(partes[1],10);
+  return MESES_NOM[m] + ' ' + partes[0];
+}
+
+function poblarSelects(){
+  var desde = document.getElementById('mes-desde');
+  var hasta = document.getElementById('mes-hasta');
+  var opts = PERIODOS.map(function(p){ return '<option value="'+p+'">'+etiquetaPeriodo(p)+'</option>'; }).join('');
+  desde.innerHTML = opts;
+  hasta.innerHTML = opts;
+  // default: últimos 12 meses (interanual) hasta el último dato disponible
+  var ultimo = PERIODOS.length - 1;
+  var inicio = Math.max(0, ultimo - 12);
+  desde.value = PERIODOS[inicio];
+  hasta.value = PERIODOS[ultimo];
+}
+
+function mesesEntre(a, b){
+  var pa = a.split('-'), pb = b.split('-');
+  return (parseInt(pb[0],10)-parseInt(pa[0],10))*12 + (parseInt(pb[1],10)-parseInt(pa[1],10));
+}
+
+function fmtMoneda(n){
+  var signo = n<0 ? '-' : '';
+  n = Math.abs(n);
+  return signo + '$ ' + n.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function fmtPct(n){
+  var signo = n>0 ? '+' : '';
+  return signo + n.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '%';
+}
+
+function calcular(){
+  var monto = parseFloat(document.getElementById('monto').value);
+  if(isNaN(monto) || monto < 0){ alert('Ingresá un monto válido.'); return; }
+  var pDesde = document.getElementById('mes-desde').value;
+  var pHasta = document.getElementById('mes-hasta').value;
+  if(pDesde === pHasta){
+    document.getElementById('card-resultado').style.display='';
+    document.getElementById('r-monto').textContent = fmtMoneda(monto);
+    document.getElementById('r-frase').textContent = 'Mismo período seleccionado — no hay variación.';
+    document.getElementById('r-var-total').textContent = '0,00%';
+    document.getElementById('r-var-anual').textContent = '0,00%';
+    document.getElementById('r-dif').textContent = fmtMoneda(0);
+    document.getElementById('r-indices').textContent = IPC[pDesde].toFixed(4) + ' / ' + IPC[pHasta].toFixed(4);
+    return;
+  }
+  var iDesde = IPC[pDesde], iHasta = IPC[pHasta];
+  var ratio = iHasta / iDesde;
+  var actualizado = monto * ratio;
+  var varTotal = (ratio - 1) * 100;
+  var meses = Math.abs(mesesEntre(pDesde, pHasta));
+  var varAnual = meses > 0 ? (Math.pow(ratio, 12/meses) - 1) * 100 : 0;
+  var dif = actualizado - monto;
+  var sentido = mesesEntre(pDesde, pHasta) >= 0 ? 'hacia adelante' : 'hacia atrás (deflactado)';
+
+  document.getElementById('card-resultado').style.display='';
+  document.getElementById('r-monto').textContent = fmtMoneda(actualizado);
+  document.getElementById('r-frase').textContent = fmtMoneda(monto) + ' de ' + etiquetaPeriodo(pDesde) + ' equivalen a esto en ' + etiquetaPeriodo(pHasta) + ' (' + sentido + ').';
+  document.getElementById('r-var-total').textContent = fmtPct(varTotal);
+  document.getElementById('r-var-total').className = 'val ' + (varTotal>=0?'red':'green');
+  document.getElementById('r-var-anual').textContent = fmtPct(varAnual);
+  document.getElementById('r-var-anual').className = 'val ' + (varAnual>=0?'red':'green');
+  document.getElementById('r-dif').textContent = fmtMoneda(dif);
+  document.getElementById('r-dif').className = 'val ' + (dif>=0?'red':'green');
+  document.getElementById('r-indices').textContent = iDesde.toFixed(4) + ' / ' + iHasta.toFixed(4);
+
+  document.getElementById('card-resultado').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function invertir(){
+  var desde = document.getElementById('mes-desde');
+  var hasta = document.getElementById('mes-hasta');
+  var tmp = desde.value;
+  desde.value = hasta.value;
+  hasta.value = tmp;
+  if(document.getElementById('card-resultado').style.display !== 'none'){
+    calcular();
+  }
+}
+
+function renderTabla(){
+  var tbody = document.getElementById('tabla-body');
+  var n = 12;
+  var desde = Math.max(1, PERIODOS.length - n);
+  var filas = [];
+  for(var i = PERIODOS.length - 1; i >= desde; i--){
+    var p = PERIODOS[i], pPrev = PERIODOS[i-1];
+    var mom = (IPC[p]/IPC[pPrev]-1)*100;
+    var ia = '—';
+    var idx12 = i-12;
+    if(idx12 >= 0){
+      ia = fmtPct((IPC[p]/IPC[PERIODOS[idx12]]-1)*100);
+    }
+    var claseMom = mom >= 5 ? 'red' : (mom >= 2.5 ? 'amber' : 'green');
+    filas.push('<tr><td class="mm">'+etiquetaPeriodo(p)+'</td><td class="pct" style="color:var(--'+claseMom+')">'+fmtPct(mom)+'</td><td class="pct">'+ia+'</td></tr>');
+  }
+  tbody.innerHTML = filas.join('');
+}
+
+poblarSelects();
+renderTabla();
+calcular();
+</script>
+
+<a href="https://api.whatsapp.com/send?text=Calculadora%20de%20Inflaci%C3%B3n%20(IPC)%20de%20ImpoBot%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/inflacion.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
+  style="position:fixed;bottom:76px;right:20px;z-index:998;background:#25D366;color:#fff;
+    width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;text-decoration:none;box-shadow:0 2px 12px rgba(37,211,102,.3);transition:all .2s"
+  onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('../sw.js?v=11', { updateViaCache: 'none' }).then(function(reg){ reg.update(); setInterval(function(){ reg.update(); }, 1800000); }).catch(function(){}); var _swReloaded=false; navigator.serviceWorker.addEventListener('controllerchange', function(){ if(_swReloaded)return; _swReloaded=true; location.reload(); });}</script>
+<script src="/report-widget.js"></script>
+</body>
+</html>
