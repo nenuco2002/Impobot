@@ -38,6 +38,10 @@ select.filter-sel{background:#1e3a4e;border:1px solid var(--border);color:var(--
 .tag-iibb{background:rgba(16,185,129,.15);color:var(--green)}
 .tag-mon{background:rgba(239,68,68,.15);color:var(--red)}
 .tag-sdo{background:rgba(255,255,255,.1);color:var(--sub)}
+.tag-agip{background:rgba(52,211,153,.15);color:#34d399}
+.tag-arba{background:rgba(251,146,60,.15);color:#fb923c}
+.tag-cm{background:rgba(192,132,252,.15);color:#c084fc}
+.tag-sicore{background:rgba(244,114,182,.15);color:#f472b6}
 .hoy-badge{background:rgba(0,201,184,.15);border:1px solid rgba(0,201,184,.3);color:var(--cyan);font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:5px}
 .prox-badge{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);color:var(--amber);font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:5px}
 .mes-actual{border-color:rgba(0,201,184,.3)}
@@ -125,6 +129,8 @@ select.filter-sel{background:#1e3a4e;border:1px solid var(--border);color:var(--
     <button class="filter-btn" onclick="setFiltro('MON',this)">Monotributo</button>
     <button class="filter-btn" onclick="setFiltro('AGIP',this)">AGIP (CABA)</button>
     <button class="filter-btn" onclick="setFiltro('ARBA',this)">ARBA (PBA)</button>
+    <button class="filter-btn" onclick="setFiltro('CM',this)">Convenio Multilateral</button>
+    <button class="filter-btn" onclick="setFiltro('SICORE',this)">SICORE</button>
     <select class="filter-sel" id="sel-mes" onchange="renderGrid()">
       <option value="">Todos los meses</option>
       <option value="0">Enero</option>
@@ -148,6 +154,10 @@ select.filter-sel{background:#1e3a4e;border:1px solid var(--border);color:var(--
     <div class="legend-item"><span class="tag tag-iibb">IIBB</span>Ing. Brutos</div>
     <div class="legend-item"><span class="tag tag-mon">MON</span>Monotributo</div>
     <div class="legend-item"><span class="tag tag-sdo">SDO</span>Saldo</div>
+    <div class="legend-item"><span class="tag tag-agip">AGIP</span>IIBB CABA</div>
+    <div class="legend-item"><span class="tag tag-arba">ARBA</span>IIBB PBA</div>
+    <div class="legend-item"><span class="tag tag-cm">CM</span>Convenio Multilateral</div>
+    <div class="legend-item"><span class="tag tag-sicore">SICORE</span>Retenciones SICORE</div>
   </div>
   <div class="grid" id="grid"></div>
 </div>
@@ -464,9 +474,132 @@ const VENC = [
   {m:3,d:22, n:'DDJJ Anual ARBA 2025',det:'DDJJ anual IIBB PBA — CUIT 4 y 5',tags:['ARBA']},
   {m:3,d:23, n:'DDJJ Anual ARBA 2025',det:'DDJJ anual IIBB PBA — CUIT 6 y 7',tags:['ARBA']},
   {m:3,d:24, n:'DDJJ Anual ARBA 2025',det:'DDJJ anual IIBB PBA — CUIT 8 y 9',tags:['ARBA']},
+  // Convenio Multilateral (IIBB) — vencimientos según Comisión Arbitral
+  {m:0,d:15, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 0, 1 y 2',tags:['CM']},
+  {m:0,d:16, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 3, 4 y 5',tags:['CM']},
+  {m:0,d:19, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 6 y 7',tags:['CM']},
+  {m:0,d:20, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 8 y 9',tags:['CM']},
+  {m:1,d:13, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 0, 1 y 2',tags:['CM']},
+  {m:1,d:18, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 3, 4 y 5',tags:['CM']},
+  {m:1,d:19, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 6 y 7',tags:['CM']},
+  {m:1,d:20, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 8 y 9',tags:['CM']},
+  {m:2,d:13, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 0, 1 y 2',tags:['CM']},
+  {m:2,d:16, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 3, 4 y 5',tags:['CM']},
+  {m:2,d:17, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 6 y 7',tags:['CM']},
+  {m:2,d:18, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 8 y 9',tags:['CM']},
+  {m:3,d:15, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 0, 1 y 2',tags:['CM']},
+  {m:3,d:16, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 3, 4 y 5',tags:['CM']},
+  {m:3,d:17, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 6 y 7',tags:['CM']},
+  {m:3,d:20, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 8 y 9',tags:['CM']},
+  {m:4,d:15, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 0, 1 y 2',tags:['CM']},
+  {m:4,d:18, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 3, 4 y 5',tags:['CM']},
+  {m:4,d:19, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 6 y 7',tags:['CM']},
+  {m:4,d:20, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 8 y 9',tags:['CM']},
+  {m:5,d:16, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 0, 1 y 2',tags:['CM']},
+  {m:5,d:17, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 3, 4 y 5',tags:['CM']},
+  {m:5,d:18, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 6 y 7',tags:['CM']},
+  {m:5,d:19, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 8 y 9',tags:['CM']},
+  {m:5,d:30, n:'Convenio Multilateral — DDJJ Anual CM05',det:'Todas las terminaciones de CUIT',tags:['CM']},
+  {m:6,d:15, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 0, 1 y 2',tags:['CM']},
+  {m:6,d:16, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 3, 4 y 5',tags:['CM']},
+  {m:6,d:17, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 6 y 7',tags:['CM']},
+  {m:6,d:20, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 8 y 9',tags:['CM']},
+  {m:7,d:14, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 0, 1 y 2',tags:['CM']},
+  {m:7,d:18, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 3, 4 y 5',tags:['CM']},
+  {m:7,d:19, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 6 y 7',tags:['CM']},
+  {m:7,d:20, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 8 y 9',tags:['CM']},
+  {m:8,d:15, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 0, 1 y 2',tags:['CM']},
+  {m:8,d:16, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 3, 4 y 5',tags:['CM']},
+  {m:8,d:17, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 6 y 7',tags:['CM']},
+  {m:8,d:18, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 8 y 9',tags:['CM']},
+  {m:9,d:15, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 0, 1 y 2',tags:['CM']},
+  {m:9,d:16, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 3, 4 y 5',tags:['CM']},
+  {m:9,d:19, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 6 y 7',tags:['CM']},
+  {m:9,d:20, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 8 y 9',tags:['CM']},
+  {m:10,d:13, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 0, 1 y 2',tags:['CM']},
+  {m:10,d:16, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 3, 4 y 5',tags:['CM']},
+  {m:10,d:17, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 6 y 7',tags:['CM']},
+  {m:10,d:18, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 8 y 9',tags:['CM']},
+  {m:11,d:15, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 0, 1 y 2',tags:['CM']},
+  {m:11,d:16, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 3, 4 y 5',tags:['CM']},
+  {m:11,d:17, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 6 y 7',tags:['CM']},
+  {m:11,d:18, n:'Convenio Multilateral (IIBB)',det:'Anticipo — CUIT terminado en 8 y 9',tags:['CM']},
+  // SICORE — Retenciones (Fuente: AFIP)
+  {m:0,d:9, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:0,d:12, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:0,d:13, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:0,d:21, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:0,d:22, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:0,d:23, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:1,d:9, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:1,d:10, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:1,d:11, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:1,d:20, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:1,d:23, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:1,d:24, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:2,d:9, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:2,d:10, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:2,d:11, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:2,d:23, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:2,d:25, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:2,d:26, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:3,d:9, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:3,d:10, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:3,d:13, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:3,d:21, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:3,d:22, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:3,d:23, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:4,d:11, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:4,d:12, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:4,d:13, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:4,d:21, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:4,d:22, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:4,d:26, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:5,d:9, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:5,d:10, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:5,d:11, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:5,d:22, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:5,d:23, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:5,d:24, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:6,d:13, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:6,d:14, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:6,d:15, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:6,d:21, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:6,d:22, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:6,d:23, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:7,d:10, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:7,d:11, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:7,d:12, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:7,d:21, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:7,d:24, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:7,d:25, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:8,d:9, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:8,d:10, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:8,d:11, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:8,d:21, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:8,d:22, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:8,d:23, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:9,d:9, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:9,d:12, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:9,d:13, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:9,d:21, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:9,d:22, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:9,d:23, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:10,d:9, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:10,d:10, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:10,d:11, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:10,d:23, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:10,d:24, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:10,d:25, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:11,d:9, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:11,d:10, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:11,d:11, n:'SICORE — Retenciones',det:'2ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
+  {m:11,d:21, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 0, 1, 2 y 3',tags:['SICORE']},
+  {m:11,d:22, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 4, 5 y 6',tags:['SICORE']},
+  {m:11,d:23, n:'SICORE — Retenciones',det:'1ª quincena — CUIT terminado en 7, 8 y 9',tags:['SICORE']},
 ];
 
-const TAG_MAP = {IVA:'tag-iva',GAN:'tag-gan',SS:'tag-ss',IIBB:'tag-iibb',MON:'tag-mon',SDO:'tag-sdo',AGIP:'tag-agip',ARBA:'tag-arba',AUT:'tag-aut'};
+const TAG_MAP = {IVA:'tag-iva',GAN:'tag-gan',SS:'tag-ss',IIBB:'tag-iibb',MON:'tag-mon',SDO:'tag-sdo',AGIP:'tag-agip',ARBA:'tag-arba',AUT:'tag-aut',CM:'tag-cm',SICORE:'tag-sicore'};
 let filtroActivo = 'todos';
 
 const hoy = new Date();
