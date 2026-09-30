@@ -14,40 +14,36 @@
 <link rel="canonical" href="https://www.impobot.com.ar/"/>
 <link rel="icon" href="logo.png"/>
 <link rel="manifest" href="manifest.json"/>
-<meta name="theme-color" content="#17130f"/>
+<meta name="theme-color" content="#0b1220"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <link rel="apple-touch-icon" href="logo.png"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fraunces:ital,wght@0,500;0,600;0,700;0,800;0,900;1,500;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"ImpoBot","url":"https://www.impobot.com.ar"}</script>
 <style>
 :root{
-  --navy-1:#17130f;--navy-2:#241d15;
-  --bg:#f7f3e9;--surface:#fffdf8;--surface-2:#f0ead9;
-  --border:#e2d8bf;--ink:#1c1712;--ink-2:#5c5445;--ink-3:#948a72;
-  --blue:#0e6e56;--blue-d:#0a5443;--blue-l:#17a679;
-  --green:#0e6e56;--amber:#b5721c;--red:#b5401f;
-  --radius:10px;
-  --shadow-sm:0 1px 2px rgba(23,19,12,.05);
-  --shadow-md:0 2px 6px rgba(23,19,12,.05),0 8px 20px rgba(23,19,12,.07);
-  --shadow-lg:0 14px 34px rgba(23,19,12,.12);
-  --font-display:'Fraunces',Georgia,serif;
-  --font-mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --navy-1:#0b1220;--navy-2:#141d2e;
+  --bg:#eef1f6;--surface:#fff;--surface-2:#f6f8fb;
+  --border:#e3e7ef;--ink:#101828;--ink-2:#5b6472;--ink-3:#8a93a3;
+  --blue:#0b82f5;--blue-d:#0967c9;--blue-l:#38bdf8;
+  --green:#10b981;--amber:#f59e0b;--red:#ef4444;
+  --radius:16px;
+  --shadow-sm:0 1px 2px rgba(16,24,40,.05);
+  --shadow-md:0 2px 6px rgba(16,24,40,.05),0 8px 20px rgba(16,24,40,.06);
+  --shadow-lg:0 14px 34px rgba(16,24,40,.10);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;min-height:100vh;overflow-x:hidden;background-image:radial-gradient(rgba(28,23,18,.05) .6px,transparent .6px);background-size:14px 14px}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
 a{color:inherit}
 img{max-width:100%}
-h1,h2,h3,.panel-hd h1,.hero-copy h2,.servicios-title,.cname,.ib-brand-name,footer .footer-logo div{font-family:var(--font-display)}
-.pill,.ctag,.news-date,.ib-brand-tag,.ib-strip-right,.footer-col h4,.servicios-tag,.ai-tag,.welcome-badge{font-family:var(--font-mono)}
 
 /* ── HEADER: barra oscura + franja de acento (estructura tipo panel de control) ── */
 .ib-head{position:sticky;top:0;z-index:200}
 .ib-bar{height:60px;display:flex;align-items:center;gap:22px;padding:0 28px;background:linear-gradient(135deg,var(--navy-1),var(--navy-2));border-bottom:1px solid rgba(255,255,255,.06)}
 .ib-brand{display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0}
-.ib-brand img{width:36px;height:36px;border-radius:50%;box-shadow:0 0 0 2px rgba(23,166,121,.25)}
+.ib-brand img{width:36px;height:36px;border-radius:50%;box-shadow:0 0 0 2px rgba(56,189,248,.25)}
 .ib-brand-name{font-size:1.05rem;font-weight:900;letter-spacing:-.03em;line-height:1.1}
 .ib-brand-name .im{color:#fff}
 .ib-brand-name .bo{color:var(--blue-l)}
@@ -58,7 +54,7 @@ h1,h2,h3,.panel-hd h1,.hero-copy h2,.servicios-title,.cname,.ib-brand-name,foote
 .ib-bar-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
 .ib-chip{display:flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;text-decoration:none;padding:6px 12px;border-radius:20px;transition:transform .15s}
 .ib-chip:hover{transform:translateY(-1px)}
-.ib-badge-live{background:rgba(23,166,121,.12);border:1px solid rgba(23,166,121,.28);color:var(--blue-l);font-size:.65rem;font-weight:700;padding:5px 12px;border-radius:20px;display:flex;align-items:center;gap:6px}
+.ib-badge-live{background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.28);color:var(--blue-l);font-size:.65rem;font-weight:700;padding:5px 12px;border-radius:20px;display:flex;align-items:center;gap:6px}
 .ib-badge-live::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--blue-l);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px var(--blue-l)}50%{opacity:.35;box-shadow:none}}
 @media(max-width:860px){.ib-menu{display:none}}
@@ -87,24 +83,24 @@ h1,h2,h3,.panel-hd h1,.hero-copy h2,.servicios-title,.cname,.ib-brand-name,foote
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
 
 .hero-card{padding:30px;display:flex;align-items:center;gap:26px;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--navy-1),var(--navy-2));border-color:var(--navy-1)}
-.hero-glow{position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 20% 30%,rgba(14,110,86,.22),transparent 65%)}
+.hero-glow{position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 20% 30%,rgba(11,130,245,.22),transparent 65%)}
 .hero-logo{flex-shrink:0;position:relative;z-index:1}
-.hero-logo img{width:128px;height:128px;border-radius:50%;border:3px solid rgba(23,166,121,.3);box-shadow:0 0 40px rgba(14,110,86,.35),0 0 80px rgba(14,110,86,.12)}
+.hero-logo img{width:128px;height:128px;border-radius:50%;border:3px solid rgba(56,189,248,.3);box-shadow:0 0 40px rgba(11,130,245,.35),0 0 80px rgba(11,130,245,.12)}
 .hero-copy{position:relative;z-index:1}
-.welcome-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(14,110,86,.08);border:1px solid rgba(14,110,86,.18);color:var(--blue-d);font-size:.7rem;font-weight:700;padding:5px 13px;border-radius:20px;margin-bottom:14px;width:fit-content}
-.welcome-badge--dark{background:rgba(23,166,121,.1);border-color:rgba(23,166,121,.25);color:#e8c77e}
-.hero-copy h2{font-size:1.6rem;font-style:italic;font-weight:700;letter-spacing:-.01em;line-height:1.18;color:#fff;margin-bottom:10px}
-.hero-copy h2 span{font-style:normal;background:linear-gradient(135deg,var(--blue-l),#e8c77e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-copy p{font-size:.85rem;color:#c4b9a0;line-height:1.6;max-width:440px;margin-bottom:18px;font-family:'Inter',sans-serif}
-.welcome-cta{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,var(--blue-d),var(--blue));color:#fff;font-size:.85rem;font-weight:700;padding:11px 22px;border-radius:11px;text-decoration:none;box-shadow:0 6px 18px rgba(14,110,86,.28);transition:all .2s;width:fit-content}
-.welcome-cta:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(14,110,86,.35)}
+.welcome-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(11,130,245,.08);border:1px solid rgba(11,130,245,.18);color:var(--blue-d);font-size:.7rem;font-weight:700;padding:5px 13px;border-radius:20px;margin-bottom:14px;width:fit-content}
+.welcome-badge--dark{background:rgba(56,189,248,.1);border-color:rgba(56,189,248,.25);color:#7dd3fc}
+.hero-copy h2{font-size:1.5rem;font-weight:900;letter-spacing:-.03em;line-height:1.15;color:#fff;margin-bottom:10px}
+.hero-copy h2 span{background:linear-gradient(135deg,var(--blue-l),#7dd3fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-copy p{font-size:.85rem;color:#a9b8cc;line-height:1.6;max-width:440px;margin-bottom:18px}
+.welcome-cta{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,var(--blue-d),var(--blue));color:#fff;font-size:.85rem;font-weight:700;padding:11px 22px;border-radius:11px;text-decoration:none;box-shadow:0 6px 18px rgba(11,130,245,.28);transition:all .2s;width:fit-content}
+.welcome-cta:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(11,130,245,.35)}
 @media(max-width:700px){.hero-card{flex-direction:column;text-align:center;padding:26px 22px}.hero-copy p{max-width:none}.welcome-badge,.welcome-cta{margin-left:auto;margin-right:auto}.hero-logo img{width:96px;height:96px}}
 
 .news-card{padding:20px 22px;display:flex;flex-direction:column}
 .news-hd{font-size:.82rem;font-weight:800;color:var(--ink);margin-bottom:12px}
 .news-item{display:flex;align-items:flex-start;gap:10px;text-decoration:none;padding:8px 0;border-top:1px solid var(--border)}
 .news-item:first-of-type{border-top:none;padding-top:0}
-.news-date{flex-shrink:0;font-size:.62rem;font-weight:700;color:var(--blue-d);background:rgba(14,110,86,.08);border-radius:6px;padding:3px 7px;text-transform:uppercase;letter-spacing:.03em;margin-top:1px}
+.news-date{flex-shrink:0;font-size:.62rem;font-weight:700;color:var(--blue-d);background:rgba(11,130,245,.08);border-radius:6px;padding:3px 7px;text-transform:uppercase;letter-spacing:.03em;margin-top:1px}
 .news-text{font-size:.76rem;color:var(--ink-2);line-height:1.5}
 .news-text strong{color:var(--ink)}
 .news-item:hover .news-text{color:var(--ink)}
@@ -121,12 +117,12 @@ h1,h2,h3,.panel-hd h1,.hero-copy h2,.servicios-title,.cname,.ib-brand-name,foote
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 @media(max-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.grid{grid-template-columns:1fr}}
-.tcard{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--border);border-radius:8px;padding:20px;text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:all .18s;position:relative;box-shadow:var(--shadow-sm)}
-.tcard:hover{border-color:var(--border);border-left-color:var(--green);transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.tcard{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:20px;text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:all .18s;position:relative;box-shadow:var(--shadow-sm)}
+.tcard:hover{border-color:rgba(11,130,245,.35);transform:translateY(-3px);box-shadow:var(--shadow-lg)}
 .tcard.span2{grid-column:span 2}
 @media(max-width:600px){.tcard.span2{grid-column:span 1}}
 .ctag{position:absolute;top:14px;right:14px;font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:3px 8px;border-radius:6px;background:rgba(16,185,129,.09);border:1px solid rgba(16,185,129,.22);color:#0d9668}
-.cicon{width:44px;height:44px;border-radius:12px;background:var(--icon-bg,rgba(14,110,86,.08));display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:13px}
+.cicon{width:44px;height:44px;border-radius:12px;background:var(--icon-bg,rgba(11,130,245,.08));display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:13px}
 .cname{font-size:.9rem;font-weight:800;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em}
 .cdesc{font-size:.76rem;color:var(--ink-2);line-height:1.55;flex:1;margin-bottom:13px}
 .cpills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:13px}
@@ -141,14 +137,14 @@ h1,h2,h3,.panel-hd h1,.hero-copy h2,.servicios-title,.cname,.ib-brand-name,foote
 /* ── SERVICIOS ── */
 .servicios-inner{padding:36px}
 .servicios-hd{text-align:center;margin-bottom:28px}
-.servicios-tag{display:inline-block;background:rgba(14,110,86,.08);border:1px solid rgba(14,110,86,.18);color:var(--blue-d);font-size:.7rem;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:12px;letter-spacing:.04em}
+.servicios-tag{display:inline-block;background:rgba(11,130,245,.08);border:1px solid rgba(11,130,245,.18);color:var(--blue-d);font-size:.7rem;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:12px;letter-spacing:.04em}
 .servicios-title{font-size:1.5rem;font-weight:900;color:var(--ink);margin-bottom:8px;letter-spacing:-.03em}
 .servicios-sub{font-size:.86rem;color:var(--ink-2);max-width:480px;margin:0 auto}
 .servicios-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 @media(max-width:900px){.servicios-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.servicios-grid{grid-template-columns:1fr}}
 .serv-card{background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:19px;transition:all .18s}
-.serv-card:hover{background:#eef4fc;border-color:rgba(14,110,86,.25);transform:translateY(-2px)}
+.serv-card:hover{background:#eef4fc;border-color:rgba(11,130,245,.25);transform:translateY(-2px)}
 .serv-icon{font-size:1.5rem;margin-bottom:9px}
 .serv-name{font-size:.86rem;font-weight:800;color:var(--ink);margin-bottom:5px;line-height:1.3}
 .serv-desc{font-size:.75rem;color:var(--ink-2);line-height:1.55}
@@ -158,7 +154,7 @@ h1,h2,h3,.panel-hd h1,.hero-copy h2,.servicios-title,.cname,.ib-brand-name,foote
 .wa-btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
 
 /* ── NEWSLETTER ── */
-.newsletter-inner{padding:26px;background:linear-gradient(135deg,rgba(14,110,86,.05),rgba(23,166,121,.04));border-color:rgba(14,110,86,.2)}
+.newsletter-inner{padding:26px;background:linear-gradient(135deg,rgba(11,130,245,.05),rgba(56,189,248,.04));border-color:rgba(11,130,245,.2)}
 .nl-form{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .nl-form input{background:#fff;border:1.5px solid var(--border);color:var(--ink);padding:10px 14px;border-radius:9px;font-size:.84rem;font-family:'Inter',sans-serif;outline:none;min-width:240px;flex:1}
 .nl-form input:focus{border-color:var(--blue)}
@@ -166,7 +162,7 @@ h1,h2,h3,.panel-hd h1,.hero-copy h2,.servicios-title,.cname,.ib-brand-name,foote
 .nl-form button:hover{filter:brightness(1.08)}
 
 /* ── SUPPORT ── */
-.support-inner{padding:34px;text-align:center;background:linear-gradient(135deg,rgba(14,110,86,.05),rgba(23,166,121,.04));border-color:rgba(14,110,86,.16)}
+.support-inner{padding:34px;text-align:center;background:linear-gradient(135deg,rgba(11,130,245,.05),rgba(56,189,248,.04));border-color:rgba(11,130,245,.16)}
 .support-inner h3{font-size:1rem;font-weight:800;color:var(--ink);margin-bottom:8px}
 .support-inner p{font-size:.82rem;color:var(--ink-2);max-width:480px;margin:0 auto 20px;line-height:1.6}
 .support-btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
@@ -177,7 +173,7 @@ h1,h2,h3,.panel-hd h1,.hero-copy h2,.servicios-title,.cname,.ib-brand-name,foote
 
 /* ── AI BANNER ── */
 .ai-inner{padding:24px;text-align:center}
-.ai-tag{display:inline-block;background:rgba(14,110,86,.08);border:1px solid rgba(14,110,86,.2);color:var(--blue-d);font-size:.65rem;font-weight:700;padding:3px 11px;border-radius:20px;margin-bottom:9px}
+.ai-tag{display:inline-block;background:rgba(11,130,245,.08);border:1px solid rgba(11,130,245,.2);color:var(--blue-d);font-size:.65rem;font-weight:700;padding:3px 11px;border-radius:20px;margin-bottom:9px}
 .ai-inner h3{font-size:.98rem;font-weight:800;color:var(--ink);margin-bottom:6px}
 .ai-inner p{font-size:.8rem;color:var(--ink-2);max-width:480px;margin:0 auto}
 
@@ -198,11 +194,11 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
 .bmc-float:hover{transform:scale(1.05)}
 
 /* ── ASISTENTE IMPOBOT (chat) ── */
-.chat-fab{position:fixed;bottom:178px;right:20px;z-index:998;width:52px;height:52px;border-radius:50%;padding:0;border:none;cursor:pointer;background:linear-gradient(135deg,var(--blue-d),var(--blue-l));box-shadow:0 6px 20px rgba(14,110,86,.4);display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.chat-fab{position:fixed;bottom:178px;right:20px;z-index:998;width:52px;height:52px;border-radius:50%;padding:0;border:none;cursor:pointer;background:linear-gradient(135deg,var(--blue-d),var(--blue-l));box-shadow:0 6px 20px rgba(11,130,245,.4);display:flex;align-items:center;justify-content:center;transition:transform .2s}
 .chat-fab:hover{transform:scale(1.07)}
 .chat-fab img{width:34px;height:34px;border-radius:50%}
 .chat-fab .dot{position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid #fff}
-.chat-panel{position:fixed;bottom:238px;right:20px;z-index:1001;width:330px;max-width:calc(100vw - 28px);max-height:min(480px,calc(100vh - 260px));display:flex;flex-direction:column;background:#fff;border-radius:16px;box-shadow:0 24px 60px rgba(23,19,12,.35);overflow:hidden;border:1px solid var(--border)}
+.chat-panel{position:fixed;bottom:238px;right:20px;z-index:1001;width:330px;max-width:calc(100vw - 28px);max-height:min(480px,calc(100vh - 260px));display:flex;flex-direction:column;background:#fff;border-radius:16px;box-shadow:0 24px 60px rgba(9,15,28,.35);overflow:hidden;border:1px solid var(--border)}
 .chat-panel[hidden]{display:none}
 .chat-head{background:linear-gradient(135deg,var(--navy-1),var(--navy-2));color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
 .chat-head img{width:30px;height:30px;border-radius:50%}
@@ -253,7 +249,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
   </div>
   <div class="ib-strip">
     <div class="ib-strip-left">ImpoBot <b>· Herramientas fiscales inteligentes</b></div>
-    <div class="ib-strip-right">18 herramientas · sin registro</div>
+    <div class="ib-strip-right">17 herramientas · sin registro</div>
   </div>
 </header>
 
@@ -329,7 +325,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
   <div class="sec-hd"><h2>Herramientas disponibles</h2><div class="divider"></div><span>18 herramientas disponibles</span></div>
   <div class="grid" id="tools-grid">
 
-    <a class="tcard span2" data-name="facturador borradores facturas monotributo responsable inscripto arca iva" href="tools/facturador.html" style="--icon-bg:rgba(23,166,121,.12)">
+    <a class="tcard span2" data-name="facturador borradores facturas monotributo responsable inscripto arca iva" href="tools/facturador.html" style="--icon-bg:rgba(56,189,248,.12)">
       <span class="ctag">🧪 Borrador</span>
       <div class="cicon">🧾</div>
       <div class="cname">Preparador de facturas</div>
@@ -347,7 +343,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Abrir herramienta <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard span2" data-name="ganancias 4ta categoria liquidacion siradig sicore" href="tools/ganancias.html" style="--icon-bg:rgba(23,166,121,.12)">
+    <a class="tcard span2" data-name="ganancias 4ta categoria liquidacion siradig sicore" href="tools/ganancias.html" style="--icon-bg:rgba(56,189,248,.12)">
       <span class="ctag">⭐ Destacada</span>
       <div class="cicon">🧮</div>
       <div class="cname">Ganancias 4ª Categoría 2026</div>
@@ -356,7 +352,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Abrir herramienta <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard span2" data-name="recibos de sueldo lsd decreto 407" href="tools/recibos.html" style="--icon-bg:rgba(14,110,86,.12)">
+    <a class="tcard span2" data-name="recibos de sueldo lsd decreto 407" href="tools/recibos.html" style="--icon-bg:rgba(11,130,245,.12)">
       <span class="ctag">🆕 Nueva</span>
       <div class="cicon">📄</div>
       <div class="cname">Recibos de Sueldo LSD</div>
@@ -365,7 +361,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Abrir herramienta <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard span2" data-name="balance presentacion rt 54 estados contables esp eerr eepn efe notas anexos sumas y saldos bienes de uso costo de ventas gastos agro cordoba" href="tools/balance.html" style="--icon-bg:rgba(23,166,121,.12)">
+    <a class="tcard span2" data-name="balance presentacion rt 54 estados contables esp eerr eepn efe notas anexos sumas y saldos bienes de uso costo de ventas gastos agro cordoba" href="tools/balance.html" style="--icon-bg:rgba(56,189,248,.12)">
       <span class="ctag">🆕 Nueva</span>
       <div class="cicon">📑</div>
       <div class="cname">Balance de Presentación RT 54</div>
@@ -401,7 +397,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Calcular <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard" data-name="aportes autonomos categorias jubilacion pami" href="tools/autonomos.html" style="--icon-bg:rgba(14,110,86,.1)">
+    <a class="tcard" data-name="aportes autonomos categorias jubilacion pami" href="tools/autonomos.html" style="--icon-bg:rgba(11,130,245,.1)">
       <span class="ctag">✓ Actualizada</span>
       <div class="cicon">💼</div>
       <div class="cname">Aportes Autónomos</div>
@@ -419,7 +415,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Ver calendario <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard" data-name="conversor uva monedas dolar bcra" href="tools/uva.html" style="--icon-bg:rgba(23,166,121,.1)">
+    <a class="tcard" data-name="conversor uva monedas dolar bcra" href="tools/uva.html" style="--icon-bg:rgba(56,189,248,.1)">
       <span class="ctag">✓ Actualizada</span>
       <div class="cicon">💱</div>
       <div class="cname">Conversor UVA y Monedas</div>
@@ -446,7 +442,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Calcular <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard span2" data-name="valores fiscales clave tope sipa smvym gni" href="tools/valores.html" style="--icon-bg:rgba(23,166,121,.1)">
+    <a class="tcard span2" data-name="valores fiscales clave tope sipa smvym gni" href="tools/valores.html" style="--icon-bg:rgba(56,189,248,.1)">
       <span class="ctag">🆕 Nueva</span>
       <div class="cicon">📊</div>
       <div class="cname">Valores Fiscales Clave 2026</div>
@@ -482,7 +478,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Abrir simulador <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard" data-name="convenio multilateral cm05 distribucion jurisdicciones" href="tools/cm.html" style="--icon-bg:rgba(23,166,121,.1)">
+    <a class="tcard" data-name="convenio multilateral cm05 distribucion jurisdicciones" href="tools/cm.html" style="--icon-bg:rgba(56,189,248,.1)">
       <div class="cicon">🗺️</div>
       <div class="cname">Convenio Multilateral</div>
       <div class="cdesc">Distribuí ingresos y gastos por jurisdicción y obtené una simulación de coeficientes para CM05.</div>
