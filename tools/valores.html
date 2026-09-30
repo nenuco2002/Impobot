@@ -109,6 +109,21 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-
   <div class="search-bar">
     <span style="font-size:1rem">🔍</span>
     <input id="buscar" placeholder="Buscar valor... (ej: tope SIPA, SMVyM, GNI...)" oninput="filtrar()"/>
+    <select id="mes-filtro" onchange="filtrarMes()" style="background:var(--ink);border:1px solid var(--border);color:var(--text);font-size:.78rem;font-weight:600;padding:7px 10px;border-radius:8px;font-family:'Inter',sans-serif;cursor:pointer;flex-shrink:0">
+      <option value="todos">Todos los meses</option>
+      <option value="1">Enero</option>
+      <option value="2">Febrero</option>
+      <option value="3">Marzo</option>
+      <option value="4">Abril</option>
+      <option value="5">Mayo</option>
+      <option value="6">Junio</option>
+      <option value="7">Julio</option>
+      <option value="8">Agosto</option>
+      <option value="9">Septiembre</option>
+      <option value="10">Octubre</option>
+      <option value="11">Noviembre</option>
+      <option value="12">Diciembre</option>
+    </select>
   </div>
 
   <div class="filter-btns">
@@ -284,6 +299,25 @@ var DATA = [
 
 var filtroActual = 'todos';
 var busquedaActual = '';
+var mesActual = 'todos';
+
+var MESES_TXT = {enero:1,febrero:2,marzo:3,abril:4,mayo:5,junio:6,julio:7,agosto:8,septiembre:9,setiembre:9,octubre:10,noviembre:11,diciembre:12};
+function mesesDeTexto(texto){
+  texto = (texto||'').toLowerCase();
+  var meses = [];
+  Object.keys(MESES_TXT).forEach(function(nombre){
+    if(texto.indexOf(nombre) !== -1) meses.push(MESES_TXT[nombre]);
+  });
+  var m = texto.match(/\b\d{1,2}\/(\d{1,2})\/\d{4}\b/);
+  if(m) meses.push(parseInt(m[1],10));
+  return meses;
+}
+function itemMatchesMes(i){
+  if(mesActual==='todos') return true;
+  var meses = mesesDeTexto((i.lbl||'') + ' ' + (i.nota||''));
+  if(!meses.length) return true; // sin mes mencionado = valor vigente todo el año (tasas fijas, etc.)
+  return meses.indexOf(parseInt(mesActual,10)) !== -1;
+}
 
 function render(){
   var grid = document.getElementById('grid');
@@ -291,10 +325,11 @@ function render(){
   var visible = DATA.filter(function(d){
     var matchCat = filtroActual==='todos' || d.cat===filtroActual;
     if(!matchCat) return false;
+    if(!d.items.some(itemMatchesMes)) return false;
     if(!busquedaActual) return true;
     var q = busquedaActual.toLowerCase();
     if(d.titulo.toLowerCase().indexOf(q)>=0) return true;
-    if(d.items.some(function(i){ return i.lbl.toLowerCase().indexOf(q)>=0 || i.val.toLowerCase().indexOf(q)>=0; })) return true;
+    if(d.items.some(function(i){ return itemMatchesMes(i) && (i.lbl.toLowerCase().indexOf(q)>=0 || i.val.toLowerCase().indexOf(q)>=0); })) return true;
     return false;
   });
 
@@ -305,6 +340,7 @@ function render(){
 
   grid.innerHTML = visible.map(function(d){
     var rows = d.items.filter(function(i){
+      if(!itemMatchesMes(i)) return false;
       if(!busquedaActual) return true;
       var q = busquedaActual.toLowerCase();
       return i.lbl.toLowerCase().indexOf(q)>=0 || i.val.toLowerCase().indexOf(q)>=0;
@@ -337,6 +373,11 @@ function filtrar(){
   render();
 }
 
+function filtrarMes(){
+  mesActual = document.getElementById('mes-filtro').value;
+  render();
+}
+
 render();
 </script>
 
@@ -350,6 +391,5 @@ render();
 
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('../sw.js?v=11', { updateViaCache: 'none' }).then(function(reg){ reg.update(); setInterval(function(){ reg.update(); }, 1800000); }).catch(function(){}); var _swReloaded=false; navigator.serviceWorker.addEventListener('controllerchange', function(){ if(_swReloaded)return; _swReloaded=true; location.reload(); });}</script>
 <script src="/report-widget.js"></script>
-<script src="/bot.js?v=8"></script>
 </body>
 </html>

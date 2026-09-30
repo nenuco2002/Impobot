@@ -165,6 +165,19 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-
 <!-- ══ ALTA DE EMPLEADO ══ -->
 <div class="card">
   <div class="card-title">➕ Agregar empleado a la nómina</div>
+
+  <div style="background:rgba(11,130,245,.06);border:1px dashed var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div style="flex:1;min-width:220px">
+      <div style="font-size:.8rem;font-weight:700;color:var(--text)">📥 Importar nómina desde LSD (ARCA)</div>
+      <div style="font-size:.7rem;color:var(--sub);margin-top:2px">Subí el .txt del Libro Sueldos Digital y cargamos CUIL y remuneración bruta de cada empleado automáticamente.</div>
+    </div>
+    <label class="btn btn-blue" style="margin:0;cursor:pointer">
+      📎 Elegir archivo LSD
+      <input type="file" accept=".txt" onchange="cargarLSD(this)" style="display:none"/>
+    </label>
+  </div>
+  <div id="msg-lsd"></div>
+
   <div class="grid4">
     <div class="field"><label>CUIL</label><input id="n-cuil" placeholder="20-12345678-9"/></div>
     <div class="field"><label>Apellido y Nombre</label><input id="n-nombre" placeholder="GARCIA, JUAN"/></div>
@@ -455,6 +468,7 @@ function renderNomina(){
   var rows='';
   var totBruto=0,totBase=0,totAJub=0,totAPami=0,totAOS=0,totASind=0,totAp=0;
   var totCPrev=0,totCPami=0,totCOS=0,totCFSR=0,totCFNE=0,totCAsig=0,totCSCVO=0,totCART=0,totCUOCRA=0,totCese=0,totC=0;
+  var totBaseArt=0;
 
   nomina.forEach(function(emp,i){
     var cl = calcEmp(emp);
@@ -465,6 +479,7 @@ function renderNomina(){
     totCFSR+=(cl.cFSR||0); totCFNE+=cl.cFNE; totCAsig+=(cl.cAsig||0);
     totCSCVO+=(cl.cSCVO||0); totCART+=cl.cART;
     totCUOCRA+=(cl.cUOCRA||0); totCese+=(cl.fondoCese||0); totC+=cl.totalC;
+    totBaseArt += cl.bruto + (emp.noRem||0);
 
     rows+='<tr>';
     rows+='<td style="color:var(--sub)">'+(i+1)+'</td>';
@@ -505,7 +520,7 @@ function renderNomina(){
 
   // IERIC (modo UOCRA): 1% del total del Fondo de Cese de todos los empleados
   var ieric = esUOCRA ? totCese*0.01 : 0;
-  var totCConIERIC = totC + ieric;
+  var totCFinal = esUOCRA ? (totC+ieric) : totC;
 
   // ── TFOOT ──
   var tf='<tr class="tot-row">';
@@ -523,17 +538,19 @@ function renderNomina(){
     tf+='<td>'+fmt(totCFSR)+'</td><td>'+fmt(totCFNE)+'</td><td>'+fmt(totCAsig)+'</td>';
     tf+='<td>'+fmt(totCSCVO)+'</td><td>'+fmt(totCART)+'</td>';
   }
-  tf+='<td style="color:var(--red)">'+fmt(esUOCRA?totCConIERIC:totC)+'</td>';
+  tf+='<td style="color:var(--red)">'+fmt(totCFinal)+'</td>';
   tf+='<td></td></tr>';
   document.getElementById('tfoot-nom').innerHTML=tf;
 
   // ── RESUMEN ──
   document.getElementById('tot-cant').textContent=nomina.length;
-  document.getElementById('tot-masa').textContent=fmt(totBruto);
-  document.getElementById('tot-aportes').textContent=fmt(totAp);
-  document.getElementById('tot-contrib').textContent=fmt(esUOCRA?totCConIERIC:totC);
-  document.getElementById('tot-total').textContent=fmt(totAp+(esUOCRA?totCConIERIC:totC));
-  document.getElementById('lbl-periodo').textContent=document.getElementById('sel-periodo').options[document.getElementById('sel-periodo').selectedIndex].text;
+  document.getElementById('tot-masa').textContent='$ '+fmt(totBruto);
+  document.getElementById('tot-aportes').textContent='$ '+fmt(totAp);
+  document.getElementById('tot-contrib').textContent='$ '+fmt(totCFinal);
+  document.getElementById('pagar-aportes').textContent='$ '+fmt(totAp);
+  document.getElementById('pagar-contrib').textContent='$ '+fmt(totCFinal);
+  document.getElementById('pagar-total').textContent='$ '+fmt(totAp+totCFinal);
+  document.getElementById('lbl-periodo').textContent=formatPeriodo(document.getElementById('e-periodo').value);
 
   // Mostrar/ocultar fila IERIC en resumen
   var rowIeric = document.getElementById('row-ieric');
@@ -544,92 +561,32 @@ function renderNomina(){
       document.getElementById('val-ieric').textContent=fmt(ieric);
     }
   }
-}
 
-function eliminarEmp(id){
-  nomina = nomina.filter(function(e){return e.id!==id;});
-  renderNomina();
-}
-
-function renderNomina(){
-  if(!nomina.length){
-    document.getElementById('card-nomina').style.display='none';
-    document.getElementById('card-resumen').style.display='none';
-    return;
+  // ── Desglose contribuciones patronales ──
+  var desgl;
+  if(esUOCRA){
+    desgl=[
+      ['Previsional SIPA (patronal)','—',fmt(totBase),'16%',fmt(totCPrev)],
+      ['INSSJP / PAMI patronal','—',fmt(totBase),'2%',fmt(totCPami)],
+      ['Obra Social y Capacitación (OSyC)','—',fmt(totBruto),'6%',fmt(totCOS)],
+      ['Fondo Nacional de Empleo','—',fmt(totBase),'1,5%',fmt(totCFNE)],
+      ['Contribución sindical UOCRA','—',fmt(totBruto),'2%',fmt(totCUOCRA)],
+      ['ART — Fijo y variable','—',fmt(totBaseArt),fmt(getArtPct())+'% + $ '+fmt(getArtFijo())+' × '+nomina.length,fmt(totCART)],
+      ['Fondo de Cese Laboral (Ley 22.250)','—',fmt(totBruto),'12%/8% s/antigüedad',fmt(totCese)],
+      ['IERIC (1% s/Fondo de Cese)','—',fmt(totCese),'1%',fmt(ieric)],
+    ];
+  } else {
+    desgl=[
+      ['Previsional SIPA','890000',fmt(totBase),'10,77%',fmt(totCPrev)],
+      ['PAMI (Ley 19.032)','890001',fmt(totBase),'1,59%',fmt(totCPami)],
+      ['Obra Social empleador','890004',fmt(totBruto),'5,10%',fmt(totCOS)],
+      ['FSR ex ANSSAL','890005',fmt(totBruto),'0,90%',fmt(totCFSR)],
+      ['Fondo Nacional de Empleo','890006',fmt(totBase),'0,94%',fmt(totCFNE)],
+      ['Asignaciones Familiares','890010',fmt(totBase),'4,70%',fmt(totCAsig)],
+      ['SCVO — Seg. Vida Obligatorio','890007','—','$ '+fmt(getScvo())+' × '+nomina.length,fmt(totCSCVO)],
+      ['ART — Fijo y variable','890017',fmt(totBaseArt),fmt(getArtPct())+'% + $ '+fmt(getArtFijo())+' × '+nomina.length,fmt(totCART)],
+    ];
   }
-  document.getElementById('card-nomina').style.display='block';
-  document.getElementById('card-resumen').style.display='block';
-  document.getElementById('badge-cant').textContent=nomina.length+' empleado'+(nomina.length>1?'s':'');
-
-  var rows='', totBruto=0,totBase=0,totAJub=0,totAPami=0,totAOS=0,totAp=0;
-  var totCPrev=0,totCPami=0,totCOS=0,totCFSR=0,totCFNE=0,totCAsig=0,totCSCVO=0,totCART=0,totC=0;
-
-  nomina.forEach(function(emp,i){
-    var c = calcEmp(emp);
-    totBruto+=c.bruto; totBase+=c.base; totAJub+=c.aJub; totAPami+=c.aPami; totAOS+=c.aOS; totAp+=c.totalAp;
-    totCPrev+=c.cPrev; totCPami+=c.cPami; totCOS+=c.cOS; totCFSR+=c.cFSR; totCFNE+=c.cFNE;
-    totCAsig+=c.cAsig; totCSCVO+=c.cSCVO; totCART+=c.cART; totC+=c.totalC;
-
-    rows+='<tr>';
-    rows+='<td style="color:var(--sub)">'+(i+1)+'</td>';
-    rows+='<td>'+emp.cuil+'</td>';
-    rows+='<td style="font-weight:600">'+emp.nombre+'</td>';
-    rows+='<td style="text-align:center">'+emp.sit+'</td>';
-    rows+='<td>'+fmt(c.bruto)+'</td>';
-    rows+='<td>'+(c.bruto>getTope()?'<span style="color:var(--amber)">'+fmt(c.base)+'⚠</span>':fmt(c.base))+'</td>';
-    rows+='<td style="color:var(--amber)">'+fmt(c.aJub)+'</td>';
-    rows+='<td style="color:var(--amber)">'+fmt(c.aPami)+'</td>';
-    rows+='<td style="color:var(--amber)">'+fmt(c.aOS)+'</td>';
-    rows+='<td style="color:var(--amber);font-weight:700">'+fmt(c.totalAp)+'</td>';
-    rows+='<td style="color:var(--red)">'+fmt(c.cPrev)+'</td>';
-    rows+='<td style="color:var(--red)">'+fmt(c.cPami)+'</td>';
-    rows+='<td style="color:var(--red)">'+fmt(c.cOS)+'</td>';
-    rows+='<td style="color:var(--red)">'+fmt(c.cFSR)+'</td>';
-    rows+='<td style="color:var(--red)">'+fmt(c.cFNE)+'</td>';
-    rows+='<td style="color:var(--red)">'+fmt(c.cAsig)+'</td>';
-    rows+='<td style="color:var(--red)">'+fmt(c.cSCVO)+'</td>';
-    rows+='<td style="color:var(--red)">'+fmt(c.cART)+'</td>';
-    rows+='<td style="color:var(--red);font-weight:700">'+fmt(c.totalC)+'</td>';
-    rows+='<td><button class="btn btn-red" onclick="eliminarEmp('+emp.id+')">✕</button></td>';
-    rows+='</tr>';
-  });
-
-  document.getElementById('tbody-nom').innerHTML=rows;
-
-  // Totales en tfoot
-  var tf='<tr class="tot-row">';
-  tf+='<td colspan="4" style="text-align:left;font-weight:700">TOTALES ('+nomina.length+' empleado'+(nomina.length>1?'s':'')+')</td>';
-  tf+='<td>'+fmt(totBruto)+'</td><td>'+fmt(totBase)+'</td>';
-  tf+='<td>'+fmt(totAJub)+'</td><td>'+fmt(totAPami)+'</td><td>'+fmt(totAOS)+'</td>';
-  tf+='<td style="color:var(--amber)">'+fmt(totAp)+'</td>';
-  tf+='<td>'+fmt(totCPrev)+'</td><td>'+fmt(totCPami)+'</td><td>'+fmt(totCOS)+'</td>';
-  tf+='<td>'+fmt(totCFSR)+'</td><td>'+fmt(totCFNE)+'</td><td>'+fmt(totCAsig)+'</td>';
-  tf+='<td>'+fmt(totCSCVO)+'</td><td>'+fmt(totCART)+'</td>';
-  tf+='<td style="color:var(--red)">'+fmt(totC)+'</td><td></td>';
-  tf+='</tr>';
-  document.getElementById('tfoot-nom').innerHTML=tf;
-
-  // Resumen
-  document.getElementById('tot-cant').textContent=nomina.length;
-  document.getElementById('tot-masa').textContent='$ '+fmt(totBruto);
-  document.getElementById('tot-aportes').textContent='$ '+fmt(totAp);
-  document.getElementById('tot-contrib').textContent='$ '+fmt(totC);
-  document.getElementById('pagar-aportes').textContent='$ '+fmt(totAp);
-  document.getElementById('pagar-contrib').textContent='$ '+fmt(totC);
-  document.getElementById('pagar-total').textContent='$ '+fmt(totAp+totC);
-  document.getElementById('lbl-periodo').textContent=formatPeriodo(document.getElementById('e-periodo').value);
-
-  // Desglose contribuciones
-  var desgl=[
-    ['Previsional SIPA','890000',fmt(totBase),'10,77%',fmt(totCPrev)],
-    ['PAMI (Ley 19.032)','890001',fmt(totBase),'1,59%',fmt(totCPami)],
-    ['Obra Social empleador','890004',fmt(totBruto),'5,10%',fmt(totCOS)],
-    ['FSR ex ANSSAL','890005',fmt(totBruto),'0,90%',fmt(totCFSR)],
-    ['Fondo Nacional de Empleo','890006',fmt(totBase),'0,94%',fmt(totCFNE)],
-    ['Asignaciones Familiares','890010',fmt(totBase),'4,70%',fmt(totCAsig)],
-    ['SCVO — Seg. Vida Obligatorio','890007','—','$ '+fmt(getScvo())+' × '+nomina.length,fmt(totCSCVO)],
-    ['ART — Fijo y variable','890017',fmt(nomina.reduce(function(s,e){return s+e.bruto+(e.noRem||0);},0)),fmt(getArtPct())+'% + $ '+fmt(getArtFijo())+' × '+nomina.length,fmt(totCART)],
-  ];
   var dRows=desgl.map(function(r){
     return '<tr><td style="text-align:left;padding:5px 8px;border-bottom:1px solid rgba(26,47,69,.35)">'+r[0]+'</td>'
       +'<td style="text-align:center;padding:5px 8px;border-bottom:1px solid rgba(26,47,69,.35);color:var(--sub)">'+r[1]+'</td>'
@@ -637,9 +594,113 @@ function renderNomina(){
       +'<td style="padding:5px 8px;border-bottom:1px solid rgba(26,47,69,.35);text-align:center">'+r[3]+'</td>'
       +'<td style="padding:5px 8px;border-bottom:1px solid rgba(26,47,69,.35);color:var(--red);font-weight:600">$ '+r[4]+'</td></tr>';
   }).join('');
-  dRows+='<tr style="background:rgba(239,68,68,.05);border-top:2px solid var(--border)"><td colspan="4" style="padding:5px 8px;font-weight:800;color:#fff">TOTAL CONTRIBUCIONES</td>'
-    +'<td style="padding:5px 8px;font-weight:900;color:var(--red)">$ '+fmt(totC)+'</td></tr>';
+  dRows+='<tr style="background:rgba(239,68,68,.05);border-top:2px solid var(--border)"><td colspan="4" style="padding:5px 8px;font-weight:800;color:#fff">TOTAL CONTRIBUCIONES'+(esUOCRA?' (incl. IERIC)':'')+'</td>'
+    +'<td style="padding:5px 8px;font-weight:900;color:var(--red)">$ '+fmt(totCFinal)+'</td></tr>';
   document.getElementById('tbody-desglose').innerHTML=dRows;
+}
+
+// ── Importar nómina desde LSD (ARCA) ──────────────────────────
+var MESES_LSD = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+function cargarLSD(input){
+  var file = input.files && input.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      procesarLSD(e.target.result);
+    }catch(err){
+      document.getElementById('msg-lsd').innerHTML='<div style="color:var(--red);font-size:.75rem;margin-top:6px">⚠ No se pudo leer el archivo. Verificá que sea un LSD de ARCA sin modificar.</div>';
+    }
+    input.value='';
+  };
+  reader.readAsText(file, 'ISO-8859-1');
+}
+
+function procesarLSD(txt){
+  txt = txt.replace(/\r/g,'');
+  var lineas = txt.split('\n');
+  var emps = {}, orden = [];
+  var periodoDetectado = '', cuitDetectado = '';
+
+  for(var i=0; i<lineas.length; i++){
+    var l = lineas[i];
+    if(!l.trim()) continue;
+    var tipo = l.substring(0,2);
+
+    if(tipo === '01'){
+      var cuit = l.substring(2,13);
+      var per  = l.substring(15,21); // AAAAMM
+      cuitDetectado = cuit.substring(0,2)+'-'+cuit.substring(2,10)+'-'+cuit.substring(10);
+      periodoDetectado = per.substring(4,6)+per.substring(0,4); // MMAAAA, como espera e-periodo
+    }
+
+    else if(tipo === '02'){
+      var cuil = l.substring(2,13);
+      var leg = '';
+      for(var j=13; j<Math.min(l.length,30); j++){
+        var ch = l[j];
+        if(ch>='0'&&ch<='9') leg+=ch;
+        else if(leg) break;
+      }
+      if(!emps[cuil]){
+        emps[cuil] = {cuil:cuil, legajo:leg, bruto:0};
+        orden.push(cuil);
+      }
+    }
+
+    else if(tipo === '03' && l.length >= 45){
+      var cuil3 = l.substring(2,13);
+      var monto = parseInt(l.substring(29,44),10)/100;
+      var cd = l.charAt(44);
+      if(isNaN(monto)) continue;
+      if(!emps[cuil3]){
+        emps[cuil3] = {cuil:cuil3, legajo:'', bruto:0};
+        orden.push(cuil3);
+      }
+      // Sumamos los conceptos "haber" (créditos) como remuneración bruta total.
+      // El LSD no distingue por sí solo remunerativo/no remunerativo sin la
+      // planilla de mapeo de conceptos de cada empleador, así que se importa
+      // el total y se avisa para que se revise antes de presentar.
+      if(cd === 'C') emps[cuil3].bruto += monto;
+    }
+  }
+
+  var importados = orden.map(function(cuil){ return emps[cuil]; }).filter(function(e){ return e.bruto>0; });
+
+  if(!importados.length){
+    document.getElementById('msg-lsd').innerHTML='<div style="color:var(--red);font-size:.75rem;margin-top:6px">⚠ No se detectaron empleados con haberes en el archivo. Verificá el formato del LSD.</div>';
+    return;
+  }
+
+  if(cuitDetectado && !document.getElementById('e-cuit').value) document.getElementById('e-cuit').value = cuitDetectado;
+  if(periodoDetectado && !document.getElementById('e-periodo').value){
+    document.getElementById('e-periodo').value = periodoDetectado;
+    actualizarHeader();
+  }
+
+  var agregados = 0, repetidos = 0;
+  var cuilsExistentes = {};
+  nomina.forEach(function(e){ cuilsExistentes[e.cuil.replace(/\D/g,'')] = true; });
+
+  var regimen = document.querySelector('input[name="regimen"]:checked').value;
+  importados.forEach(function(emp){
+    var cuilLimpio = emp.cuil.replace(/\D/g,'');
+    if(cuilsExistentes[cuilLimpio]){ repetidos++; return; }
+    var cuilFmt = cuilLimpio.length===11 ? cuilLimpio.substring(0,2)+'-'+cuilLimpio.substring(2,10)+'-'+cuilLimpio.substring(10) : emp.cuil;
+    nomina.push({
+      id:nextId++, cuil:cuilFmt, nombre:'Legajo '+(emp.legajo||cuilLimpio),
+      sit:'01', categ:'', bruto:Math.round(emp.bruto*100)/100, noRem:0,
+      regimen:regimen, antiguedad:0, sindical:true
+    });
+    agregados++;
+  });
+
+  renderNomina();
+  var msg = '✓ '+agregados+' empleado'+(agregados!==1?'s':'')+' cargado'+(agregados!==1?'s':'')+' desde el LSD.';
+  if(repetidos) msg += ' ('+repetidos+' ya estaban en la nómina y se omitieron.)';
+  msg += ' El LSD no trae nombre ni categoría: completalos si los necesitás para el PDF, y revisá el bruto importado — se tomó el total de conceptos "haber" sin separar remunerativo de no remunerativo.';
+  document.getElementById('msg-lsd').innerHTML='<div style="color:var(--green);font-size:.75rem;margin-top:6px">'+msg+'</div>';
 }
 
 function recalcularTodo(){ renderNomina(); }
@@ -664,20 +725,25 @@ function generarPDF(){
   var cuit   = document.getElementById('e-cuit').value||'—';
   var per    = document.getElementById('e-periodo').value||'—';
   var perNom = formatPeriodo(per);
+  var esUOCRA = getRegimen()==='uocra';
   var fechaHoy=new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
   function fP(n){n=Math.abs(n||0);var s=n.toFixed(2).split('.');s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.');return '$ '+s[0]+','+s[1];}
   function fN(n){n=Math.abs(n||0);var s=n.toFixed(2).split('.');s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.');return s[0]+','+s[1];}
 
-  var totals = {bruto:0,base:0,aJub:0,aPami:0,aOS:0,totAp:0,cPrev:0,cPami:0,cOS:0,cFSR:0,cFNE:0,cAsig:0,cSCVO:0,cART:0,totC:0};
+  var totals = {bruto:0,base:0,aJub:0,aPami:0,aOS:0,aSind:0,totAp:0,cPrev:0,cPami:0,cOS:0,cFSR:0,cFNE:0,cAsig:0,cSCVO:0,cART:0,cUOCRA:0,fondoCese:0,totC:0};
   var calculos = nomina.map(function(e){var c=calcEmp(e); Object.keys(totals).forEach(function(k){if(c[k]!==undefined)totals[k]+=c[k];}); return {emp:e,c:c}; });
-  totals.totAp=totals.aJub+totals.aPami+totals.aOS;
-  totals.totC=totals.cPrev+totals.cPami+totals.cOS+totals.cFSR+totals.cFNE+totals.cAsig+totals.cSCVO+totals.cART;
+  totals.totAp = esUOCRA ? (totals.aJub+totals.aPami+totals.aOS+totals.aSind) : (totals.aJub+totals.aPami+totals.aOS);
+  var ieric = esUOCRA ? totals.fondoCese*0.01 : 0;
+  totals.totC = esUOCRA
+    ? (totals.cPrev+totals.cPami+totals.cOS+totals.cFNE+totals.cUOCRA+totals.cART+totals.fondoCese+ieric)
+    : (totals.cPrev+totals.cPami+totals.cOS+totals.cFSR+totals.cFNE+totals.cAsig+totals.cSCVO+totals.cART);
+  var totalBaseArt = nomina.reduce(function(s,e){return s+e.bruto+(e.noRem||0);},0);
 
   var html='';
   // Encabezado
   html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000"><tr>';
   html+='<td style="padding:6px;border-right:1px solid #000;width:55%"><b style="font-size:10pt">'+razon+'</b><br/><span style="font-size:7pt">CUIT: '+cuit+'</span></td>';
-  html+='<td style="padding:6px;font-size:7.5pt"><b>FORMULARIO 931 — CARGAS SOCIALES</b><br/>Período: <b>'+perNom+'</b><br/>Emisión: '+fechaHoy+'<br/>Generado con ImpoBot — impobot.com.ar</td></tr></table>';
+  html+='<td style="padding:6px;font-size:7.5pt"><b>FORMULARIO 931 — CARGAS SOCIALES'+(esUOCRA?' (UOCRA / Ley 22.250)':'')+'</b><br/>Período: <b>'+perNom+'</b><br/>Emisión: '+fechaHoy+'<br/>Generado con ImpoBot — impobot.com.ar</td></tr></table>';
 
   // Resumen general
   html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:7.5pt">';
@@ -685,7 +751,7 @@ function generarPDF(){
   html+='<tr><td style="padding:3px 6px;border-right:1px solid #ccc">Cantidad de empleados</td><td style="padding:3px 6px;font-weight:bold">'+nomina.length+'</td>';
   html+='<td style="padding:3px 6px;border-right:1px solid #ccc;border-left:1px solid #ccc">Masa salarial bruta</td><td style="padding:3px 6px;font-weight:bold">'+fP(totals.bruto)+'</td></tr>';
   html+='<tr><td style="padding:3px 6px;border-right:1px solid #ccc;border-top:1px solid #ccc">Total aportes (empleados)</td><td style="padding:3px 6px;border-top:1px solid #ccc;font-weight:bold">'+fP(totals.totAp)+'</td>';
-  html+='<td style="padding:3px 6px;border-right:1px solid #ccc;border-top:1px solid #ccc;border-left:1px solid #ccc">Total contribuciones (empleador)</td><td style="padding:3px 6px;border-top:1px solid #ccc;font-weight:bold">'+fP(totals.totC)+'</td></tr>';
+  html+='<td style="padding:3px 6px;border-right:1px solid #ccc;border-top:1px solid #ccc;border-left:1px solid #ccc">Total contribuciones (empleador)'+(esUOCRA?' + IERIC':'')+'</td><td style="padding:3px 6px;border-top:1px solid #ccc;font-weight:bold">'+fP(totals.totC)+'</td></tr>';
   html+='<tr style="background:#f0f0f0"><td colspan="3" style="padding:4px 6px;border-top:1px solid #000;font-weight:bold">TOTAL A DEPOSITAR</td>';
   html+='<td style="padding:4px 6px;border-top:1px solid #000;font-weight:bold;font-size:9pt">'+fP(totals.totAp+totals.totC)+'</td></tr>';
   html+='</table>';
@@ -694,18 +760,27 @@ function generarPDF(){
   html+='<div style="margin-top:10px"><b style="font-size:8pt">NÓMINA DETALLADA</b></div>';
   html+='<table style="width:100%;border-collapse:collapse;border:1px solid #ccc;font-size:6.5pt;margin-top:4px">';
   html+='<thead><tr style="background:#d0d0d0">';
-  ['#','CUIL','Apellido y Nombre','Sit.','Bruto imponible','Base topada',
-   'Jub.11%','PAMI 3%','OS 3%','Tot.Ap.',
-   'Prev.10.77%','PAMI 1.59%','OS 5.10%','FSR 0.90%','FNE 0.94%','AF 4.70%','SCVO','ART','Tot.Contrib.']
-  .forEach(function(h){html+='<th style="padding:2px 3px;border:1px solid #aaa;text-align:right;white-space:nowrap">'+h+'</th>';});
+  var headCols = esUOCRA
+    ? ['#','CUIL','Apellido y Nombre','Sit.','Bruto imponible','Base topada',
+       'Jub.11%','PAMI 3%','OS 3%','Sind.2%','Tot.Ap.',
+       'SIPA 16%','PAMI 2%','OS 6%','FNE 1,5%','UOCRA 2%','ART','F.Cese','Tot.Contrib.']
+    : ['#','CUIL','Apellido y Nombre','Sit.','Bruto imponible','Base topada',
+       'Jub.11%','PAMI 3%','OS 3%','Tot.Ap.',
+       'Prev.10.77%','PAMI 1.59%','OS 5.10%','FSR 0.90%','FNE 0.94%','AF 4.70%','SCVO','ART','Tot.Contrib.'];
+  headCols.forEach(function(h){html+='<th style="padding:2px 3px;border:1px solid #aaa;text-align:right;white-space:nowrap">'+h+'</th>';});
   html+='</tr></thead><tbody>';
 
   calculos.forEach(function(x,i){
     var e=x.emp,c=x.c;
-    var row=[i+1,e.cuil,e.nombre,e.sit,
-      fN(c.bruto),fN(c.base),
-      fN(c.aJub),fN(c.aPami),fN(c.aOS),fN(c.totalAp),
-      fN(c.cPrev),fN(c.cPami),fN(c.cOS),fN(c.cFSR),fN(c.cFNE),fN(c.cAsig),fN(c.cSCVO),fN(c.cART),fN(c.totalC)];
+    var row = esUOCRA
+      ? [i+1,e.cuil,e.nombre,e.sit,
+         fN(c.bruto),fN(c.base),
+         fN(c.aJub),fN(c.aPami),fN(c.aOS),fN(c.aSind||0),fN(c.totalAp),
+         fN(c.cPrev),fN(c.cPami),fN(c.cOS),fN(c.cFNE),fN(c.cUOCRA||0),fN(c.cART),fN(c.fondoCese||0),fN(c.totalC)]
+      : [i+1,e.cuil,e.nombre,e.sit,
+         fN(c.bruto),fN(c.base),
+         fN(c.aJub),fN(c.aPami),fN(c.aOS),fN(c.totalAp),
+         fN(c.cPrev),fN(c.cPami),fN(c.cOS),fN(c.cFSR),fN(c.cFNE),fN(c.cAsig),fN(c.cSCVO),fN(c.cART),fN(c.totalC)];
     html+='<tr>';
     row.forEach(function(v,j){html+='<td style="padding:2px 3px;border:1px solid #ddd;text-align:'+(j<3?'left':'right')+'">'+v+'</td>';});
     html+='</tr>';
@@ -714,41 +789,53 @@ function generarPDF(){
   // Fila totales
   html+='<tr style="background:#e8e8e8;font-weight:bold">';
   html+='<td colspan="4" style="padding:2px 3px;border:1px solid #aaa">TOTALES</td>';
-  [totals.bruto,totals.base,totals.aJub,totals.aPami,totals.aOS,totals.totAp,
-   totals.cPrev,totals.cPami,totals.cOS,totals.cFSR,totals.cFNE,totals.cAsig,totals.cSCVO,totals.cART,totals.totC]
-  .forEach(function(v){html+='<td style="padding:2px 3px;border:1px solid #aaa;text-align:right">'+fN(v)+'</td>';});
+  var totCols = esUOCRA
+    ? [totals.bruto,totals.base,totals.aJub,totals.aPami,totals.aOS,totals.aSind,totals.totAp,
+       totals.cPrev,totals.cPami,totals.cOS,totals.cFNE,totals.cUOCRA,totals.cART,totals.fondoCese,totals.totC]
+    : [totals.bruto,totals.base,totals.aJub,totals.aPami,totals.aOS,totals.totAp,
+       totals.cPrev,totals.cPami,totals.cOS,totals.cFSR,totals.cFNE,totals.cAsig,totals.cSCVO,totals.cART,totals.totC];
+  totCols.forEach(function(v){html+='<td style="padding:2px 3px;border:1px solid #aaa;text-align:right">'+fN(v)+'</td>';});
   html+='</tr>';
   html+='</tbody></table>';
 
   // Desglose contribuciones
-  html+='<div style="margin-top:10px"><b style="font-size:8pt">DESGLOSE CONTRIBUCIONES PATRONALES</b></div>';
+  html+='<div style="margin-top:10px"><b style="font-size:8pt">DESGLOSE CONTRIBUCIONES PATRONALES'+(esUOCRA?' (incl. IERIC)':'')+'</b></div>';
   html+='<table style="width:100%;border-collapse:collapse;border:1px solid #ccc;font-size:7pt;margin-top:4px">';
   html+='<tr style="background:#e0e0e0"><th style="padding:3px 5px;text-align:left;border:1px solid #aaa">Concepto</th>';
-  html+='<th style="padding:3px 5px;border:1px solid #aaa">Cód.890</th><th style="padding:3px 5px;border:1px solid #aaa">Base</th>';
+  html+='<th style="padding:3px 5px;border:1px solid #aaa">Código</th><th style="padding:3px 5px;border:1px solid #aaa">Base</th>';
   html+='<th style="padding:3px 5px;border:1px solid #aaa">Alícuota</th><th style="padding:3px 5px;border:1px solid #aaa">Total mes</th></tr>';
-  var dr=[
-    ['Contribución Previsional SIPA','000',fP(totals.base),'10,77%',fP(totals.cPrev)],
-    ['Contribución PAMI (Ley 19.032)','001',fP(totals.base),'1,59%',fP(totals.cPami)],
-    ['Contribución Obra Social empleador','004',fP(totals.bruto),'5,10%',fP(totals.cOS)],
-    ['Contribución FSR ex ANSSAL','005',fP(totals.bruto),'0,90%',fP(totals.cFSR)],
-    ['Contribución Fondo Nacional de Empleo','006',fP(totals.base),'0,94%',fP(totals.cFNE)],
-    ['Contribución Asignaciones Familiares','010',fP(totals.base),'4,70%',fP(totals.cAsig)],
-    ['SCVO — Seguro de Vida Obligatorio','007','—','$ '+fmt(getScvo())+' × '+nomina.length,fP(totals.cSCVO)],
-    ['ART — Fijo y variable','017',fP(nomina.reduce(function(s,e){return s+e.bruto+(e.noRem||0);},0)),fmt(getArtPct())+'% + $ '+fmt(getArtFijo())+' × '+nomina.length,fP(totals.cART)],
+  var dr = esUOCRA ? [
+    ['Previsional SIPA (patronal)','—',fP(totals.base),'16%',fP(totals.cPrev)],
+    ['INSSJP / PAMI patronal','—',fP(totals.base),'2%',fP(totals.cPami)],
+    ['Obra Social y Capacitación (OSyC)','—',fP(totals.bruto),'6%',fP(totals.cOS)],
+    ['Fondo Nacional de Empleo','—',fP(totals.base),'1,5%',fP(totals.cFNE)],
+    ['Contribución sindical UOCRA','—',fP(totals.bruto),'2%',fP(totals.cUOCRA)],
+    ['ART — Fijo y variable','—',fP(totalBaseArt),fmt(getArtPct())+'% + $ '+fmt(getArtFijo())+' × '+nomina.length,fP(totals.cART)],
+    ['Fondo de Cese Laboral (Ley 22.250)','—',fP(totals.bruto),'12%/8% s/antigüedad',fP(totals.fondoCese)],
+    ['IERIC (1% s/Fondo de Cese)','—',fP(totals.fondoCese),'1%',fP(ieric)],
+  ] : [
+    ['Contribución Previsional SIPA','890000',fP(totals.base),'10,77%',fP(totals.cPrev)],
+    ['Contribución PAMI (Ley 19.032)','890001',fP(totals.base),'1,59%',fP(totals.cPami)],
+    ['Contribución Obra Social empleador','890004',fP(totals.bruto),'5,10%',fP(totals.cOS)],
+    ['Contribución FSR ex ANSSAL','890005',fP(totals.bruto),'0,90%',fP(totals.cFSR)],
+    ['Contribución Fondo Nacional de Empleo','890006',fP(totals.base),'0,94%',fP(totals.cFNE)],
+    ['Contribución Asignaciones Familiares','890010',fP(totals.base),'4,70%',fP(totals.cAsig)],
+    ['SCVO — Seguro de Vida Obligatorio','890007','—','$ '+fmt(getScvo())+' × '+nomina.length,fP(totals.cSCVO)],
+    ['ART — Fijo y variable','890017',fP(totalBaseArt),fmt(getArtPct())+'% + $ '+fmt(getArtFijo())+' × '+nomina.length,fP(totals.cART)],
   ];
   dr.forEach(function(r){
     html+='<tr><td style="padding:2px 5px;border:1px solid #ddd">'+r[0]+'</td>';
-    html+='<td style="padding:2px 5px;border:1px solid #ddd;text-align:center">890'+r[1]+'</td>';
+    html+='<td style="padding:2px 5px;border:1px solid #ddd;text-align:center">'+r[1]+'</td>';
     html+='<td style="padding:2px 5px;border:1px solid #ddd;text-align:right">'+r[2]+'</td>';
     html+='<td style="padding:2px 5px;border:1px solid #ddd;text-align:center">'+r[3]+'</td>';
     html+='<td style="padding:2px 5px;border:1px solid #ddd;text-align:right;font-weight:bold">'+r[4]+'</td></tr>';
   });
-  html+='<tr style="background:#e8e8e8;font-weight:bold"><td colspan="4" style="padding:3px 5px;border:1px solid #aaa">TOTAL CONTRIBUCIONES PATRONALES</td>';
+  html+='<tr style="background:#e8e8e8;font-weight:bold"><td colspan="4" style="padding:3px 5px;border:1px solid #aaa">TOTAL CONTRIBUCIONES PATRONALES'+(esUOCRA?' (incl. IERIC)':'')+'</td>';
   html+='<td style="padding:3px 5px;border:1px solid #aaa;text-align:right">'+fP(totals.totC)+'</td></tr>';
   html+='</table>';
 
   html+='<div style="margin-top:14px;border:1px solid #ccc;padding:6px;font-size:6.5pt;color:#444">';
-  html+='Este simulador es orientativo. La presentación oficial del F.931 se realiza a través de ARCA. Verificá el tope SIPA, la alícuota ART de la empresa, sus importes fijos y las bases de cada concepto antes de usar el resultado.';
+  html+='Este simulador es orientativo. La presentación oficial del F.931 se realiza a través de ARCA'+(esUOCRA?', y el Fondo de Cese/IERIC se gestionan por los canales específicos de la Ley 22.250 (UOCRA/IERIC)':'')+'. Verificá el tope SIPA, la alícuota ART de la empresa, sus importes fijos y las bases de cada concepto antes de usar el resultado.';
   html+='</div>';
 
   document.getElementById('pdf-cont').innerHTML=html;
@@ -766,6 +853,5 @@ function generarPDF(){
 
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('../sw.js?v=11', { updateViaCache: 'none' }).then(function(reg){ reg.update(); setInterval(function(){ reg.update(); }, 1800000); }).catch(function(){}); var _swReloaded=false; navigator.serviceWorker.addEventListener('controllerchange', function(){ if(_swReloaded)return; _swReloaded=true; location.reload(); });}</script>
 <script src="/report-widget.js"></script>
-<script src="/bot.js?v=8"></script>
 </body>
 </html>
