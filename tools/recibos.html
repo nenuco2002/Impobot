@@ -702,6 +702,10 @@ function generar(soloRecibo){
         TR('890017 - ART Suma Fija Dec 590/97','0.000','$ 1.905,00','$ 1.905,00');
   }
   var costoTotal = bruto + totalCtb;
+  // Aviso: si es director/socio gerente y se liquida con el Excel de "Contribuciones
+  // patronales" pero ninguna fila quedó marcada "Aplica a Director", el recibo le
+  // queda sin ART/SCVO/FFEP sin que se note — se avisa en pantalla e impresión.
+  var sinContribDirector = esDirector && configContribs.length && importado && (!filasCtb || !filasCtb.length);
 
   // Haberes (del LSD si disponibles)
   var haberes = (empActual && empActual.haberes && empActual.haberes.length)
@@ -762,6 +766,7 @@ function generar(soloRecibo){
   var htmlWrap =
   '<div style="margin-bottom:12px">'+
   (fechaAnterior?'<div class="msg warn">Revisá la fecha de pago: es anterior al período del recibo. Corregila en el formulario antes de imprimir.</div>':'')+
+  (sinContribDirector?'<div class="msg warn">⚠ Ninguna línea de "Contribuciones patronales" de tu Excel se aplicó a este Director/Socio Gerente (quedó sin ART/SCVO/FFEP). Revisá que esas filas tengan "S" en la columna "Aplica a Director".</div>':'')+
   '<button class="btn-print" onclick="window.print()">🖨 Imprimir / PDF</button>'+
   '<span style="font-size:.7rem;color:#8b949e">En el diálogo elegí "Guardar como PDF"</span>'+
   '</div>';
