@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Conciliación Bancaria — ImpoBot</title>
+<meta name="description" content="Concilia tu extracto bancario contra tu libro banco propio: detectá cheques pendientes, depósitos en tránsito y gastos bancarios no registrados, con el informe de conciliación listo para imprimir. Argentina 2026."/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#2d4f68;--card:#35546f;--card2:#35546f;--border:#4d7a96;--text:#f0f6fb;--sub:#9dbdd6;--blue:#0b82f5;--blue-l:#60a5fa;--green:#10b981;--amber:#f59e0b;--red:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:60px}
+.shell{max-width:1180px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px}
+.card-title{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-l);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:.67rem;font-weight:600;color:var(--sub);margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select{width:100%;background:#1e3a4e;border:1.5px solid var(--border);color:var(--text);padding:8px 11px;border-radius:8px;font-size:.85rem;outline:none;font-family:'Inter',sans-serif}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.field select option{background:#375e7a}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.row4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+@media(max-width:780px){.row3,.row4{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.row3,.row4{grid-template-columns:1fr}}
+.sep{font-size:.64rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);padding-bottom:4px;margin:12px 0 9px}
+.btn-calc{background:linear-gradient(135deg,#0762c8,var(--blue));color:#fff;border:none;padding:12px 22px;border-radius:10px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-calc:disabled{opacity:.4;cursor:not-allowed}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:780px){.grid2{grid-template-columns:1fr}}
+.upbox{border:2px dashed var(--border);border-radius:10px;padding:24px 16px;text-align:center;cursor:pointer;position:relative;transition:all .2s;background:rgba(30,58,78,.3)}
+.upbox:hover{border-color:var(--blue-l);background:rgba(11,130,245,.08)}
+.upbox input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upbox .ico{font-size:1.9rem;margin-bottom:6px}
+.upbox .t1{font-size:.82rem;font-weight:700;color:var(--text)}
+.upbox .t2{font-size:.68rem;color:var(--sub);margin-top:2px}
+.upbox.ok{border-style:solid;border-color:var(--green);background:rgba(16,185,129,.07)}
+.mapeo{display:none;margin-top:12px}
+.mapeo.show{display:block}
+.mapeo-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.preview-wrap{max-height:160px;overflow:auto;margin-top:10px;border:1px solid var(--border);border-radius:8px}
+table.prev{width:100%;border-collapse:collapse;font-size:.68rem}
+table.prev th{background:rgba(11,130,245,.1);color:var(--blue-l);padding:4px 7px;text-align:left;position:sticky;top:0}
+table.prev td{padding:4px 7px;border-bottom:1px solid rgba(26,47,69,.3);white-space:nowrap}
+.tabla{width:100%;border-collapse:collapse;font-size:.75rem}
+.tabla th{background:rgba(11,130,245,.08);color:var(--blue-l);font-size:.62rem;font-weight:700;text-transform:uppercase;padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)}
+.tabla td{padding:6px 8px;border-bottom:1px solid rgba(26,47,69,.35)}
+.tabla td.r{text-align:right;font-family:'Courier New',monospace;font-weight:600}
+.tabla tr.tot td{font-weight:800;color:#fff;background:rgba(255,255,255,.03);border-top:1px solid var(--border)}
+.alerta{border-radius:8px;padding:9px 12px;font-size:.73rem;line-height:1.5;margin-top:10px}
+.alerta-info{background:rgba(11,130,245,.07);border:1px solid rgba(11,130,245,.2);color:var(--blue-l)}
+.alerta-warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.alerta-ok{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);color:#6ee7b7}
+.alerta-err{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
+.res-total{background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(16,185,129,.06));border:1px solid rgba(16,185,129,.25);border-radius:12px;padding:18px;text-align:center;margin-bottom:16px}
+.res-total.neg{background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(239,68,68,.06));border-color:rgba(239,68,68,.25)}
+.res-total .lbl{font-size:.7rem;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.res-total .val{font-size:2rem;font-weight:900;color:#fff}
+.res-total .sub{font-size:.72rem;color:var(--sub);margin-top:4px}
+#resultados{display:none}
+/* PDF */
+#pdf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9998;overflow-y:auto;padding:20px}
+#pdf-cont{background:#fff;color:#000;max-width:850px;margin:0 auto;padding:24px;font-family:Arial,sans-serif;font-size:8.5pt}
+.pdf-bar{display:flex;gap:8px;justify-content:center;margin:12px 0}
+.pdf-btn{padding:8px 20px;border-radius:7px;border:none;cursor:pointer;font-weight:700;font-size:.82rem}
+.pdf-btn.print{background:var(--blue);color:#fff}
+.pdf-btn.close{background:#555;color:#fff}
+@media print{body>*:not(#pdf-overlay){display:none!important}#pdf-overlay{display:block!important;position:static!important;background:#fff!important;padding:0!important}.pdf-bar{display:none!important}#pdf-cont{max-width:100%!important}}
+
+/* ── FH: header ImpoBot ── */
+.fh-head{position:sticky;top:0;z-index:500;font-family:'Inter',system-ui,sans-serif}
+.fh-bar{height:46px;display:flex;align-items:center;gap:10px;padding:0 16px;background:linear-gradient(135deg,#0b1220,#141d2e);border-bottom:1px solid rgba(255,255,255,.06)}
+.fh-brand{display:flex;align-items:center;gap:7px;text-decoration:none;flex-shrink:0}
+.fh-brand img{width:24px;height:24px;border-radius:50%;display:block}
+.fh-word{font-size:.86rem;font-weight:800;color:#eaf1f8;letter-spacing:-.02em;white-space:nowrap}
+.fh-word b{color:#38bdf8;font-weight:800}
+.fh-sep{width:1px;height:20px;background:rgba(255,255,255,.15);flex-shrink:0}
+.fh-title{font-size:.78rem;font-weight:700;color:#eaf1f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fh-tools{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.fh-chip{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-size:.75rem;text-decoration:none;background:rgba(255,255,255,.07);transition:background .15s}
+.fh-chip:hover{background:rgba(255,255,255,.14)}
+.fh-strip{height:28px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px;background:linear-gradient(90deg,#0b82f5,#0ea5e9);font-size:.66rem;font-weight:600;color:#eaf6ff;overflow:hidden}
+.fh-crumb a{color:#eaf6ff;opacity:.85;text-decoration:none}
+.fh-crumb a:hover{opacity:1;text-decoration:underline}
+.fh-crumb i{opacity:.6;margin:0 4px;font-style:normal}
+.fh-meta{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
+.fh-badge{background:rgba(255,255,255,.2);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.02em}
+@media(max-width:640px){.fh-strip .fh-meta-text{display:none}.fh-title{max-width:130px}}
+</style>
+<link rel="manifest" href="../manifest.json"/>
+<meta name="theme-color" content="#0b82f5"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<link rel="apple-touch-icon" href="../logo.png"/>
+<style>
+.guia-wrap{margin:0 0 16px;border:1px solid rgba(77,122,150,.35);border-radius:10px;overflow:hidden}
+.guia-wrap summary{cursor:pointer;padding:10px 16px;background:rgba(30,58,78,.6);color:var(--sub);font-size:.8rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+.guia-wrap summary:hover{color:var(--text)}
+.guia-wrap[open] summary{color:var(--text);background:rgba(30,58,78,.9)}
+.guia-body{padding:14px 18px;background:rgba(30,58,78,.4);font-size:.82rem;line-height:1.65;color:var(--text)}
+.guia-body ol{margin:8px 0 8px 18px;padding:0}
+.guia-body li{margin-bottom:5px}
+.guia-nota{margin-top:10px;padding:8px 12px;background:rgba(245,158,11,.07);border-left:3px solid var(--amber);border-radius:4px;font-size:.75rem;color:var(--sub)}
+</style>
+</head>
+<body>
+<header class="fh-head">
+  <div class="fh-bar">
+    <a class="fh-brand" href="../index.html">
+      <img src="../logo-sm.png" alt="ImpoBot"/>
+      <span class="fh-word"><b>impo</b>bot</span>
+    </a>
+    <span class="fh-sep"></span>
+    <span class="fh-title">🏦 Conciliación Bancaria</span>
+    <div class="fh-tools">
+      <a class="fh-chip" style="background:#FFDD00;color:#000" href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" title="Buy Me a Coffee">☕</a>
+      <a class="fh-chip" style="background:#FF5E5B;color:#fff" href="https://ko-fi.com/impobot" target="_blank" rel="noopener" title="Ko-fi">💙</a>
+    </div>
+  </div>
+  <div class="fh-strip">
+    <span class="fh-crumb"><a href="../index.html">Herramientas</a><i>›</i><strong>Conciliación Bancaria</strong></span>
+    <span class="fh-meta"><span class="fh-meta-text">Extracto vs. Libro Banco</span><span class="fh-badge">Auto-match</span></span>
+  </div>
+</header>
+<div style="padding:10px 18px 0">
+<details class="guia-wrap">
+  <summary>❓ ¿Cómo usar 🏦 Conciliación Bancaria?</summary>
+  <div class="guia-body">
+    <ol>
+    <li>Subí el <strong>Extracto Bancario</strong> (Excel o CSV exportado del banco) y tu <strong>Libro Banco</strong> propio (tu registro de movimientos). Cada archivo debe tener columnas de fecha, descripción y, al menos, débito/crédito (o un importe con signo).</li>
+    <li>Confirmá qué columna de cada archivo corresponde a Fecha, Descripción, Débito y Crédito — la herramienta intenta adivinarlo, pero revisalo antes de continuar.</li>
+    <li>Ingresá el <strong>saldo según Libro Banco</strong> y el <strong>saldo según Extracto Bancario</strong> al cierre del período a conciliar.</li>
+    <li>La herramienta empareja automáticamente los movimientos de ambos archivos por importe y fecha cercana (con una tolerancia configurable). Lo que no logra emparejar queda listado como partida pendiente: <em>cheques emitidos no debitados</em>, <em>depósitos en tránsito</em>, <em>gastos o intereses bancarios no registrados</em>, etc.</li>
+    <li>Al final se arma la conciliación clásica de dos columnas (Libro Banco ajustado vs. Extracto ajustado) y te avisa si el saldo cierra o si queda una diferencia sin explicar.</li>
+    <li>Descargá el informe en PDF.</li>
+    </ol>
+    <div class="guia-nota">ℹ️ El emparejamiento automático es una ayuda, no un reemplazo del análisis profesional: revisá siempre las partidas pendientes antes de dar la conciliación por cerrada, sobre todo si hay importes muy similares o movimientos duplicados.</div>
+  </div>
+</details>
+</div>
+
+<div class="shell">
+
+<div class="card">
+  <div class="card-title">⚙️ Datos del período a conciliar</div>
+  <div class="row4">
+    <div class="field"><label>Fecha de cierre a conciliar</label><input type="text" id="inp-fecha-cierre" placeholder="30/09/2026"/></div>
+    <div class="field"><label>Saldo según Libro Banco</label><input type="number" id="inp-saldo-libro" step="0.01" placeholder="0,00"/></div>
+    <div class="field"><label>Saldo según Extracto Bancario</label><input type="number" id="inp-saldo-extracto" step="0.01" placeholder="0,00"/></div>
+    <div class="field"><label>Tolerancia (días / importe)</label>
+      <div style="display:flex;gap:6px">
+        <input type="number" id="inp-tol-dias" value="10" min="0" style="width:60%" title="Tolerancia en días para emparejar fechas cercanas"/>
+        <input type="number" id="inp-tol-importe" value="0.01" min="0" step="0.01" style="width:40%" title="Tolerancia de importe"/>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid2">
+
+<div class="card">
+  <div class="card-title">🏦 Extracto Bancario</div>
+  <div class="upbox" id="upbox-extracto">
+    <input type="file" id="inp-extracto" accept=".xlsx,.xls,.csv"/>
+    <div class="ico">📄</div>
+    <div class="t1" id="txt-extracto">Hacé clic o arrastrá el archivo acá</div>
+    <div class="t2">.xlsx, .xls o .csv</div>
+  </div>
+  <div class="mapeo" id="mapeo-extracto">
+    <div class="sep">Mapeo de columnas</div>
+    <div class="mapeo-row">
+      <div class="field"><label>Fecha</label><select id="map-extracto-fecha"></select></div>
+      <div class="field"><label>Descripción</label><select id="map-extracto-desc"></select></div>
+    </div>
+    <div class="mapeo-row">
+      <div class="field"><label>Débito</label><select id="map-extracto-debito"></select></div>
+      <div class="field"><label>Crédito</label><select id="map-extracto-credito"></select></div>
+    </div>
+    <div class="preview-wrap"><table class="prev" id="prev-extracto"></table></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">📒 Libro Banco Propio</div>
+  <div class="upbox" id="upbox-libro">
+    <input type="file" id="inp-libro" accept=".xlsx,.xls,.csv"/>
+    <div class="ico">📄</div>
+    <div class="t1" id="txt-libro">Hacé clic o arrastrá el archivo acá</div>
+    <div class="t2">.xlsx, .xls o .csv</div>
+  </div>
+  <div class="mapeo" id="mapeo-libro">
+    <div class="sep">Mapeo de columnas</div>
+    <div class="mapeo-row">
+      <div class="field"><label>Fecha</label><select id="map-libro-fecha"></select></div>
+      <div class="field"><label>Descripción</label><select id="map-libro-desc"></select></div>
+    </div>
+    <div class="mapeo-row">
+      <div class="field"><label>Débito</label><select id="map-libro-debito"></select></div>
+      <div class="field"><label>Crédito</label><select id="map-libro-credito"></select></div>
+    </div>
+    <div class="preview-wrap"><table class="prev" id="prev-libro"></table></div>
+  </div>
+</div>
+
+</div>
+
+<div class="card" style="text-align:center">
+  <button class="btn-calc" id="btn-conciliar" onclick="conciliar()" disabled>🏦 Conciliar</button>
+  <div class="alerta alerta-info" id="aviso-archivos" style="display:inline-block;text-align:left;margin-top:10px">Subí ambos archivos para habilitar la conciliación.</div>
+</div>
+
+<div id="resultados"></div>
+
+</div>
+
+<!-- PDF overlay -->
+<div id="pdf-overlay">
+  <div class="pdf-bar">
+    <button class="pdf-btn print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="pdf-btn close" onclick="document.getElementById('pdf-overlay').style.display='none'">✕ Cerrar</button>
+  </div>
+  <div id="pdf-cont"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+var estado = { extracto:null, libro:null }; // {headers, rows}
+
+function norm(s){ return String(s==null?'':s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim(); }
+
+function guessColumn(headers, patterns){
+  for(var p=0;p<patterns.length;p++){
+    for(var i=0;i<headers.length;i++){
+      if(norm(headers[i]).indexOf(patterns[p])>=0) return headers[i];
+    }
+  }
+  return '';
+}
+
+function fmtMoneda(n){ if(isNaN(n))n=0; var neg=n<0; n=Math.abs(n); var s=n.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2}); return (neg?'-':'')+'$ '+s; }
+
+function parseImporte(v){
+  if(v===undefined||v===null||v==='') return 0;
+  if(typeof v==='number') return v;
+  var s=String(v).trim().replace(/[^0-9,.\-]/g,'');
+  if(s==='') return 0;
+  var lastComma=s.lastIndexOf(','), lastDot=s.lastIndexOf('.');
+  if(lastComma>-1 && lastDot>-1){
+    if(lastComma>lastDot){ s=s.replace(/\./g,'').replace(',','.'); }
+    else { s=s.replace(/,/g,''); }
+  } else if(lastComma>-1){
+    var decs=s.length-lastComma-1;
+    if(decs===2) s=s.replace(',','.'); else s=s.replace(/,/g,'');
+  }
+  var n=parseFloat(s);
+  return isNaN(n)?0:n;
+}
+
+function parseFechaVal(v){
+  if(v===undefined||v===null||v==='') return null;
+  if(v instanceof Date && !isNaN(v)) return v;
+  if(typeof v==='number'){
+    // Excel serial date
+    var d = new Date(Math.round((v-25569)*86400*1000));
+    if(!isNaN(d)) return d;
+  }
+  var s=String(v).trim();
+  var m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+  if(m){
+    var dd=parseInt(m[1],10), mm=parseInt(m[2],10), yy=parseInt(m[3],10);
+    if(yy<100) yy+=2000;
+    var d2=new Date(yy,mm-1,dd);
+    if(!isNaN(d2)) return d2;
+  }
+  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m){
+    var d3=new Date(parseInt(m[1],10),parseInt(m[2],10)-1,parseInt(m[3],10));
+    if(!isNaN(d3)) return d3;
+  }
+  var d4=new Date(s);
+  return isNaN(d4)?null:d4;
+}
+
+function fmtFecha(d){ if(!d) return '—'; var dd=('0'+d.getDate()).slice(-2), mm=('0'+(d.getMonth()+1)).slice(-2); return dd+'/'+mm+'/'+d.getFullYear(); }
+
+function leerArchivo(file, cb){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array', cellDates:true});
+      var sheet = wb.Sheets[wb.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_json(sheet, {defval:''});
+      var headers = rows.length ? Object.keys(rows[0]) : [];
+      cb(null, {headers:headers, rows:rows});
+    } catch(err){ cb(err); }
+  };
+  reader.onerror = function(){ cb(new Error('No se pudo leer el archivo')); };
+  reader.readAsArrayBuffer(file);
+}
+
+function optsHeaders(headers, sel){
+  var h='<option value="">— (no aplica)</option>';
+  headers.forEach(function(hd){ h+='<option value="'+hd+'"'+(hd===sel?' selected':'')+'>'+hd+'</option>'; });
+  return h;
+}
+
+function renderPreview(tablaId, headers, rows){
+  var h='<thead><tr>';
+  headers.forEach(function(hd){ h+='<th>'+hd+'</th>'; });
+  h+='</tr></thead><tbody>';
+  rows.slice(0,5).forEach(function(r){
+    h+='<tr>';
+    headers.forEach(function(hd){ var v=r[hd]; h+='<td>'+(v instanceof Date? fmtFecha(v) : v)+'</td>'; });
+    h+='</tr>';
+  });
+  h+='</tbody>';
+  document.getElementById(tablaId).innerHTML=h;
+}
+
+function setupArchivo(prefix){
+  var input = document.getElementById('inp-'+prefix);
+  var upbox = document.getElementById('upbox-'+prefix);
+  input.addEventListener('change', function(){ if(this.files && this.files[0]) procesarArchivo(prefix, this.files[0]); });
+  upbox.addEventListener('dragover', function(e){ e.preventDefault(); upbox.style.borderColor='#60a5fa'; });
+  upbox.addEventListener('dragleave', function(){ upbox.style.borderColor=''; });
+  upbox.addEventListener('drop', function(e){
+    e.preventDefault();
+    if(e.dataTransfer.files[0]) procesarArchivo(prefix, e.dataTransfer.files[0]);
+  });
+}
+
+function procesarArchivo(prefix, file){
+  leerArchivo(file, function(err, data){
+    if(err){ alert('No se pudo leer el archivo: '+err.message); return; }
+    if(!data.rows.length){ alert('El archivo no tiene filas de datos.'); return; }
+    estado[prefix] = data;
+    document.getElementById('txt-'+prefix).textContent = '✅ '+file.name+' ('+data.rows.length+' filas)';
+    document.getElementById('upbox-'+prefix).classList.add('ok');
+
+    var fGuess = guessColumn(data.headers, ['fecha','date']);
+    var dGuess = guessColumn(data.headers, ['concepto','descrip','detalle','glosa','leyenda','movimiento']);
+    var debGuess = guessColumn(data.headers, ['debito','débito','debe','egreso','salida']);
+    var credGuess = guessColumn(data.headers, ['credito','crédito','haber','ingreso','entrada','deposito','depósito']);
+
+    document.getElementById('map-'+prefix+'-fecha').innerHTML = optsHeaders(data.headers, fGuess);
+    document.getElementById('map-'+prefix+'-desc').innerHTML = optsHeaders(data.headers, dGuess);
+    document.getElementById('map-'+prefix+'-debito').innerHTML = optsHeaders(data.headers, debGuess);
+    document.getElementById('map-'+prefix+'-credito').innerHTML = optsHeaders(data.headers, credGuess);
+
+    renderPreview('prev-'+prefix, data.headers, data.rows);
+    document.getElementById('mapeo-'+prefix).classList.add('show');
+
+    actualizarEstadoBoton();
+  });
+}
+
+function actualizarEstadoBoton(){
+  var listo = estado.extracto && estado.libro;
+  document.getElementById('btn-conciliar').disabled = !listo;
+  document.getElementById('aviso-archivos').style.display = listo ? 'none' : 'inline-block';
+}
+
+setupArchivo('extracto');
+setupArchivo('libro');
+
+function normalizarTransacciones(data, mapping){
+  return data.rows.map(function(row, idx){
+    var fecha = mapping.fecha ? parseFechaVal(row[mapping.fecha]) : null;
+    var desc = mapping.desc ? String(row[mapping.desc]||'') : '';
+    var debito = mapping.debito ? parseImporte(row[mapping.debito]) : 0;
+    var credito = mapping.credito ? parseImporte(row[mapping.credito]) : 0;
+    var importe = credito - debito;
+    return {idx:idx, fecha:fecha, desc:desc, debito:debito, credito:credito, importe:importe, matched:false};
+  }).filter(function(t){ return t.importe !== 0; });
+}
+
+function emparejar(extTx, libTx, tolDias, tolImporte){
+  var libRestante = libTx.slice();
+  var matched = [];
+  extTx.forEach(function(e){
+    var mejorIdx=-1, mejorDiff=Infinity;
+    libRestante.forEach(function(l, idx){
+      if(l.matched) return;
+      if(Math.abs(l.importe - e.importe) > tolImporte) return;
+      var diffDias = (e.fecha && l.fecha) ? Math.abs((e.fecha - l.fecha)/86400000) : 0;
+      if(diffDias > tolDias) return;
+      if(diffDias < mejorDiff){ mejorDiff = diffDias; mejorIdx = idx; }
+    });
+    if(mejorIdx>=0){ e.matched=true; libRestante[mejorIdx].matched=true; matched.push({extracto:e, libro:libRestante[mejorIdx]}); }
+  });
+  var extNoMatch = extTx.filter(function(e){ return !e.matched; });
+  var libNoMatch = libTx.filter(function(l){ return !l.matched; });
+  return { matched:matched, extNoMatch:extNoMatch, libNoMatch:libNoMatch };
+}
+
+function conciliar(){
+  if(!estado.extracto || !estado.libro){ alert('Subí ambos archivos primero.'); return; }
+
+  var mapExtracto = {
+    fecha: document.getElementById('map-extracto-fecha').value,
+    desc: document.getElementById('map-extracto-desc').value,
+    debito: document.getElementById('map-extracto-debito').value,
+    credito: document.getElementById('map-extracto-credito').value
+  };
+  var mapLibro = {
+    fecha: document.getElementById('map-libro-fecha').value,
+    desc: document.getElementById('map-libro-desc').value,
+    debito: document.getElementById('map-libro-debito').value,
+    credito: document.getElementById('map-libro-credito').value
+  };
+  if((!mapExtracto.debito && !mapExtracto.credito) || (!mapLibro.debito && !mapLibro.credito)){
+    alert('Asigná al menos una columna de Débito o Crédito en cada archivo.');
+    return;
+  }
+
+  var saldoLibro = parseFloat(document.getElementById('inp-saldo-libro').value)||0;
+  var saldoExtracto = parseFloat(document.getElementById('inp-saldo-extracto').value)||0;
+  var tolDias = parseFloat(document.getElementById('inp-tol-dias').value)||0;
+  var tolImporte = parseFloat(document.getElementById('inp-tol-importe').value)||0.01;
+  var fechaCierre = document.getElementById('inp-fecha-cierre').value || '—';
+
+  var extTx = normalizarTransacciones(estado.extracto, mapExtracto);
+  var libTx = normalizarTransacciones(estado.libro, mapLibro);
+
+  var r = emparejar(extTx, libTx, tolDias, tolImporte);
+
+  var sumExtNoMatch = r.extNoMatch.reduce(function(a,t){return a+t.importe;},0);
+  var sumLibNoMatch = r.libNoMatch.reduce(function(a,t){return a+t.importe;},0);
+
+  var saldoLibroAjustado = saldoLibro + sumExtNoMatch;
+  var saldoExtractoAjustado = saldoExtracto + sumLibNoMatch;
+  var diferencia = saldoLibroAjustado - saldoExtractoAjustado;
+  var concilia = Math.abs(diferencia) < 1;
+
+  window._ultimaConciliacion = {
+    fechaCierre:fechaCierre, saldoLibro:saldoLibro, saldoExtracto:saldoExtracto,
+    extNoMatch:r.extNoMatch, libNoMatch:r.libNoMatch, matched:r.matched,
+    sumExtNoMatch:sumExtNoMatch, sumLibNoMatch:sumLibNoMatch,
+    saldoLibroAjustado:saldoLibroAjustado, saldoExtractoAjustado:saldoExtractoAjustado,
+    diferencia:diferencia, concilia:concilia
+  };
+
+  renderResultados(window._ultimaConciliacion);
+}
+
+function filaPendiente(t){
+  var tipo = t.importe>=0 ? '<span style="color:#6ee7b7">Crédito</span>' : '<span style="color:#fca5a5">Débito</span>';
+  return '<tr><td>'+fmtFecha(t.fecha)+'</td><td>'+(t.desc||'(sin descripción)')+'</td><td>'+tipo+'</td><td class="r">'+fmtMoneda(t.importe)+'</td></tr>';
+}
+
+function renderResultados(d){
+  var h='';
+  h+='<div class="res-total'+(d.concilia?'':' neg')+'">';
+  h+='<div class="lbl">'+(d.concilia?'✅ La conciliación cierra':'⚠️ Diferencia sin explicar')+'</div>';
+  h+='<div class="val">'+fmtMoneda(d.diferencia)+'</div>';
+  h+='<div class="sub">Saldo Libro Banco ajustado − Saldo Extracto ajustado · Cierre '+d.fechaCierre+'</div>';
+  h+='</div>';
+
+  h+='<div class="grid2">';
+
+  h+='<div class="card"><div class="card-title">📒 En Libro Banco, no en el Extracto <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--sub)">('+d.libNoMatch.length+')</span></div>';
+  h+='<div class="alerta alerta-info">Típicamente: cheques emitidos aún no debitados por el banco (débitos) o depósitos en tránsito (créditos).</div>';
+  h+='<table class="tabla"><thead><tr><th>Fecha</th><th>Descripción</th><th>Tipo</th><th style="text-align:right">Importe</th></tr></thead><tbody>';
+  d.libNoMatch.forEach(function(t){ h+=filaPendiente(t); });
+  if(!d.libNoMatch.length) h+='<tr><td colspan="4" style="text-align:center;color:var(--sub)">Sin partidas pendientes</td></tr>';
+  h+='<tr class="tot"><td colspan="3">TOTAL</td><td class="r">'+fmtMoneda(d.sumLibNoMatch)+'</td></tr>';
+  h+='</tbody></table></div>';
+
+  h+='<div class="card"><div class="card-title">🏦 En Extracto, no en el Libro Banco <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--sub)">('+d.extNoMatch.length+')</span></div>';
+  h+='<div class="alerta alerta-info">Típicamente: gastos, comisiones o impuestos bancarios (débitos) o intereses/acreditaciones no registradas (créditos) — a registrar en el Libro Banco.</div>';
+  h+='<table class="tabla"><thead><tr><th>Fecha</th><th>Descripción</th><th>Tipo</th><th style="text-align:right">Importe</th></tr></thead><tbody>';
+  d.extNoMatch.forEach(function(t){ h+=filaPendiente(t); });
+  if(!d.extNoMatch.length) h+='<tr><td colspan="4" style="text-align:center;color:var(--sub)">Sin partidas pendientes</td></tr>';
+  h+='<tr class="tot"><td colspan="3">TOTAL</td><td class="r">'+fmtMoneda(d.sumExtNoMatch)+'</td></tr>';
+  h+='</tbody></table></div>';
+
+  h+='</div>'; // grid2
+
+  h+='<div class="card"><div class="card-title">✅ Conciliación — '+d.matched.length+' movimientos emparejados automáticamente</div>';
+  h+='<table class="tabla"><tbody>';
+  h+='<tr><td>Saldo según Libro Banco</td><td class="r">'+fmtMoneda(d.saldoLibro)+'</td></tr>';
+  h+='<tr><td>(+/−) Partidas en el Extracto no registradas en el Libro Banco</td><td class="r">'+fmtMoneda(d.sumExtNoMatch)+'</td></tr>';
+  h+='<tr class="tot"><td>= Saldo Libro Banco ajustado</td><td class="r">'+fmtMoneda(d.saldoLibroAjustado)+'</td></tr>';
+  h+='<tr><td style="padding-top:14px">Saldo según Extracto Bancario</td><td class="r" style="padding-top:14px">'+fmtMoneda(d.saldoExtracto)+'</td></tr>';
+  h+='<tr><td>(+/−) Partidas en el Libro Banco no acreditadas/debitadas por el banco</td><td class="r">'+fmtMoneda(d.sumLibNoMatch)+'</td></tr>';
+  h+='<tr class="tot"><td>= Saldo Extracto ajustado</td><td class="r">'+fmtMoneda(d.saldoExtractoAjustado)+'</td></tr>';
+  h+='</tbody></table>';
+  if(d.concilia){ h+='<div class="alerta alerta-ok">✅ Ambos saldos ajustados coinciden: la conciliación cierra.</div>'; }
+  else { h+='<div class="alerta alerta-err">⚠️ Diferencia de '+fmtMoneda(d.diferencia)+' sin explicar. Revisá partidas duplicadas, importes mal cargados, movimientos fuera del período o errores de carga en alguno de los dos archivos.</div>'; }
+  h+='</div>';
+
+  h+='<div class="card" style="text-align:center"><button class="btn-calc" onclick="generarPDF()">📄 Descargar informe en PDF</button></div>';
+
+  document.getElementById('resultados').innerHTML=h;
+  document.getElementById('resultados').style.display='block';
+  document.getElementById('resultados').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function generarPDF(){
+  var d = window._ultimaConciliacion;
+  if(!d) return;
+  var fechaHoy = new Date().toLocaleDateString('es-AR');
+
+  function tablaPend(titulo, rows, total){
+    var hh='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:7.5pt">';
+    hh+='<thead><tr style="background:#e0e0e0"><th colspan="4" style="padding:4px 6px;text-align:left">'+titulo+'</th></tr>';
+    hh+='<tr style="background:#eee"><th style="padding:3px 6px;text-align:left">Fecha</th><th style="padding:3px 6px;text-align:left">Descripción</th><th style="padding:3px 6px;text-align:center">Tipo</th><th style="padding:3px 6px;text-align:right">Importe</th></tr></thead><tbody>';
+    rows.forEach(function(t){
+      hh+='<tr><td style="padding:3px 6px;border-bottom:1px solid #ddd">'+fmtFecha(t.fecha)+'</td><td style="padding:3px 6px;border-bottom:1px solid #ddd">'+(t.desc||'(sin descripción)')+'</td><td style="padding:3px 6px;border-bottom:1px solid #ddd;text-align:center">'+(t.importe>=0?'Crédito':'Débito')+'</td><td style="padding:3px 6px;border-bottom:1px solid #ddd;text-align:right">'+fmtMoneda(t.importe)+'</td></tr>';
+    });
+    if(!rows.length) hh+='<tr><td colspan="4" style="padding:4px 6px;text-align:center;color:#777">Sin partidas pendientes</td></tr>';
+    hh+='<tr style="background:#eee"><td colspan="3" style="padding:4px 6px;font-weight:bold">TOTAL</td><td style="padding:4px 6px;text-align:right;font-weight:bold">'+fmtMoneda(total)+'</td></tr>';
+    hh+='</tbody></table>';
+    return hh;
+  }
+
+  var html='';
+  html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;font-size:8.5pt"><tr>';
+  html+='<td style="padding:6px"><b style="font-size:10pt">Conciliación Bancaria</b><br/><span style="font-size:7.5pt">Extracto Bancario vs. Libro Banco propio</span></td>';
+  html+='<td style="padding:6px;text-align:right;font-size:7.5pt">Cierre: <b>'+d.fechaCierre+'</b><br/>Fecha informe: '+fechaHoy+'</td>';
+  html+='</tr></table>';
+
+  html+=tablaPend('En Libro Banco, no en el Extracto', d.libNoMatch, d.sumLibNoMatch);
+  html+=tablaPend('En Extracto, no en el Libro Banco', d.extNoMatch, d.sumExtNoMatch);
+
+  html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:7.5pt">';
+  html+='<tr style="background:#e0e0e0"><td colspan="2" style="padding:4px 6px;font-weight:bold">Conciliación</td></tr>';
+  html+='<tr><td style="padding:3px 6px;border-bottom:1px solid #ddd">Saldo según Libro Banco</td><td style="padding:3px 6px;border-bottom:1px solid #ddd;text-align:right">'+fmtMoneda(d.saldoLibro)+'</td></tr>';
+  html+='<tr><td style="padding:3px 6px;border-bottom:1px solid #ddd">(+/−) Partidas en el Extracto no registradas en el Libro</td><td style="padding:3px 6px;border-bottom:1px solid #ddd;text-align:right">'+fmtMoneda(d.sumExtNoMatch)+'</td></tr>';
+  html+='<tr style="background:#eee"><td style="padding:4px 6px;font-weight:bold">= Saldo Libro Banco ajustado</td><td style="padding:4px 6px;text-align:right;font-weight:bold">'+fmtMoneda(d.saldoLibroAjustado)+'</td></tr>';
+  html+='<tr><td style="padding:3px 6px;border-bottom:1px solid #ddd">Saldo según Extracto Bancario</td><td style="padding:3px 6px;border-bottom:1px solid #ddd;text-align:right">'+fmtMoneda(d.saldoExtracto)+'</td></tr>';
+  html+='<tr><td style="padding:3px 6px;border-bottom:1px solid #ddd">(+/−) Partidas en el Libro no acreditadas/debitadas por el banco</td><td style="padding:3px 6px;border-bottom:1px solid #ddd;text-align:right">'+fmtMoneda(d.sumLibNoMatch)+'</td></tr>';
+  html+='<tr style="background:#eee"><td style="padding:4px 6px;font-weight:bold">= Saldo Extracto ajustado</td><td style="padding:4px 6px;text-align:right;font-weight:bold">'+fmtMoneda(d.saldoExtractoAjustado)+'</td></tr>';
+  html+='<tr style="background:'+(d.concilia?'#e3f9ed':'#fdecea')+'"><td style="padding:5px 6px;font-weight:bold;font-size:9pt">DIFERENCIA</td><td style="padding:5px 6px;text-align:right;font-weight:bold;font-size:9pt">'+fmtMoneda(d.diferencia)+'</td></tr>';
+  html+='</table>';
+
+  html+='<div style="border:1.5px solid #000;border-top:0;padding:5px 8px;font-size:6.5pt;color:#333">'+(d.concilia?'Los saldos ajustados coinciden: la conciliación cierra.':'Diferencia sin explicar — revisar partidas duplicadas, importes mal cargados o movimientos fuera de período.')+' Informe orientativo — verificar con asesoría profesional.</div>';
+  html+='<div style="font-size:6.5pt;color:#666;text-align:center;margin-top:6px">Generado con ImpoBot — impobot.com.ar · Uso orientativo</div>';
+
+  document.getElementById('pdf-cont').innerHTML=html;
+  document.getElementById('pdf-overlay').style.display='block';
+  window.scrollTo(0,0);
+}
+</script>
+<a href="https://api.whatsapp.com/send?text=Conciliaci%C3%B3n%20Bancaria%20autom%C3%A1tica%20(Extracto%20vs%20Libro%20Banco)%20ImpoBot%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/conciliacion-bancaria.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
+  style="position:fixed;bottom:76px;right:20px;z-index:998;background:#25D366;color:#fff;
+    width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;text-decoration:none;box-shadow:0 2px 12px rgba(37,211,102,.3);transition:all .2s"
+  onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('../sw.js?v=11', { updateViaCache: 'none' }).then(function(reg){ reg.update(); setInterval(function(){ reg.update(); }, 1800000); }).catch(function(){}); var _swReloaded=false; navigator.serviceWorker.addEventListener('controllerchange', function(){ if(_swReloaded)return; _swReloaded=true; location.reload(); });}</script>
+<script src="/report-widget.js"></script>
+</body>
+</html>
