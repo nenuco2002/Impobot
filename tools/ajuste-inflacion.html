@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Ajuste por Inflación Contable (RT 6) — ImpoBot</title>
+<meta name="description" content="Calculá el ajuste por inflación contable según RT 6 (FACPCE): reexpresión de rubros no monetarios, Patrimonio Neto y Estado de Resultados a moneda de cierre, con cálculo automático del RECPAM. Argentina 2026."/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#2d4f68;--card:#35546f;--card2:#35546f;--border:#4d7a96;--text:#f0f6fb;--sub:#9dbdd6;--blue:#0b82f5;--blue-l:#60a5fa;--green:#10b981;--amber:#f59e0b;--red:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:60px}
+.shell{max-width:1180px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px}
+.card-title{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-l);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:.67rem;font-weight:600;color:var(--sub);margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select{width:100%;background:#1e3a4e;border:1.5px solid var(--border);color:var(--text);padding:8px 11px;border-radius:8px;font-size:.85rem;outline:none;font-family:'Inter',sans-serif}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.field select option{background:#375e7a}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:700px){.row3{grid-template-columns:1fr}}
+.sep{font-size:.64rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);padding-bottom:4px;margin:12px 0 9px}
+.btn-calc{background:linear-gradient(135deg,#0762c8,var(--blue));color:#fff;border:none;padding:12px 22px;border-radius:10px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-add{background:rgba(11,130,245,.12);border:1px dashed var(--blue-l);color:var(--blue-l);padding:7px 14px;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-add:hover{background:rgba(11,130,245,.22)}
+.btn-del{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:.85rem;line-height:1}
+.btn-del:hover{background:rgba(239,68,68,.22)}
+table.filas{width:100%;border-collapse:collapse;font-size:.78rem}
+table.filas th{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--sub);text-align:left;padding:4px 6px;border-bottom:1px solid var(--border)}
+table.filas td{padding:4px 6px;vertical-align:middle}
+table.filas input,table.filas select{width:100%;background:#1e3a4e;border:1.3px solid var(--border);color:var(--text);padding:6px 8px;border-radius:6px;font-size:.78rem;font-family:'Inter',sans-serif}
+table.filas input:disabled,table.filas select:disabled{opacity:.35}
+table.filas input[type=number]{text-align:right}
+.chk-wrap{display:flex;align-items:center;justify-content:center;gap:5px;font-size:.68rem;color:var(--sub)}
+.tot-row{border-top:1.5px solid var(--border);font-weight:800}
+.tot-row td{padding-top:8px}
+/* RESULTADO */
+.res-total{background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(16,185,129,.06));border:1px solid rgba(16,185,129,.25);border-radius:12px;padding:18px;text-align:center;margin-bottom:16px}
+.res-total.neg{background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(239,68,68,.06));border-color:rgba(239,68,68,.25)}
+.res-total .lbl{font-size:.7rem;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.res-total .val{font-size:2rem;font-weight:900;color:#fff}
+.res-total .sub{font-size:.72rem;color:var(--sub);margin-top:4px}
+.grid-res{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:780px){.grid-res{grid-template-columns:1fr}}
+.tabla{width:100%;border-collapse:collapse;font-size:.75rem}
+.tabla th{background:rgba(11,130,245,.08);color:var(--blue-l);font-size:.62rem;font-weight:700;text-transform:uppercase;padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)}
+.tabla td{padding:6px 8px;border-bottom:1px solid rgba(26,47,69,.35)}
+.tabla td.r{text-align:right;font-family:'Courier New',monospace;font-weight:600}
+.tabla tr.tot td{font-weight:800;color:#fff;background:rgba(255,255,255,.03);border-top:1px solid var(--border)}
+.alerta{border-radius:8px;padding:9px 12px;font-size:.73rem;line-height:1.5;margin-top:10px}
+.alerta-info{background:rgba(11,130,245,.07);border:1px solid rgba(11,130,245,.2);color:var(--blue-l)}
+.alerta-warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.alerta-ok{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);color:#6ee7b7}
+.alerta-err{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
+#resultados{display:none}
+/* PDF */
+#pdf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9998;overflow-y:auto;padding:20px}
+#pdf-cont{background:#fff;color:#000;max-width:850px;margin:0 auto;padding:24px;font-family:Arial,sans-serif;font-size:8.5pt}
+.pdf-bar{display:flex;gap:8px;justify-content:center;margin:12px 0}
+.pdf-btn{padding:8px 20px;border-radius:7px;border:none;cursor:pointer;font-weight:700;font-size:.82rem}
+.pdf-btn.print{background:var(--blue);color:#fff}
+.pdf-btn.close{background:#555;color:#fff}
+@media print{body>*:not(#pdf-overlay){display:none!important}#pdf-overlay{display:block!important;position:static!important;background:#fff!important;padding:0!important}.pdf-bar{display:none!important}#pdf-cont{max-width:100%!important}}
+
+/* ── FH: header ImpoBot ── */
+.fh-head{position:sticky;top:0;z-index:500;font-family:'Inter',system-ui,sans-serif}
+.fh-bar{height:46px;display:flex;align-items:center;gap:10px;padding:0 16px;background:linear-gradient(135deg,#0b1220,#141d2e);border-bottom:1px solid rgba(255,255,255,.06)}
+.fh-brand{display:flex;align-items:center;gap:7px;text-decoration:none;flex-shrink:0}
+.fh-brand img{width:24px;height:24px;border-radius:50%;display:block}
+.fh-word{font-size:.86rem;font-weight:800;color:#eaf1f8;letter-spacing:-.02em;white-space:nowrap}
+.fh-word b{color:#38bdf8;font-weight:800}
+.fh-sep{width:1px;height:20px;background:rgba(255,255,255,.15);flex-shrink:0}
+.fh-title{font-size:.78rem;font-weight:700;color:#eaf1f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fh-tools{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.fh-chip{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-size:.75rem;text-decoration:none;background:rgba(255,255,255,.07);transition:background .15s}
+.fh-chip:hover{background:rgba(255,255,255,.14)}
+.fh-strip{height:28px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px;background:linear-gradient(90deg,#0b82f5,#0ea5e9);font-size:.66rem;font-weight:600;color:#eaf6ff;overflow:hidden}
+.fh-crumb a{color:#eaf6ff;opacity:.85;text-decoration:none}
+.fh-crumb a:hover{opacity:1;text-decoration:underline}
+.fh-crumb i{opacity:.6;margin:0 4px;font-style:normal}
+.fh-meta{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
+.fh-badge{background:rgba(255,255,255,.2);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.02em}
+@media(max-width:640px){.fh-strip .fh-meta-text{display:none}.fh-title{max-width:130px}}
+</style>
+<link rel="manifest" href="../manifest.json"/>
+<meta name="theme-color" content="#0b82f5"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<link rel="apple-touch-icon" href="../logo.png"/>
+<style>
+.guia-wrap{margin:0 0 16px;border:1px solid rgba(77,122,150,.35);border-radius:10px;overflow:hidden}
+.guia-wrap summary{cursor:pointer;padding:10px 16px;background:rgba(30,58,78,.6);color:var(--sub);font-size:.8rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+.guia-wrap summary:hover{color:var(--text)}
+.guia-wrap[open] summary{color:var(--text);background:rgba(30,58,78,.9)}
+.guia-body{padding:14px 18px;background:rgba(30,58,78,.4);font-size:.82rem;line-height:1.65;color:var(--text)}
+.guia-body ol{margin:8px 0 8px 18px;padding:0}
+.guia-body li{margin-bottom:5px}
+.guia-nota{margin-top:10px;padding:8px 12px;background:rgba(245,158,11,.07);border-left:3px solid var(--amber);border-radius:4px;font-size:.75rem;color:var(--sub)}
+</style>
+</head>
+<body>
+<header class="fh-head">
+  <div class="fh-bar">
+    <a class="fh-brand" href="../index.html">
+      <img src="../logo-sm.png" alt="ImpoBot"/>
+      <span class="fh-word"><b>impo</b>bot</span>
+    </a>
+    <span class="fh-sep"></span>
+    <span class="fh-title">📊 Ajuste por Inflación (RT 6)</span>
+    <div class="fh-tools">
+      <a class="fh-chip" style="background:#FFDD00;color:#000" href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" title="Buy Me a Coffee">☕</a>
+      <a class="fh-chip" style="background:#FF5E5B;color:#fff" href="https://ko-fi.com/impobot" target="_blank" rel="noopener" title="Ko-fi">💙</a>
+    </div>
+  </div>
+  <div class="fh-strip">
+    <span class="fh-crumb"><a href="../index.html">Herramientas</a><i>›</i><strong>Ajuste por Inflación (RT 6)</strong></span>
+    <span class="fh-meta"><span class="fh-meta-text">Balance completo · RECPAM automático</span><span class="fh-badge">RT 6 FACPCE</span></span>
+  </div>
+</header>
+<div style="padding:10px 18px 0">
+<details class="guia-wrap">
+  <summary>❓ ¿Cómo usar 📊 Ajuste por Inflación (RT 6)?</summary>
+  <div class="guia-body">
+    <ol>
+    <li>Elegí la <strong>fecha de inicio</strong> y la <strong>fecha de cierre</strong> del ejercicio (se usa el IPC Nivel General, base dic-2016=100).</li>
+    <li>Cargá el <strong>Activo</strong> y el <strong>Pasivo</strong>: marcá cada rubro como <em>Monetario</em> (caja, créditos, deudas — no se reexpresan, generan RECPAM) o <em>No Monetario</em> (bienes de cambio, bienes de uso, intangibles — se reexpresan aplicando el coeficiente IPC cierre/IPC origen según su fecha de incorporación).</li>
+    <li>Cargá el <strong>Patrimonio Neto</strong> (capital, ajuste de capital, reservas, resultados acumulados de ejercicios anteriores) con su fecha de origen — todos sus componentes se reexpresan.</li>
+    <li>Cargá las líneas del <strong>Estado de Resultados</strong> (sin incluir RECPAM). Podés asignarle una fecha específica a cada línea o marcarla como "distribuida uniformemente" en el ejercicio (usa el promedio del índice del período, según RT 6).</li>
+    <li>Al calcular, el <strong>RECPAM</strong> se obtiene automáticamente por el método indirecto: es la diferencia entre el resultado total del ejercicio en moneda homogénea (Activo ajustado − Pasivo ajustado − PN ajustado) y el subtotal del Estado de Resultados ya reexpresado (sin RECPAM) — tal como lo define la RT 6.</li>
+    <li>Descargá el informe en PDF con el balance y el estado de resultados reexpresados.</li>
+    </ol>
+    <div class="guia-nota">ℹ️ Herramienta de apoyo para el ajuste por inflación contable (RT 6 FACPCE, "Estados Contables en Moneda Homogénea"). No reemplaza el juicio profesional: verificá la clasificación de rubros monetarios/no monetarios, la segregación de componentes financieros implícitos (RT 17) y el tratamiento de casos particulares de tu balance.</div>
+  </div>
+</details>
+</div>
+
+<div class="shell">
+
+<div class="card">
+  <div class="card-title">📅 Ejercicio a ajustar</div>
+  <div class="row2">
+    <div class="field"><label>Fecha de inicio del ejercicio</label><select id="fecha-inicio"></select></div>
+    <div class="field"><label>Fecha de cierre del ejercicio</label><select id="fecha-cierre"></select></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><span>💰 Activo</span><button class="btn-add" onclick="agregarFila('activo')">+ Agregar rubro</button></div>
+  <table class="filas" id="tabla-activo">
+    <thead><tr><th style="width:34%">Descripción</th><th style="width:16%">Tipo</th><th style="width:18%">Importe</th><th style="width:20%">Fecha de origen</th><th style="width:30px"></th></tr></thead>
+    <tbody id="tbody-activo"></tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-title"><span>📋 Pasivo</span><button class="btn-add" onclick="agregarFila('pasivo')">+ Agregar rubro</button></div>
+  <table class="filas" id="tabla-pasivo">
+    <thead><tr><th style="width:34%">Descripción</th><th style="width:16%">Tipo</th><th style="width:18%">Importe</th><th style="width:20%">Fecha de origen</th><th style="width:30px"></th></tr></thead>
+    <tbody id="tbody-pasivo"></tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-title"><span>🏛️ Patrimonio Neto <span style="font-weight:400;color:var(--sub);text-transform:none;letter-spacing:0">(sin resultado del ejercicio)</span></span><button class="btn-add" onclick="agregarFila('pn')">+ Agregar rubro</button></div>
+  <table class="filas" id="tabla-pn">
+    <thead><tr><th style="width:44%">Descripción</th><th style="width:26%">Importe</th><th style="width:26%">Fecha de origen</th><th style="width:30px"></th></tr></thead>
+    <tbody id="tbody-pn"></tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-title"><span>📈 Estado de Resultados <span style="font-weight:400;color:var(--sub);text-transform:none;letter-spacing:0">(sin RECPAM)</span></span><button class="btn-add" onclick="agregarFila('resultado')">+ Agregar línea</button></div>
+  <table class="filas" id="tabla-resultado">
+    <thead><tr><th style="width:30%">Descripción</th><th style="width:14%">Tipo</th><th style="width:16%">Importe</th><th style="width:18%">Fecha de origen</th><th style="width:16%">Distribuido<br/>uniforme</th><th style="width:30px"></th></tr></thead>
+    <tbody id="tbody-resultado"></tbody>
+  </table>
+</div>
+
+<div class="card" style="text-align:center">
+  <button class="btn-calc" onclick="calcular()">📊 Calcular ajuste por inflación</button>
+</div>
+
+<div id="resultados"></div>
+
+</div>
+
+<!-- PDF overlay -->
+<div id="pdf-overlay">
+  <div class="pdf-bar">
+    <button class="pdf-btn print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="pdf-btn close" onclick="document.getElementById('pdf-overlay').style.display='none'">✕ Cerrar</button>
+  </div>
+  <div id="pdf-cont"></div>
+</div>
+
+<script>
+// ── IPC Nacional Nivel General (base dic-2016=100) — mismo dataset que tools/inflacion.html ──
+var IPC = {'2016-12':100.0,'2017-01':101.5859,'2017-02':103.6859,'2017-03':106.1476,'2017-04':108.9667,'2017-05':110.5301,'2017-06':111.8477,'2017-07':113.7852,'2017-08':115.3819,'2017-09':117.5719,'2017-10':119.3528,'2017-11':120.994,'2017-12':124.7956,'2018-01':126.9887,'2018-02':130.0606,'2018-03':133.1054,'2018-04':136.7512,'2018-05':139.5893,'2018-06':144.8053,'2018-07':149.2966,'2018-08':155.1034,'2018-09':165.2383,'2018-10':174.1473,'2018-11':179.6388,'2018-12':184.2552,'2019-01':189.6101,'2019-02':196.7501,'2019-03':205.9571,'2019-04':212.9596414,'2019-05':219.5691,'2019-06':225.537,'2019-07':230.494,'2019-08':239.6077,'2019-09':253.7102,'2019-10':262.0661,'2019-11':273.2158,'2019-12':283.4442,'2020-01':289.8299,'2020-02':295.666,'2020-03':305.5515,'2020-04':310.1243,'2020-05':314.9087,'2020-06':321.9738,'2020-07':328.2014,'2020-08':337.0632,'2020-09':346.6207,'2020-10':359.657,'2020-11':371.0211,'2020-12':385.8826,'2021-01':401.5071,'2021-02':415.8595,'2021-03':435.8657,'2021-04':453.6503,'2021-05':468.725,'2021-06':483.6049,'2021-07':498.0987,'2021-08':510.3942,'2021-09':528.4968,'2021-10':547.0802,'2021-11':560.9184,'2021-12':582.4575,'2022-01':605.0317,'2022-02':633.4341,'2022-03':676.0566,'2022-04':716.9399,'2022-05':753.147,'2022-06':793.0278,'2022-07':851.761,'2022-08':911.1316,'2022-09':967.3076,'2022-10':1028.706,'2022-11':1079.2787,'2022-12':1134.5875,'2023-01':1202.979,'2023-02':1282.7091,'2023-03':1381.1601,'2023-04':1497.2147,'2023-05':1613.5895,'2023-06':1709.6115,'2023-07':1818.0838,'2023-08':2044.2832,'2023-09':2304.9242,'2023-10':2496.273,'2023-11':2816.0628,'2023-12':3533.1922,'2024-01':4261.5324,'2024-02':4825.7881,'2024-03':5357.0929,'2024-04':5830.2271,'2024-05':6073.7,'2024-06':6351.7145,'2024-07':6607.7479,'2024-08':6883.4412,'2024-09':7122.2421,'2024-10':7313.9542,'2024-11':7491.4314,'2024-12':7694.0075,'2025-01':7864.1257,'2025-02':8052.9927,'2025-03':8353.3158,'2025-04':8585.6078,'2025-05':8714.4871,'2025-06':8855.5681,'2025-07':9023.973,'2025-08':9193.2441,'2025-09':9384.0922,'2025-10':9603.8623,'2025-11':9841.3581,'2025-12':10121.3715,'2026-01':10413.0309,'2026-02':10714.6255,'2026-03':11077.0608,'2026-04':11363.0904,'2026-05':11607.3937,'2026-06':11826.4103,'2026-07':12076.3937,'2026-08':12276.766};
+var MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+var CLAVES = Object.keys(IPC).sort();
+
+function labelFecha(k){ var p=k.split('-'); return MESES[parseInt(p[1],10)-1]+' '+p[0]; }
+function optsFechas(sel){
+  var h='<option value="">—</option>';
+  for(var i=0;i<CLAVES.length;i++){ var k=CLAVES[i]; h+='<option value="'+k+'"'+(k===sel?' selected':'')+'>'+labelFecha(k)+'</option>'; }
+  return h;
+}
+function fmtMoneda(n){ if(isNaN(n))n=0; var neg=n<0; n=Math.abs(n); var s=n.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2}); return (neg?'-':'')+'$ '+s; }
+function fmtCoef(n){ if(isNaN(n))return '1,0000'; return n.toLocaleString('es-AR',{minimumFractionDigits:4,maximumFractionDigits:4}); }
+
+function coefDe(origen,cierre){
+  if(!origen || !IPC[origen] || !cierre || !IPC[cierre]) return 1;
+  return IPC[cierre]/IPC[origen];
+}
+function coefPromedio(inicio,cierre){
+  if(!inicio||!cierre) return 1;
+  var i0=CLAVES.indexOf(inicio), i1=CLAVES.indexOf(cierre);
+  if(i0<0||i1<0||i0>i1) return coefDe(inicio,cierre);
+  var sum=0,n=0;
+  for(var i=i0;i<=i1;i++){ sum+=IPC[CLAVES[i]]; n++; }
+  var prom=sum/n;
+  return IPC[cierre]/prom;
+}
+
+var contId=0;
+
+function filaActivoPasivo(desc,tipo,fecha){
+  contId++;
+  var id='r'+contId;
+  var monetario = tipo==='monetario';
+  return '<tr id="'+id+'">'+
+    '<td><input type="text" class="f-desc" value="'+desc+'"/></td>'+
+    '<td><select class="f-tipo" onchange="var tr=this.closest(\'tr\');tr.querySelector(\'.f-fecha\').disabled=(this.value===\'monetario\')">'+
+      '<option value="monetario"'+(monetario?' selected':'')+'>Monetario</option>'+
+      '<option value="no_monetario"'+(!monetario?' selected':'')+'>No monetario</option>'+
+    '</select></td>'+
+    '<td><input type="number" class="f-importe" step="0.01" placeholder="0,00"/></td>'+
+    '<td><select class="f-fecha"'+(monetario?' disabled':'')+'>'+optsFechas(fecha)+'</select></td>'+
+    '<td><button class="btn-del" onclick="this.closest(\'tr\').remove()" title="Eliminar">✕</button></td>'+
+  '</tr>';
+}
+function filaPN(desc,fecha){
+  contId++; var id='r'+contId;
+  return '<tr id="'+id+'">'+
+    '<td><input type="text" class="f-desc" value="'+desc+'"/></td>'+
+    '<td><input type="number" class="f-importe" step="0.01" placeholder="0,00"/></td>'+
+    '<td><select class="f-fecha">'+optsFechas(fecha)+'</select></td>'+
+    '<td><button class="btn-del" onclick="this.closest(\'tr\').remove()" title="Eliminar">✕</button></td>'+
+  '</tr>';
+}
+function filaResultado(desc,tipo,distrib){
+  contId++; var id='r'+contId;
+  return '<tr id="'+id+'">'+
+    '<td><input type="text" class="f-desc" value="'+desc+'"/></td>'+
+    '<td><select class="f-tipo">'+
+      '<option value="ingreso"'+(tipo==='ingreso'?' selected':'')+'>Ingreso</option>'+
+      '<option value="gasto"'+(tipo==='gasto'?' selected':'')+'>Gasto</option>'+
+    '</select></td>'+
+    '<td><input type="number" class="f-importe" step="0.01" placeholder="0,00"/></td>'+
+    '<td><select class="f-fecha"'+(distrib?' disabled':'')+'>'+optsFechas('')+'</select></td>'+
+    '<td><div class="chk-wrap"><input type="checkbox" class="f-distrib" '+(distrib?'checked':'')+' onchange="this.closest(\'tr\').querySelector(\'.f-fecha\').disabled=this.checked"/></div></td>'+
+    '<td><button class="btn-del" onclick="this.closest(\'tr\').remove()" title="Eliminar">✕</button></td>'+
+  '</tr>';
+}
+
+function agregarFila(tabla){
+  if(tabla==='activo') document.getElementById('tbody-activo').insertAdjacentHTML('beforeend', filaActivoPasivo('','no_monetario',''));
+  if(tabla==='pasivo') document.getElementById('tbody-pasivo').insertAdjacentHTML('beforeend', filaActivoPasivo('','no_monetario',''));
+  if(tabla==='pn') document.getElementById('tbody-pn').insertAdjacentHTML('beforeend', filaPN('',''));
+  if(tabla==='resultado') document.getElementById('tbody-resultado').insertAdjacentHTML('beforeend', filaResultado('','ingreso',true));
+}
+
+function leerFilasAP(tbodyId){
+  var rows=[]; var trs=document.getElementById(tbodyId).querySelectorAll('tr');
+  trs.forEach(function(tr){
+    var desc=tr.querySelector('.f-desc').value||'(sin descripción)';
+    var tipo=tr.querySelector('.f-tipo').value;
+    var importe=parseFloat(tr.querySelector('.f-importe').value)||0;
+    var fecha=tr.querySelector('.f-fecha').value;
+    rows.push({desc:desc,tipo:tipo,importe:importe,fecha:fecha});
+  });
+  return rows;
+}
+function leerFilasPN(tbodyId){
+  var rows=[]; var trs=document.getElementById(tbodyId).querySelectorAll('tr');
+  trs.forEach(function(tr){
+    var desc=tr.querySelector('.f-desc').value||'(sin descripción)';
+    var importe=parseFloat(tr.querySelector('.f-importe').value)||0;
+    var fecha=tr.querySelector('.f-fecha').value;
+    rows.push({desc:desc,importe:importe,fecha:fecha});
+  });
+  return rows;
+}
+function leerFilasResultado(tbodyId){
+  var rows=[]; var trs=document.getElementById(tbodyId).querySelectorAll('tr');
+  trs.forEach(function(tr){
+    var desc=tr.querySelector('.f-desc').value||'(sin descripción)';
+    var tipo=tr.querySelector('.f-tipo').value;
+    var importe=parseFloat(tr.querySelector('.f-importe').value)||0;
+    var fecha=tr.querySelector('.f-fecha').value;
+    var distrib=tr.querySelector('.f-distrib').checked;
+    rows.push({desc:desc,tipo:tipo,importe:importe,fecha:fecha,distrib:distrib});
+  });
+  return rows;
+}
+
+function reexpresarAP(rows,fCierre){
+  var total=0;
+  rows.forEach(function(r){
+    if(r.tipo==='monetario'){ r.coef=1; r.reexpresado=r.importe; }
+    else { r.coef=coefDe(r.fecha,fCierre); r.reexpresado=r.importe*r.coef; }
+    r.ajuste=r.reexpresado-r.importe;
+    total+=r.reexpresado;
+  });
+  return total;
+}
+function reexpresarPN(rows,fCierre){
+  var total=0;
+  rows.forEach(function(r){
+    r.coef=coefDe(r.fecha,fCierre);
+    r.reexpresado=r.importe*r.coef;
+    r.ajuste=r.reexpresado-r.importe;
+    total+=r.reexpresado;
+  });
+  return total;
+}
+function reexpresarResultado(rows,fInicio,fCierre){
+  var total=0;
+  rows.forEach(function(r){
+    var signo = r.tipo==='gasto' ? -1 : 1;
+    r.coef = r.distrib ? coefPromedio(fInicio,fCierre) : coefDe(r.fecha,fCierre);
+    r.historicoSigno = signo*r.importe;
+    r.reexpresado = signo*r.importe*r.coef;
+    r.ajuste = r.reexpresado - r.historicoSigno;
+    total += r.reexpresado;
+  });
+  return total;
+}
+
+function calcular(){
+  var fInicio=document.getElementById('fecha-inicio').value;
+  var fCierre=document.getElementById('fecha-cierre').value;
+  if(!fInicio||!fCierre){ alert('Completá la fecha de inicio y la fecha de cierre del ejercicio.'); return; }
+  if(CLAVES.indexOf(fInicio) > CLAVES.indexOf(fCierre)){ alert('La fecha de inicio debe ser anterior a la fecha de cierre.'); return; }
+
+  var activo=leerFilasAP('tbody-activo');
+  var pasivo=leerFilasAP('tbody-pasivo');
+  var pn=leerFilasPN('tbody-pn');
+  var resultado=leerFilasResultado('tbody-resultado');
+
+  var totalActivo=reexpresarAP(activo,fCierre);
+  var totalPasivo=reexpresarAP(pasivo,fCierre);
+  var totalPN=reexpresarPN(pn,fCierre);
+  var totalResultado=reexpresarResultado(resultado,fInicio,fCierre);
+
+  var recpam = (totalActivo - totalPasivo) - totalPN - totalResultado;
+  var resultadoTotalAjustado = totalResultado + recpam;
+  var pnFinal = totalPN + resultadoTotalAjustado;
+  var diferencia = (totalActivo - totalPasivo) - pnFinal;
+  var verifica = Math.abs(diferencia) < 1;
+
+  window._ultimoCalculo = {fInicio:fInicio,fCierre:fCierre,activo:activo,pasivo:pasivo,pn:pn,resultado:resultado,
+    totalActivo:totalActivo,totalPasivo:totalPasivo,totalPN:totalPN,totalResultado:totalResultado,
+    recpam:recpam,resultadoTotalAjustado:resultadoTotalAjustado,pnFinal:pnFinal,verifica:verifica};
+
+  renderResultados(window._ultimoCalculo);
+}
+
+function filaTabla(r,extraTipoCol){
+  var tipoCol = extraTipoCol ? '<td>'+(r.tipo==='monetario'?'Monetario':(r.tipo==='no_monetario'?'No monetario':(r.tipo==='ingreso'?'Ingreso':'Gasto')))+'</td>' : '';
+  var importeMostrado = (r.historicoSigno!==undefined) ? r.historicoSigno : r.importe;
+  var ajusteCls = r.ajuste>=0 ? '' : 'style="color:#fca5a5"';
+  return '<tr><td>'+r.desc+'</td>'+tipoCol+'<td class="r">'+fmtMoneda(importeMostrado)+'</td><td class="r">'+fmtCoef(r.coef)+'</td><td class="r">'+fmtMoneda(r.reexpresado)+'</td><td class="r" '+ajusteCls+'>'+fmtMoneda(r.ajuste)+'</td></tr>';
+}
+
+function renderResultados(d){
+  var h='';
+  var recpamEsGanancia = d.recpam>=0;
+  h+='<div class="res-total'+(recpamEsGanancia?'':' neg')+'">';
+  h+='<div class="lbl">RECPAM — Resultado por Exposición al Cambio en el Poder Adquisitivo de la Moneda</div>';
+  h+='<div class="val">'+(recpamEsGanancia?'+':'')+fmtMoneda(d.recpam)+'</div>';
+  h+='<div class="sub">'+(recpamEsGanancia?'Ganancia por exposición a la inflación (posición monetaria pasiva neta)':'Pérdida por exposición a la inflación (posición monetaria activa neta)')+' · Del '+labelFecha(d.fInicio)+' al '+labelFecha(d.fCierre)+'</div>';
+  h+='</div>';
+
+  h+='<div class="grid-res">';
+
+  h+='<div class="card"><div class="card-title">💰 Activo reexpresado</div><table class="tabla"><thead><tr><th>Rubro</th><th>Tipo</th><th style="text-align:right">Histórico</th><th style="text-align:right">Coef.</th><th style="text-align:right">Reexpresado</th><th style="text-align:right">Ajuste</th></tr></thead><tbody>';
+  d.activo.forEach(function(r){ h+=filaTabla(r,true); });
+  h+='<tr class="tot"><td colspan="4">TOTAL ACTIVO</td><td class="r">'+fmtMoneda(d.totalActivo)+'</td><td></td></tr>';
+  h+='</tbody></table></div>';
+
+  h+='<div class="card"><div class="card-title">📋 Pasivo reexpresado</div><table class="tabla"><thead><tr><th>Rubro</th><th>Tipo</th><th style="text-align:right">Histórico</th><th style="text-align:right">Coef.</th><th style="text-align:right">Reexpresado</th><th style="text-align:right">Ajuste</th></tr></thead><tbody>';
+  d.pasivo.forEach(function(r){ h+=filaTabla(r,true); });
+  h+='<tr class="tot"><td colspan="4">TOTAL PASIVO</td><td class="r">'+fmtMoneda(d.totalPasivo)+'</td><td></td></tr>';
+  h+='</tbody></table></div>';
+
+  h+='<div class="card"><div class="card-title">🏛️ Patrimonio Neto reexpresado <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--sub)">(sin resultado del ejercicio)</span></div><table class="tabla"><thead><tr><th>Rubro</th><th style="text-align:right">Histórico</th><th style="text-align:right">Coef.</th><th style="text-align:right">Reexpresado</th><th style="text-align:right">Ajuste</th></tr></thead><tbody>';
+  d.pn.forEach(function(r){ h+=filaTabla(r,false); });
+  h+='<tr class="tot"><td colspan="3">TOTAL PN (sin resultado)</td><td class="r">'+fmtMoneda(d.totalPN)+'</td><td></td></tr>';
+  h+='</tbody></table></div>';
+
+  h+='<div class="card"><div class="card-title">📈 Estado de Resultados reexpresado</div><table class="tabla"><thead><tr><th>Concepto</th><th>Tipo</th><th style="text-align:right">Histórico</th><th style="text-align:right">Coef.</th><th style="text-align:right">Reexpresado</th><th style="text-align:right">Ajuste</th></tr></thead><tbody>';
+  d.resultado.forEach(function(r){ h+=filaTabla(r,true); });
+  h+='<tr class="tot"><td colspan="4">Subtotal (sin RECPAM)</td><td class="r">'+fmtMoneda(d.totalResultado)+'</td><td></td></tr>';
+  h+='<tr><td colspan="4">RECPAM</td><td class="r" style="'+(recpamEsGanancia?'color:#6ee7b7':'color:#fca5a5')+'">'+fmtMoneda(d.recpam)+'</td><td></td></tr>';
+  h+='<tr class="tot"><td colspan="4">RESULTADO DEL EJERCICIO (ajustado)</td><td class="r">'+fmtMoneda(d.resultadoTotalAjustado)+'</td><td></td></tr>';
+  h+='</tbody></table></div>';
+
+  h+='</div>'; // grid-res
+
+  h+='<div class="card">';
+  h+='<div class="card-title">✅ Verificación de la ecuación patrimonial</div>';
+  h+='<table class="tabla"><tbody>';
+  h+='<tr><td>Activo reexpresado</td><td class="r">'+fmtMoneda(d.totalActivo)+'</td></tr>';
+  h+='<tr><td>(–) Pasivo reexpresado</td><td class="r">'+fmtMoneda(-d.totalPasivo)+'</td></tr>';
+  h+='<tr class="tot"><td>= Patrimonio Neto reexpresado</td><td class="r">'+fmtMoneda(d.totalActivo-d.totalPasivo)+'</td></tr>';
+  h+='<tr><td>PN (sin resultado) + Resultado del ejercicio ajustado</td><td class="r">'+fmtMoneda(d.pnFinal)+'</td></tr>';
+  h+='</tbody></table>';
+  if(d.verifica){ h+='<div class="alerta alerta-ok">✅ La ecuación patrimonial cierra: Activo − Pasivo = Patrimonio Neto reexpresado.</div>'; }
+  else { h+='<div class="alerta alerta-err">⚠️ Diferencia de '+fmtMoneda(d.totalActivo-d.totalPasivo-d.pnFinal)+' entre Activo−Pasivo y el PN reexpresado. Revisá que todos los rubros estén cargados (activo, pasivo, PN y resultados) y que las fechas de origen sean correctas.</div>'; }
+  h+='</div>';
+
+  h+='<div class="card" style="text-align:center"><button class="btn-calc" onclick="generarPDF()">📄 Descargar informe en PDF</button></div>';
+
+  document.getElementById('resultados').innerHTML=h;
+  document.getElementById('resultados').style.display='block';
+  document.getElementById('resultados').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function generarPDF(){
+  var d=window._ultimoCalculo;
+  if(!d){ return; }
+  var fechaHoy=new Date().toLocaleDateString('es-AR');
+  function TR(cols){ var h='<tr>'; cols.forEach(function(c,i){ h+='<td style="padding:3px 6px;border-bottom:1px solid #ddd;'+(i>0?'text-align:right;':'')+(c.bold?'font-weight:bold':'')+'">'+c.v+'</td>'; }); h+='</tr>'; return h; }
+  var html='';
+  html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;font-size:8.5pt"><tr>';
+  html+='<td style="padding:6px"><b style="font-size:10pt">Ajuste por Inflación Contable — RT 6</b><br/><span style="font-size:7.5pt">FACPCE — Estados Contables en Moneda Homogénea</span></td>';
+  html+='<td style="padding:6px;text-align:right;font-size:7.5pt">Ejercicio: <b>'+labelFecha(d.fInicio)+'</b> a <b>'+labelFecha(d.fCierre)+'</b><br/>Fecha informe: '+fechaHoy+'</td>';
+  html+='</tr></table>';
+
+  function tablaSeccion(titulo,rows,tieneTipo,totalLbl,total){
+    var hh='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:7.5pt">';
+    hh+='<thead><tr style="background:#e0e0e0"><th style="padding:4px 6px;text-align:left" colspan="'+(tieneTipo?2:1)+'">'+titulo+'</th><th style="padding:4px 6px;text-align:right">Histórico</th><th style="padding:4px 6px;text-align:right">Coef.</th><th style="padding:4px 6px;text-align:right">Reexpresado</th></tr></thead><tbody>';
+    rows.forEach(function(r){
+      var imp=(r.historicoSigno!==undefined)?r.historicoSigno:r.importe;
+      var tipoTxt = tieneTipo ? (r.tipo==='monetario'?'Mon.':(r.tipo==='no_monetario'?'No mon.':(r.tipo==='ingreso'?'Ingreso':'Gasto'))) : '';
+      hh+='<tr><td style="padding:3px 6px;border-bottom:1px solid #ddd" colspan="'+(tieneTipo?1:1)+'">'+r.desc+'</td>'+(tieneTipo?'<td style="padding:3px 6px;border-bottom:1px solid #ddd;font-size:7pt;color:#555">'+tipoTxt+'</td>':'')+'<td style="padding:3px 6px;border-bottom:1px solid #ddd;text-align:right">'+fmtMoneda(imp)+'</td><td style="padding:3px 6px;border-bottom:1px solid #ddd;text-align:right">'+fmtCoef(r.coef)+'</td><td style="padding:3px 6px;border-bottom:1px solid #ddd;text-align:right">'+fmtMoneda(r.reexpresado)+'</td></tr>';
+    });
+    hh+='<tr style="background:#eee"><td colspan="'+(tieneTipo?3:2)+'" style="padding:4px 6px;font-weight:bold">'+totalLbl+'</td><td></td><td style="padding:4px 6px;text-align:right;font-weight:bold">'+fmtMoneda(total)+'</td></tr>';
+    hh+='</tbody></table>';
+    return hh;
+  }
+
+  html+=tablaSeccion('Activo',d.activo,true,'TOTAL ACTIVO',d.totalActivo);
+  html+=tablaSeccion('Pasivo',d.pasivo,true,'TOTAL PASIVO',d.totalPasivo);
+  html+=tablaSeccion('Patrimonio Neto (sin resultado del ejercicio)',d.pn,false,'TOTAL PN (sin resultado)',d.totalPN);
+  html+=tablaSeccion('Estado de Resultados (sin RECPAM)',d.resultado,true,'Subtotal (sin RECPAM)',d.totalResultado);
+
+  html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:8pt">';
+  html+='<tr style="background:'+(d.recpam>=0?'#e3f9ed':'#fdecea')+'"><td style="padding:5px 6px;font-weight:bold">RECPAM (Resultado por Exposición a la Inflación)</td><td style="padding:5px 6px;text-align:right;font-weight:bold">'+fmtMoneda(d.recpam)+'</td></tr>';
+  html+='<tr style="background:#e0e0e0"><td style="padding:6px;font-weight:bold;font-size:9pt">RESULTADO DEL EJERCICIO AJUSTADO POR INFLACIÓN</td><td style="padding:6px;text-align:right;font-weight:bold;font-size:9pt">'+fmtMoneda(d.resultadoTotalAjustado)+'</td></tr>';
+  html+='</table>';
+
+  html+='<table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:0;font-size:7.5pt">';
+  html+='<tr><td style="padding:5px 6px">Activo reexpresado − Pasivo reexpresado</td><td style="padding:5px 6px;text-align:right">'+fmtMoneda(d.totalActivo-d.totalPasivo)+'</td></tr>';
+  html+='<tr><td style="padding:5px 6px">PN (sin resultado) + Resultado del ejercicio ajustado</td><td style="padding:5px 6px;text-align:right">'+fmtMoneda(d.pnFinal)+'</td></tr>';
+  html+='</table>';
+
+  html+='<div style="border:1.5px solid #000;border-top:0;padding:5px 8px;font-size:6.5pt;color:#333">Ajuste por inflación contable según RT 6 (FACPCE) — "Estados Contables en Moneda Homogénea". Índice utilizado: IPC Nivel General INDEC (base dic-2016=100). El RECPAM se determina por el método indirecto (por diferencia). Informe orientativo — verificar con asesoría profesional antes de su uso en estados contables definitivos.</div>';
+  html+='<div style="font-size:6.5pt;color:#666;text-align:center;margin-top:6px">Generado con ImpoBot — impobot.com.ar · Uso orientativo</div>';
+
+  document.getElementById('pdf-cont').innerHTML=html;
+  document.getElementById('pdf-overlay').style.display='block';
+  window.scrollTo(0,0);
+}
+
+// Init
+(function(){
+  var cierreDefault = CLAVES[CLAVES.length-1];
+  var idxCierre = CLAVES.length-1;
+  var idxInicio = Math.max(0, idxCierre-12);
+  var inicioDefault = CLAVES[idxInicio];
+  var selI=document.getElementById('fecha-inicio'), selC=document.getElementById('fecha-cierre');
+  selI.innerHTML=optsFechas(inicioDefault);
+  selC.innerHTML=optsFechas(cierreDefault);
+
+  document.getElementById('tbody-activo').innerHTML =
+    filaActivoPasivo('Caja y Bancos','monetario','') +
+    filaActivoPasivo('Créditos por Ventas','monetario','') +
+    filaActivoPasivo('Bienes de Cambio','no_monetario',inicioDefault) +
+    filaActivoPasivo('Bienes de Uso (neto de amortizaciones)','no_monetario',inicioDefault);
+
+  document.getElementById('tbody-pasivo').innerHTML =
+    filaActivoPasivo('Proveedores','monetario','') +
+    filaActivoPasivo('Préstamos / Deudas Financieras','monetario','');
+
+  document.getElementById('tbody-pn').innerHTML =
+    filaPN('Capital',inicioDefault) +
+    filaPN('Ajuste de Capital (RT 6 — ejercicios anteriores)',inicioDefault) +
+    filaPN('Resultados No Asignados (ejercicios anteriores)',inicioDefault);
+
+  document.getElementById('tbody-resultado').innerHTML =
+    filaResultado('Ventas','ingreso',true) +
+    filaResultado('Costo de Mercadería Vendida','gasto',true) +
+    filaResultado('Gastos de Administración y Comercialización','gasto',true) +
+    filaResultado('Amortizaciones','gasto',true);
+})();
+</script>
+<a href="https://api.whatsapp.com/send?text=Calculadora%20de%20Ajuste%20por%20Inflaci%C3%B3n%20Contable%20(RT%206)%20ImpoBot%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/ajuste-inflacion.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
+  style="position:fixed;bottom:76px;right:20px;z-index:998;background:#25D366;color:#fff;
+    width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;text-decoration:none;box-shadow:0 2px 12px rgba(37,211,102,.3);transition:all .2s"
+  onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('../sw.js?v=11', { updateViaCache: 'none' }).then(function(reg){ reg.update(); setInterval(function(){ reg.update(); }, 1800000); }).catch(function(){}); var _swReloaded=false; navigator.serviceWorker.addEventListener('controllerchange', function(){ if(_swReloaded)return; _swReloaded=true; location.reload(); });}</script>
+<script src="/report-widget.js"></script>
+</body>
+</html>
