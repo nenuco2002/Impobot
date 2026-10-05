@@ -1,0 +1,362 @@
+ <!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Reducción de IVA por Transición Monotributo → Régimen General — ImpoBot</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#2d4f68;--card:#35546f;--card2:#35546f;--border:#4d7a96;--text:#f0f6fb;--sub:#9dbdd6;--blue:#0b82f5;--blue-l:#60a5fa;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--violet:#8b5cf6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:60px}
+.shell{max-width:980px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:16px}
+.card-title{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-l);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.68rem;font-weight:600;color:var(--sub);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select{width:100%;background:#1e3a4e;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:.88rem;outline:none;font-family:'Inter',sans-serif}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;align-items:end}
+.btn-calc{background:linear-gradient(135deg,#0762c8,var(--blue));color:#fff;border:none;padding:10px 16px;border-radius:10px;font-size:.84rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-calc:hover{filter:brightness(1.1)}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--sub);padding:9px 14px;border-radius:10px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-ghost:hover{border-color:var(--blue);color:var(--text)}
+.btn-del{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:.85rem}
+.result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:4px}
+.r-item{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.r-label{font-size:.63rem;color:var(--sub);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.r-val{font-size:1.05rem;font-weight:800;color:#fff}
+.r-val.green{color:var(--green)}
+.r-val.red{color:var(--red)}
+.alerta{border-radius:8px;padding:10px 13px;font-size:.75rem;line-height:1.55;margin-bottom:12px}
+.alerta-info{background:rgba(11,130,245,.07);border:1px solid rgba(11,130,245,.2);color:var(--blue-l)}
+.alerta-warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.check-list{list-style:none;font-size:.78rem;line-height:1.75;color:var(--text)}
+.check-list li{padding-left:20px;position:relative;margin-bottom:4px}
+.check-list li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:800}
+.ptable-wrap{overflow-x:auto;margin-top:6px}
+.ptable{width:100%;border-collapse:collapse;font-size:.76rem;min-width:760px}
+.ptable th{background:rgba(11,130,245,.1);color:var(--blue-l);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:7px 8px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+.ptable td{padding:5px 8px;border-bottom:1px solid rgba(26,47,69,.5);color:var(--text);white-space:nowrap}
+.ptable td input{width:100%;min-width:90px;background:#1e3a4e;border:1.5px solid var(--border);color:var(--text);padding:6px 8px;border-radius:6px;font-size:.78rem;outline:none;font-family:'Inter',sans-serif}
+.ptable td input:focus{border-color:var(--blue)}
+.ptable tr:last-child td{border-bottom:none}
+.ptable tfoot td{font-weight:800;background:rgba(16,185,129,.06);border-top:2px solid var(--border)}
+.badge-year{display:inline-block;font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:5px}
+.badge-y1{background:rgba(16,185,129,.15);color:#6ee7b7}
+.badge-y2{background:rgba(245,158,11,.15);color:#fcd34d}
+.badge-y3{background:rgba(139,92,246,.15);color:#c4b5fd}
+.badge-y0{background:rgba(255,255,255,.08);color:var(--sub)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+@media(max-width:600px){.row2,.row3,.result-grid{grid-template-columns:1fr}}
+
+/* ── FH: header ImpoBot ── */
+.fh-head{position:sticky;top:0;z-index:500;font-family:'Inter',system-ui,sans-serif}
+.fh-bar{height:46px;display:flex;align-items:center;gap:10px;padding:0 16px;background:linear-gradient(135deg,#0b1220,#141d2e);border-bottom:1px solid rgba(255,255,255,.06)}
+.fh-brand{display:flex;align-items:center;gap:7px;text-decoration:none;flex-shrink:0}
+.fh-brand img{width:24px;height:24px;border-radius:50%;display:block}
+.fh-word{font-size:.86rem;font-weight:800;color:#eaf1f8;letter-spacing:-.02em;white-space:nowrap}
+.fh-word b{color:#38bdf8;font-weight:800}
+.fh-sep{width:1px;height:20px;background:rgba(255,255,255,.15);flex-shrink:0}
+.fh-title{font-size:.78rem;font-weight:700;color:#eaf1f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fh-tools{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.fh-chip{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-size:.75rem;text-decoration:none;background:rgba(255,255,255,.07);transition:background .15s}
+.fh-chip:hover{background:rgba(255,255,255,.14)}
+.fh-strip{height:28px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px;background:linear-gradient(90deg,#0b82f5,#0ea5e9);font-size:.66rem;font-weight:600;color:#eaf6ff;overflow:hidden}
+.fh-crumb a{color:#eaf6ff;opacity:.85;text-decoration:none}
+.fh-crumb a:hover{opacity:1;text-decoration:underline}
+.fh-crumb i{opacity:.6;margin:0 4px;font-style:normal}
+.fh-meta{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
+.fh-badge{background:rgba(255,255,255,.2);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.02em}
+@media(max-width:640px){.fh-strip .fh-meta-text{display:none}.fh-title{max-width:130px}}
+.guia-wrap{margin:0 0 16px;border:1px solid rgba(77,122,150,.35);border-radius:10px;overflow:hidden}
+.guia-wrap summary{cursor:pointer;padding:10px 16px;background:rgba(30,58,78,.6);color:var(--sub,#9dbdd6);font-size:.8rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+.guia-wrap summary:hover{color:var(--text,#f0f6fb)}
+.guia-wrap[open] summary{color:var(--text,#f0f6fb);background:rgba(30,58,78,.9)}
+.guia-body{padding:14px 18px;background:rgba(30,58,78,.4);font-size:.82rem;line-height:1.65;color:var(--text,#f0f6fb)}
+.guia-body ol{margin:8px 0 8px 18px;padding:0}
+.guia-body li{margin-bottom:5px}
+.guia-nota{margin-top:10px;padding:8px 12px;background:rgba(245,158,11,.07);border-left:3px solid #f59e0b;border-radius:4px;font-size:.75rem;color:var(--sub,#9dbdd6)}
+</style>
+<link rel="manifest" href="../manifest.json"/>
+<meta name="theme-color" content="#0b82f5"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<link rel="apple-touch-icon" href="../logo.png"/>
+</head>
+<body>
+<header class="fh-head">
+<div class="fh-bar">
+<a class="fh-brand" href="../index.html">
+<img src="../logo-sm.png" alt="ImpoBot"/>
+<span class="fh-word"><b>impo</b>bot</span>
+</a>
+<span class="fh-sep"></span>
+<span class="fh-title">📉 Reducción de IVA (Transición)</span>
+<div class="fh-tools">
+<a class="fh-chip" style="background:#FFDD00;color:#000" href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" title="Buy Me a Coffee">☕</a>
+<a class="fh-chip" style="background:#FF5E5B;color:#fff" href="https://ko-fi.com/impobot" target="_blank" rel="noopener" title="Ko-fi">💙</a>
+</div>
+</div>
+<div class="fh-strip">
+<span class="fh-crumb"><a href="../index.html">Herramientas</a><i>›</i><strong>Reducción IVA Transición</strong></span>
+<span class="fh-meta"><span class="fh-meta-text">Art. 12 · Ley 27.618</span><span class="fh-badge">ARCA 2026</span></span>
+</div>
+</header>
+
+<div class="shell">
+<div style="margin-bottom:18px">
+<details class="guia-wrap" style="max-width:940px;margin:12px auto 0;padding:0 16px">
+<summary>❓ ¿Cómo usar esta calculadora?</summary>
+<div class="guia-body"><ol>
+<li>Ingresá la <strong>fecha en que tuvo efecto</strong> la exclusión o renuncia al Monotributo (el día en que pasaste a Régimen General).</li>
+<li>La herramienta calcula automáticamente en qué año del beneficio cae cada período (año 1 = 50%, año 2 = 30%, año 3 = 10%).</li>
+<li>Usá <strong>Generar 36 períodos</strong> para crear automáticamente una fila por mes de los 3 años del beneficio, o agregalas manualmente con <strong>+ Agregar período</strong>.</li>
+<li>Por cada período cargá el <strong>débito fiscal</strong> y el <strong>crédito fiscal</strong> de esa declaración de IVA. El saldo deudor, la reducción y el monto a ingresar se calculan solos.</li>
+<li>Revisá el panel de <strong>elegibilidad</strong>: el cálculo es matemático, no determina si el beneficio corresponde a tu caso.</li>
+</ol>
+<div class="guia-nota">ℹ️ Base legal: Art. 12, Ley 27.618. Reducción del saldo técnico de IVA para quienes pasan de Monotributo a Régimen General.</div>
+</div>
+</details>
+<h1 style="font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:5px">Reducción de IVA por Transición Monotributo → Régimen General</h1>
+<p style="font-size:.82rem;color:var(--sub)">Beneficio del Art. 12, Ley 27.618: reducción del saldo técnico de IVA durante 3 años (50% / 30% / 10%) para quienes dejan el Monotributo y pasan a Régimen General.</p>
+</div>
+
+<div class="alerta alerta-info">
+📌 <strong>Cómo funciona:</strong> Saldo deudor = Débito fiscal − Crédito fiscal. Reducción = Saldo deudor × 50% (año 1) / 30% (año 2) / 10% (año 3). A ingresar = Saldo deudor − Reducción. El beneficio arranca en <strong>enero del año siguiente</strong> al que tuvo efecto la exclusión o renuncia, y corre por 3 años calendario completos.
+</div>
+
+<!-- ELEGIBILIDAD -->
+<div class="card">
+<div class="card-title">✅ Elegibilidad — puntos a verificar (no es una determinación legal)</div>
+<ul class="check-list">
+<li>Tiene que ser una transición real de Monotributo a Régimen General, ya sea por <strong>exclusión</strong> (al superar los límites de categoría) o por <strong>renuncia voluntaria</strong>.</li>
+<li>El beneficio se otorga <strong>por única vez</strong> por contribuyente.</li>
+<li>Hay que haberlo <strong>solicitado en el Sistema Registral de ARCA</strong> (con Clave Fiscal), lo que genera la Caracterización 519, antes de que termine el año calendario en que tuvo efecto la exclusión o renuncia.</li>
+<li>Con el beneficio ya solicitado, desde <strong>IVA Simple</strong> (F.2051) la reducción se refleja automáticamente en la determinación de cada período — no requiere trámite adicional mes a mes.</li>
+</ul>
+<div class="alerta alerta-warn" style="margin-top:12px;margin-bottom:0">⚠ Esta calculadora resuelve la <strong>mecánica del cálculo</strong> una vez que el beneficio corresponde. No evalúa si tu caso particular califica (hubo cambios normativos recientes con IVA Simple) — confirmá la situación concreta en ARCA o con tu asesor antes de presentar.</div>
+</div>
+
+<!-- DATOS -->
+<div class="card">
+<div class="card-title">⚙️ Fecha de transición</div>
+<div class="row2">
+<div class="field">
+<label>Fecha en que tuvo efecto la exclusión / renuncia al Monotributo</label>
+<input type="date" id="fTransicion" onchange="actualizarAnios()"/>
+</div>
+<div class="field">
+<label>El beneficio corresponde a</label>
+<input type="text" id="rangoAnios" disabled style="opacity:.85"/>
+</div>
+</div>
+</div>
+
+<!-- TABLA DE PERÍODOS -->
+<div class="card">
+<div class="card-title">📋 Períodos de IVA</div>
+<div class="ptable-wrap">
+<table class="ptable" id="tablaPeriodos">
+<thead>
+<tr>
+<th>Período</th>
+<th>Débito fiscal $</th>
+<th>Crédito fiscal $</th>
+<th>Saldo deudor</th>
+<th>Año benef.</th>
+<th>% Reducción</th>
+<th>Reducción $</th>
+<th>A ingresar $</th>
+<th></th>
+</tr>
+</thead>
+<tbody id="bodyPeriodos"></tbody>
+<tfoot>
+<tr>
+<td colspan="3">TOTALES</td>
+<td id="totSaldo">$ 0,00</td>
+<td></td>
+<td></td>
+<td id="totReduccion">$ 0,00</td>
+<td id="totIngresar">$ 0,00</td>
+<td></td>
+</tr>
+</tfoot>
+</table>
+</div>
+<div class="toolbar">
+<button class="btn-calc" onclick="agregarFila()">+ Agregar período</button>
+<button class="btn-ghost" onclick="generar36()">📅 Generar 36 períodos (3 años)</button>
+<button class="btn-ghost" onclick="limpiarTabla()">🗑 Vaciar tabla</button>
+</div>
+</div>
+
+<!-- RESUMEN -->
+<div class="card">
+<div class="card-title">📊 Resumen</div>
+<div class="result-grid">
+<div class="r-item">
+<div class="r-label">Saldo deudor total</div>
+<div class="r-val" id="res-saldo">$ 0,00</div>
+</div>
+<div class="r-item">
+<div class="r-label">Reducción total</div>
+<div class="r-val green" id="res-reduccion">$ 0,00</div>
+</div>
+<div class="r-item">
+<div class="r-label">Total a ingresar</div>
+<div class="r-val red" id="res-ingresar">$ 0,00</div>
+</div>
+<div class="r-item">
+<div class="r-label">% ahorro sobre saldo deudor</div>
+<div class="r-val" id="res-pct">0%</div>
+</div>
+</div>
+</div>
+
+<div class="alerta alerta-warn">⚠ Cálculo orientativo basado en el Art. 12, Ley 27.618. Verificá siempre el detalle en tu declaración jurada de IVA y la situación de tu caso en ARCA.</div>
+</div>
+
+<script>
+var contador = 0;
+var anioInicio = null; // año calendario del primer año del beneficio (año de transición + 1)
+
+function actualizarAnios(){
+var v = document.getElementById('fTransicion').value;
+if(!v){ anioInicio = null; document.getElementById('rangoAnios').value=''; recalcularTodo(); return; }
+var anioTransicion = parseInt(v.slice(0,4),10);
+anioInicio = anioTransicion + 1;
+document.getElementById('rangoAnios').value = 'Enero ' + anioInicio + ' a diciembre ' + (anioInicio+2);
+recalcularTodo();
+}
+
+function anioBeneficio(periodoAnio){
+if(!anioInicio) return 0;
+if(periodoAnio === anioInicio) return 1;
+if(periodoAnio === anioInicio+1) return 2;
+if(periodoAnio === anioInicio+2) return 3;
+return 0;
+}
+
+function pctPorAnio(n){
+if(n===1) return 50;
+if(n===2) return 30;
+if(n===3) return 10;
+return 0;
+}
+
+function fmt(n){
+n = parseFloat(n)||0;
+return '$ '+n.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function agregarFila(periodoVal){
+contador++;
+var id = 'p'+contador;
+var tr = document.createElement('tr');
+tr.id = id;
+tr.innerHTML =
+'<td><input type="month" id="'+id+'-per" value="'+(periodoVal||'')+'" onchange="recalcularFila(\''+id+'\')"/></td>' +
+'<td><input type="number" id="'+id+'-deb" placeholder="0" oninput="recalcularFila(\''+id+'\')"/></td>' +
+'<td><input type="number" id="'+id+'-cre" placeholder="0" oninput="recalcularFila(\''+id+'\')"/></td>' +
+'<td id="'+id+'-saldo">$ 0,00</td>' +
+'<td id="'+id+'-anio"><span class="badge-year badge-y0">—</span></td>' +
+'<td id="'+id+'-pct">—</td>' +
+'<td id="'+id+'-red">$ 0,00</td>' +
+'<td id="'+id+'-ing">$ 0,00</td>' +
+'<td><button class="btn-del" onclick="document.getElementById(\''+id+'\').remove();recalcularTodo();" title="Eliminar">✕</button></td>';
+document.getElementById('bodyPeriodos').appendChild(tr);
+if(periodoVal) recalcularFila(id);
+}
+
+function recalcularFila(id){
+var perEl = document.getElementById(id+'-per');
+var per = perEl ? perEl.value : '';
+var deb = parseFloat(document.getElementById(id+'-deb').value)||0;
+var cre = parseFloat(document.getElementById(id+'-cre').value)||0;
+var saldo = Math.max(0, deb - cre);
+var anio = per ? parseInt(per.slice(0,4),10) : null;
+var nAnio = anio ? anioBeneficio(anio) : 0;
+var pct = pctPorAnio(nAnio);
+var reduccion = saldo * pct/100;
+var ingresar = saldo - reduccion;
+
+document.getElementById(id+'-saldo').textContent = fmt(saldo);
+var badgeClass = nAnio===1?'badge-y1':nAnio===2?'badge-y2':nAnio===3?'badge-y3':'badge-y0';
+var badgeTxt = nAnio>0 ? ('Año '+nAnio) : '—';
+document.getElementById(id+'-anio').innerHTML = '<span class="badge-year '+badgeClass+'">'+badgeTxt+'</span>';
+document.getElementById(id+'-pct').textContent = nAnio>0 ? (pct+'%') : '—';
+document.getElementById(id+'-red').textContent = fmt(reduccion);
+document.getElementById(id+'-ing').textContent = fmt(ingresar);
+
+recalcularTotales();
+}
+
+function recalcularTodo(){
+var filas = document.querySelectorAll('#bodyPeriodos tr');
+filas.forEach(function(tr){ recalcularFila(tr.id); });
+recalcularTotales();
+}
+
+function recalcularTotales(){
+var filas = document.querySelectorAll('#bodyPeriodos tr');
+var totSaldo=0, totRed=0, totIng=0;
+filas.forEach(function(tr){
+var id = tr.id;
+var deb = parseFloat(document.getElementById(id+'-deb').value)||0;
+var cre = parseFloat(document.getElementById(id+'-cre').value)||0;
+var saldo = Math.max(0, deb-cre);
+var perEl = document.getElementById(id+'-per');
+var per = perEl ? perEl.value : '';
+var anio = per ? parseInt(per.slice(0,4),10) : null;
+var nAnio = anio ? anioBeneficio(anio) : 0;
+var pct = pctPorAnio(nAnio);
+var red = saldo*pct/100;
+totSaldo += saldo;
+totRed += red;
+totIng += (saldo-red);
+});
+document.getElementById('totSaldo').textContent = fmt(totSaldo);
+document.getElementById('totReduccion').textContent = fmt(totRed);
+document.getElementById('totIngresar').textContent = fmt(totIng);
+document.getElementById('res-saldo').textContent = fmt(totSaldo);
+document.getElementById('res-reduccion').textContent = fmt(totRed);
+document.getElementById('res-ingresar').textContent = fmt(totIng);
+document.getElementById('res-pct').textContent = (totSaldo>0 ? (totRed/totSaldo*100).toFixed(2) : '0.00')+'%';
+}
+
+function limpiarTabla(){
+document.getElementById('bodyPeriodos').innerHTML = '';
+recalcularTotales();
+}
+
+function generar36(){
+if(!anioInicio){ alert('Ingresá primero la fecha de transición.'); return; }
+limpiarTabla();
+for(var a=0; a<3; a++){
+var anio = anioInicio + a;
+for(var m=1; m<=12; m++){
+var mes = (m<10?'0':'')+m;
+agregarFila(anio+'-'+mes);
+}
+}
+}
+
+// inicializar con una fila vacía
+agregarFila();
+</script>
+
+<a href="https://api.whatsapp.com/send?text=Calculadora%20de%20Reducci%C3%B3n%20de%20IVA%20por%20transici%C3%B3n%20Monotributo%20%E2%86%92%20R%C3%A9gimen%20General%20(Art.%2012%20Ley%2027.618)%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/reduccion-iva-transicion.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
+style="position:fixed;bottom:76px;right:20px;z-index:998;background:#25D366;color:#fff;
+width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+font-size:1.1rem;text-decoration:none;box-shadow:0 2px 12px rgba(37,211,102,.3);transition:all .2s"
+onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('../sw.js?v=11', { updateViaCache: 'none' }).then(function(reg){ reg.update(); setInterval(function(){ reg.update(); }, 1800000); }).catch(function(){}); var _swReloaded=false; navigator.serviceWorker.addEventListener('controllerchange', function(){ if(_swReloaded)return; _swReloaded=true; location.reload(); });}</script>
+<script src="/report-widget.js"></script>
+</body>
+</html>
