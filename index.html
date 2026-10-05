@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>ImpoBot — Herramientas fiscales inteligentes 🇦🇷</title>
-<meta name="description" content="ImpoBot: herramientas fiscales gratuitas para Argentina. Ganancias, Monotributo, Sueldos, Recibos LSD, Vencimientos ARCA 2026."/>
+<meta name="description" content="ImpoBot: herramientas fiscales para Argentina. Ganancias, Monotributo, Sueldos, FAL, Recibos LSD y Vencimientos ARCA."/>
 <meta name="keywords" content="impuestos argentina, ganancias 4ta categoria, monotributo 2026, ARCA, liquidacion sueldos, impobot"/>
 <meta property="og:title" content="ImpoBot — Herramientas fiscales inteligentes"/>
 <meta property="og:description" content="Calculadoras impositivas y laborales para contadores y empresas argentinas. Monotributo, Ganancias, sueldos, vencimientos y retenciones. Tablas ARCA/ANSES 2026."/>
@@ -51,6 +51,21 @@ img{max-width:100%}
 .ib-menu{display:flex;align-items:center;gap:4px}
 .ib-menu a{color:#c7d2e0;text-decoration:none;font-size:.82rem;font-weight:600;padding:8px 13px;border-radius:8px;transition:all .15s}
 .ib-menu a:hover{color:#fff;background:rgba(255,255,255,.07)}
+
+/* ── DROPDOWNS DE CATEGORIAS ── */
+.ib-dropdown{position:relative}
+.ib-dropdown>button{background:none;border:none;color:#c7d2e0;font:inherit;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;padding:8px 11px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
+.ib-dropdown>button:hover,.ib-dropdown.open>button{color:#fff;background:rgba(255,255,255,.08)}
+.ib-dropdown .chev{transition:transform .15s;flex-shrink:0}
+.ib-dropdown.open .chev{transform:rotate(180deg)}
+.ib-dropdown-menu{position:absolute;top:calc(100% + 10px);left:0;min-width:280px;background:var(--surface);border:1px solid var(--border);border-radius:13px;box-shadow:var(--shadow-lg);padding:8px;display:none;z-index:300}
+.ib-dropdown.open .ib-dropdown-menu{display:block;animation:ddIn .12s ease-out}
+@keyframes ddIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.ib-dropdown-menu a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;text-decoration:none;color:var(--ink);font-size:.8rem;font-weight:600;transition:background .15s}
+.ib-dropdown-menu a:hover{background:var(--surface-2)}
+.ib-dropdown-menu .dd-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.ib-dropdown-menu .dd-head{font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);padding:6px 10px 8px}
+
 .ib-bar-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
 .ib-chip{display:flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;text-decoration:none;padding:6px 12px;border-radius:20px;transition:transform .15s}
 .ib-chip:hover{transform:translateY(-1px)}
@@ -110,10 +125,13 @@ img{max-width:100%}
 /* ── TOOLS GRID ── */
 .section{padding:6px 28px 50px;max-width:1280px;margin:0 auto}
 @media(max-width:600px){.section{padding:6px 14px 40px}}
-.sec-hd{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.cat-group{margin-bottom:34px}
+.cat-group:last-child{margin-bottom:0}
+.cat-intro{font-size:.76rem;color:var(--ink-2);margin:-10px 0 16px;max-width:640px;line-height:1.5}
+.sec-hd{display:flex;align-items:center;gap:12px;margin-bottom:10px}
 .sec-hd h2{font-size:.95rem;font-weight:800;color:var(--ink);white-space:nowrap}
 .divider{flex:1;height:1px;background:var(--border)}
-.sec-hd span{font-size:.72rem;color:var(--ink-3)}
+.sec-hd span{font-size:.72rem;color:var(--ink-3);white-space:nowrap}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 @media(max-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.grid{grid-template-columns:1fr}}
@@ -193,6 +211,33 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
 .bmc-float{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;align-items:center;gap:7px;background:#FFDD00;color:#000;font-weight:800;font-size:.78rem;padding:10px 16px;border-radius:50px;text-decoration:none;box-shadow:0 4px 20px rgba(0,0,0,.22);transition:all .2s}
 .bmc-float:hover{transform:scale(1.05)}
 
+/* ── ASISTENTE IMPOBOT (chat) ── */
+.chat-fab{position:fixed;bottom:178px;right:20px;z-index:998;width:52px;height:52px;border-radius:50%;padding:0;border:none;cursor:pointer;background:linear-gradient(135deg,var(--blue-d),var(--blue-l));box-shadow:0 6px 20px rgba(11,130,245,.4);display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.chat-fab:hover{transform:scale(1.07)}
+.chat-fab img{width:34px;height:34px;border-radius:50%}
+.chat-fab .dot{position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid #fff}
+.chat-panel{position:fixed;bottom:238px;right:20px;z-index:1001;width:330px;max-width:calc(100vw - 28px);max-height:min(480px,calc(100vh - 260px));display:flex;flex-direction:column;background:#fff;border-radius:16px;box-shadow:0 24px 60px rgba(9,15,28,.35);overflow:hidden;border:1px solid var(--border)}
+.chat-panel[hidden]{display:none}
+.chat-head{background:linear-gradient(135deg,var(--navy-1),var(--navy-2));color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.chat-head img{width:30px;height:30px;border-radius:50%}
+.chat-head b{font-size:.82rem;display:block}
+.chat-head small{display:block;font-size:.62rem;color:#8fd8ff}
+.chat-head button{margin-left:auto;background:rgba(255,255,255,.1);border:none;color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:.85rem;line-height:1}
+.chat-head button:hover{background:rgba(255,255,255,.2)}
+.chat-body{padding:12px 14px;display:flex;flex-direction:column;gap:9px;background:var(--surface-2);overflow-y:auto;flex:1;min-height:180px}
+.bubble{max-width:88%;padding:8px 11px;border-radius:12px;font-size:.78rem;line-height:1.5;white-space:pre-wrap}
+.bubble.bot{background:#fff;border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:3px;color:var(--ink)}
+.bubble.user{background:var(--blue);color:#fff;align-self:flex-end;border-bottom-right-radius:3px}
+.bubble.typing{color:var(--ink-3);font-style:italic}
+.chat-foot{border-top:1px solid var(--border);background:#fff;flex-shrink:0}
+.chat-input{display:flex;gap:8px;padding:10px 12px}
+.chat-input input{flex:1;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:9px 14px;font-size:.78rem;font-family:'Inter',sans-serif;outline:none;color:var(--ink)}
+.chat-input input:focus{border-color:var(--blue)}
+.chat-input button{width:34px;height:34px;border-radius:50%;background:var(--blue);color:#fff;border:none;cursor:pointer;font-size:.85rem;flex-shrink:0}
+.chat-input button:disabled{opacity:.5;cursor:default}
+.chat-disclaimer{font-size:.6rem;color:var(--ink-3);text-align:center;padding:0 12px 9px}
+@media(max-width:480px){.chat-panel{right:14px;bottom:222px}.chat-fab{right:14px}}
+
 .wide-wrap{max-width:1280px;margin:0 auto;padding:0 28px 26px}
 @media(max-width:600px){.wide-wrap{padding-left:14px;padding-right:14px}}
 </style>
@@ -210,7 +255,45 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       </div>
     </a>
     <nav class="ib-menu">
-      <a href="#tools">Herramientas</a>
+      <div class="ib-dropdown">
+        <button type="button">🧮 Calculadoras <svg class="chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="ib-dropdown-menu">
+          <div class="dd-head">11 calculadoras</div>
+          <a href="tools/ganancias.html"><span class="dd-icon">🧮</span>Ganancias 4ª Categoría</a>
+          <a href="tools/monotributo.html"><span class="dd-icon">📊</span>Monotributo</a>
+          <a href="tools/sueldos.html"><span class="dd-icon">💰</span>Liquidador de Sueldos</a>
+          <a href="tools/autonomos.html"><span class="dd-icon">💼</span>Aportes Autónomos</a>
+          <a href="tools/uva.html"><span class="dd-icon">💱</span>Conversor UVA y Monedas</a>
+          <a href="tools/intereses.html"><span class="dd-icon">⚖️</span>Intereses ARCA</a>
+          <a href="tools/sac.html"><span class="dd-icon">💰</span>SAC / Aguinaldo</a>
+          <a href="tools/indemnizacion.html"><span class="dd-icon">⚖️</span>Indemnización Laboral</a>
+          <a href="tools/cm.html"><span class="dd-icon">🗺️</span>Convenio Multilateral</a>
+          <a href="tools/inflacion.html"><span class="dd-icon">📈</span>Inflación (IPC)</a>
+          <a href="tools/ajuste-inflacion.html"><span class="dd-icon">📊</span>Ajuste por Inflación (RT 6)</a>
+        </div>
+      </div>
+      <div class="ib-dropdown">
+        <button type="button">📈 Simuladores <svg class="chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="ib-dropdown-menu">
+          <div class="dd-head">3 simuladores</div>
+          <a href="tools/fal.html"><span class="dd-icon">📈</span>Simulador FAL</a>
+          <a href="tools/f931.html"><span class="dd-icon">📋</span>F.931 — Cargas Sociales</a>
+          <a href="tools/rg830.html"><span class="dd-icon">📋</span>Retenciones RG 830</a>
+        </div>
+      </div>
+      <div class="ib-dropdown">
+        <button type="button">🗂️ Herramientas <svg class="chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="ib-dropdown-menu">
+          <div class="dd-head">7 herramientas</div>
+          <a href="tools/facturador.html"><span class="dd-icon">🧾</span>Preparador de facturas</a>
+          <a href="tools/recibos.html"><span class="dd-icon">📄</span>Recibos de Sueldo LSD</a>
+          <a href="tools/balance.html"><span class="dd-icon">📑</span>Balance de Presentación RT 54</a>
+          <a href="tools/procesador.html"><span class="dd-icon">🗂️</span>Procesador de Documentos</a>
+          <a href="tools/valores.html"><span class="dd-icon">📊</span>Valores Fiscales Clave</a>
+          <a href="tools/vencimientos.html"><span class="dd-icon">📅</span>Vencimientos ARCA</a>
+          <a href="tools/conciliacion-bancaria.html"><span class="dd-icon">🏦</span>Conciliación Bancaria</a>
+        </div>
+      </div>
       <a href="#servicios">Servicios</a>
       <a href="#footer">Contacto</a>
     </nav>
@@ -222,7 +305,6 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
   </div>
   <div class="ib-strip">
     <div class="ib-strip-left">ImpoBot <b>· Herramientas fiscales inteligentes</b></div>
-    <div class="ib-strip-right">14 herramientas · gratis, sin registro · Tablas 2026.2</div>
   </div>
 </header>
 
@@ -246,7 +328,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="hero-copy">
         <div class="welcome-badge welcome-badge--dark">Impositivo + Inteligente = <strong>ImpoBot</strong></div>
         <h2>El bot que entiende<br/>tus <span>impuestos</span></h2>
-        <p>Calculadoras fiscales para contadores y para cualquiera que quiera entender lo que le descuentan. Gratis, sin registro, siempre actualizado.</p>
+        <p>Calculadoras fiscales para contadores y para cualquiera que quiera entender lo que le descuentan. Consultá la fecha y las fuentes de cada herramienta antes de usar sus resultados.</p>
         <a class="welcome-cta" href="#tools">Explorar herramientas →</a>
       </div>
     </div>
@@ -256,10 +338,6 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
         <a class="news-item" href="https://www.ambito.com/informacion-general/arca-la-fecha-clave-septiembre-2026-que-todos-los-monotributistas-tienen-que-conocer-n6315853" target="_blank" rel="noopener">
           <span class="news-date">21 sep</span>
           <span class="news-text"><strong>Monotributo:</strong> el pago de septiembre vence el lunes 21 (el 20 cayó domingo), con la actualización de cuotas del 16,8%.</span>
-        </a>
-        <a class="news-item" href="https://www.eldestapeweb.com/economia/arca-volvio-prorrogar-ganancias-nuevo-vencimiento-20269201600" target="_blank" rel="noopener">
-          <span class="news-date">13 oct</span>
-          <span class="news-text"><strong>Ganancias:</strong> ARCA prorrogó la DDJJ de personas humanas del período fiscal 2025 (RG 5890/2026).</span>
         </a>
         <a class="news-item" href="https://www.lanacion.com.ar/economia/el-gobierno-aumento-el-salario-minimo-vital-y-movil-en-cuanto-queda-a-partir-de-septiembre-y-como-se-nid02092026/" target="_blank" rel="noopener">
           <span class="news-date">1 sep</span>
@@ -299,10 +377,12 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
 
 <!-- TOOLS -->
 <div class="section" id="tools">
-  <div class="sec-hd"><h2>Herramientas disponibles</h2><div class="divider"></div><span>14 herramientas · gratuitas</span></div>
-  <div class="grid" id="tools-grid">
 
-    <a class="tcard span2" data-name="ganancias 4ta categoria liquidacion siradig sicore" href="tools/ganancias.html" style="--icon-bg:rgba(56,189,248,.12)">
+  <div class="cat-group" id="cat-calculadoras">
+    <div class="sec-hd"><h2>🧮 Calculadoras</h2><div class="divider"></div><span>11 calculadoras</span></div>
+    <p class="cat-intro">Un dato entra, un número sale: liquidaciones, retenciones y montos que se calculan en el momento.</p>
+    <div class="grid">
+      <a class="tcard span2" data-name="ganancias 4ta categoria liquidacion siradig sicore" href="tools/ganancias.html" style="--icon-bg:rgba(56,189,248,.12)">
       <span class="ctag">⭐ Destacada</span>
       <div class="cicon">🧮</div>
       <div class="cname">Ganancias 4ª Categoría 2026</div>
@@ -311,16 +391,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Abrir herramienta <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard span2" data-name="recibos de sueldo lsd decreto 407" href="tools/recibos.html" style="--icon-bg:rgba(11,130,245,.12)">
-      <span class="ctag">🆕 Nueva</span>
-      <div class="cicon">📄</div>
-      <div class="cname">Recibos de Sueldo LSD</div>
-      <div class="cdesc">Subí el LSD de ARCA y la plantilla de empleados — ImpoBot genera todos los recibos en el formato oficial del Decreto 407/2026 (Ley 27.802). Plantilla Excel de configuración incluida para descarga.</div>
-      <div class="cpills"><span class="pill">Dec. 407/2026</span><span class="pill">Ley 27.802</span><span class="pill">LSD ARCA</span><span class="pill">Multi-empleado</span><span class="pill">PDF</span></div>
-      <div class="ccta">Abrir herramienta <span class="arrow">→</span></div>
-    </a>
-
-    <a class="tcard" data-name="monotributo categorias cuotas recategorizacion" href="tools/monotributo.html" style="--icon-bg:rgba(245,158,11,.12)">
+      <a class="tcard" data-name="monotributo categorias cuotas recategorizacion" href="tools/monotributo.html" style="--icon-bg:rgba(245,158,11,.12)">
       <span class="ctag">✓ Actualizada</span>
       <div class="cicon">📊</div>
       <div class="cname">Monotributo</div>
@@ -329,7 +400,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Calcular <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard" data-name="liquidador de sueldos neto aportes contribuciones" href="tools/sueldos.html" style="--icon-bg:rgba(16,185,129,.12)">
+      <a class="tcard" data-name="liquidador de sueldos neto aportes contribuciones" href="tools/sueldos.html" style="--icon-bg:rgba(16,185,129,.12)">
       <span class="ctag">✓ Actualizada</span>
       <div class="cicon">💰</div>
       <div class="cname">Liquidador de Sueldos</div>
@@ -338,7 +409,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Calcular <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard" data-name="aportes autonomos categorias jubilacion pami" href="tools/autonomos.html" style="--icon-bg:rgba(11,130,245,.1)">
+      <a class="tcard" data-name="aportes autonomos categorias jubilacion pami" href="tools/autonomos.html" style="--icon-bg:rgba(11,130,245,.1)">
       <span class="ctag">✓ Actualizada</span>
       <div class="cicon">💼</div>
       <div class="cname">Aportes Autónomos</div>
@@ -347,16 +418,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Ver aportes <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard" data-name="vencimientos arca iva f931 autonomos monotributo calendario" href="tools/vencimientos.html" style="--icon-bg:rgba(245,158,11,.1)">
-      <span class="ctag">✓ Actualizada</span>
-      <div class="cicon">📅</div>
-      <div class="cname">Vencimientos ARCA 2026</div>
-      <div class="cdesc">Fechas exactas de IVA, Cargas Sociales, Autónomos y Monotributo con corrección por feriados.</div>
-      <div class="cpills"><span class="pill">IVA</span><span class="pill">F.931</span><span class="pill">Autónomos</span></div>
-      <div class="ccta">Ver calendario <span class="arrow">→</span></div>
-    </a>
-
-    <a class="tcard" data-name="conversor uva monedas dolar bcra" href="tools/uva.html" style="--icon-bg:rgba(56,189,248,.1)">
+      <a class="tcard" data-name="conversor uva monedas dolar bcra" href="tools/uva.html" style="--icon-bg:rgba(56,189,248,.1)">
       <span class="ctag">✓ Actualizada</span>
       <div class="cicon">💱</div>
       <div class="cname">Conversor UVA y Monedas</div>
@@ -365,7 +427,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Convertir <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard" data-name="calculadora intereses arca resarcitorios punitorios" href="tools/intereses.html" style="--icon-bg:rgba(239,68,68,.1)">
+      <a class="tcard" data-name="calculadora intereses arca resarcitorios punitorios" href="tools/intereses.html" style="--icon-bg:rgba(239,68,68,.1)">
       <span class="ctag">🆕 Nueva</span>
       <div class="cicon">⚖️</div>
       <div class="cname">Calculadora de Intereses ARCA</div>
@@ -374,25 +436,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Calcular <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard" data-name="retenciones rg 830 ganancias proveedores" href="tools/rg830.html" style="--icon-bg:rgba(245,158,11,.1)">
-      <span class="ctag">🆕 Nueva</span>
-      <div class="cicon">📋</div>
-      <div class="cname">Retenciones RG 830</div>
-      <div class="cdesc">Simulador de retenciones de Ganancias sobre pagos a proveedores. Mismo cálculo que la calculadora oficial de ARCA. Inscriptos y no inscriptos.</div>
-      <div class="cpills"><span class="pill">RG 830/2000</span><span class="pill">Inscripto / No inscripto</span><span class="pill">Pagos acumulados</span></div>
-      <div class="ccta">Calcular <span class="arrow">→</span></div>
-    </a>
-
-    <a class="tcard span2" data-name="valores fiscales clave tope sipa smvym gni" href="tools/valores.html" style="--icon-bg:rgba(56,189,248,.1)">
-      <span class="ctag">🆕 Nueva</span>
-      <div class="cicon">📊</div>
-      <div class="cname">Valores Fiscales Clave 2026</div>
-      <div class="cdesc">Todos los valores de referencia en un solo lugar: tope SIPA, SMVyM, GNI, deducciones Ganancias, cuotas autónomos, tasas de interés ARCA, RG 830, contribuciones patronales y más. Buscador integrado.</div>
-      <div class="cpills"><span class="pill">Tope SIPA</span><span class="pill">SMVyM</span><span class="pill">GNI</span><span class="pill">UVA</span><span class="pill">Intereses ARCA</span></div>
-      <div class="ccta">Ver valores <span class="arrow">→</span></div>
-    </a>
-
-    <a class="tcard" data-name="sac aguinaldo lct proporcional" href="tools/sac.html" style="--icon-bg:rgba(16,185,129,.1)">
+      <a class="tcard" data-name="sac aguinaldo lct proporcional" href="tools/sac.html" style="--icon-bg:rgba(16,185,129,.1)">
       <span class="ctag">🆕 Nueva</span>
       <div class="cicon">💰</div>
       <div class="cname">Calculadora SAC / Aguinaldo</div>
@@ -401,16 +445,55 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Calcular SAC <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard" data-name="indemnizacion despido preaviso vacaciones lct" href="tools/indemnizacion.html" style="--icon-bg:rgba(239,68,68,.1)">
+      <a class="tcard" data-name="indemnizacion laboral despido renuncia preaviso vacaciones lct periodo de prueba" href="tools/indemnizacion.html" style="--icon-bg:rgba(239,68,68,.1)">
       <span class="ctag">🆕 Nueva</span>
       <div class="cicon">⚖️</div>
-      <div class="cname">Liquidación por Despido</div>
-      <div class="cdesc">Calculá la liquidación completa por despido sin causa: indemnización Art. 245, preaviso, integración mes de despido, vacaciones proporcionales y SAC. Recibo PDF incluido.</div>
-      <div class="cpills"><span class="pill">Art. 245 LCT</span><span class="pill">Preaviso</span><span class="pill">Vacaciones prop.</span><span class="pill">SAC</span><span class="pill">PDF</span></div>
+      <div class="cname">Indemnización Laboral</div>
+      <div class="cdesc">Calculá la liquidación por despido sin causa o por renuncia: indemnización Art. 245, período de prueba, preaviso, integración mes de despido, vacaciones proporcionales y SAC. Recibo PDF incluido.</div>
+      <div class="cpills"><span class="pill">Despido</span><span class="pill">Renuncia</span><span class="pill">Art. 245 LCT</span><span class="pill">SAC</span><span class="pill">PDF</span></div>
       <div class="ccta">Calcular liquidación <span class="arrow">→</span></div>
     </a>
 
-    <a class="tcard span2" data-name="f931 cargas sociales aportes contribuciones sico" href="tools/f931.html" style="--icon-bg:rgba(14,165,233,.1)">
+      <a class="tcard" data-name="convenio multilateral cm05 distribucion jurisdicciones" href="tools/cm.html" style="--icon-bg:rgba(56,189,248,.1)">
+      <div class="cicon">🗺️</div>
+      <div class="cname">Convenio Multilateral</div>
+      <div class="cdesc">Distribuí ingresos y gastos por jurisdicción y obtené una simulación de coeficientes para CM05.</div>
+      <div class="cpills"><span class="pill">CM05</span><span class="pill">Jurisdicciones</span></div>
+      <div class="ccta">Calcular <span class="arrow">→</span></div>
+    </a>
+
+      <a class="tcard" data-name="inflacion ipc indec actualizar monto ajuste" href="tools/inflacion.html" style="--icon-bg:rgba(239,68,68,.1)">
+      <div class="cicon">📈</div>
+      <div class="cname">Calculadora de Inflación (IPC)</div>
+      <div class="cdesc">Actualizá cualquier monto según el IPC Nacional de INDEC entre dos meses. Variación acumulada, anualizada y tabla de inflación mensual reciente.</div>
+      <div class="cpills"><span class="pill">IPC INDEC</span><span class="pill">Actualización</span><span class="pill">Deflactor</span></div>
+      <div class="ccta">Calcular <span class="arrow">→</span></div>
+    </a>
+
+      <a class="tcard" data-name="ajuste por inflacion contable rt6 recpam balance reexpresion" href="tools/ajuste-inflacion.html" style="--icon-bg:rgba(16,185,129,.1)">
+      <div class="cicon">📊</div>
+      <div class="cname">Ajuste por Inflación (RT 6)</div>
+      <div class="cdesc">Reexpresá un balance completo a moneda de cierre según RT 6 (FACPCE): activo, pasivo, patrimonio neto y estado de resultados, con cálculo automático del RECPAM.</div>
+      <div class="cpills"><span class="pill">RT 6</span><span class="pill">RECPAM</span><span class="pill">Balance</span></div>
+      <div class="ccta">Calcular <span class="arrow">→</span></div>
+    </a>
+    </div>
+  </div>
+
+  <div class="cat-group" id="cat-simuladores">
+    <div class="sec-hd"><h2>📈 Simuladores</h2><div class="divider"></div><span>3 simuladores</span></div>
+    <p class="cat-intro">Proyecciones y escenarios &quot;qué pasaría si&quot;: nómina completa, supuestos editables, vista previa antes de presentar.</p>
+    <div class="grid">
+      <a class="tcard span2" data-name="fal fondo asistencia laboral mipyme grandes contribuciones proyeccion" href="tools/fal.html" style="--icon-bg:rgba(52,211,153,.12)">
+      <span class="ctag">🆕 Nueva</span>
+      <div class="cicon">📈</div>
+      <div class="cname">Simulador FAL</div>
+      <div class="cdesc">Estimá el aporte al Fondo de Asistencia Laboral y proyectá su saldo a 12, 24 y 36 meses con supuestos editables de rendimiento y comisión.</div>
+      <div class="cpills"><span class="pill">Ley 27.802</span><span class="pill">MiPyME / Grande</span><span class="pill">SAC</span><span class="pill">Proyección</span></div>
+      <div class="ccta">Abrir herramienta <span class="arrow">→</span></div>
+    </a>
+
+      <a class="tcard span2" data-name="f931 cargas sociales aportes contribuciones sico" href="tools/f931.html" style="--icon-bg:rgba(14,165,233,.1)">
       <span class="ctag">🆕 Nueva</span>
       <div class="cicon">📋</div>
       <div class="cname">Simulador F.931 — Cargas Sociales</div>
@@ -419,9 +502,89 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <div class="ccta">Abrir simulador <span class="arrow">→</span></div>
     </a>
 
+      <a class="tcard" data-name="retenciones rg 830 ganancias proveedores" href="tools/rg830.html" style="--icon-bg:rgba(245,158,11,.1)">
+      <span class="ctag">🆕 Nueva</span>
+      <div class="cicon">📋</div>
+      <div class="cname">Retenciones RG 830</div>
+      <div class="cdesc">Simulador de retenciones de Ganancias sobre pagos a proveedores. Mismo cálculo que la calculadora oficial de ARCA. Inscriptos y no inscriptos.</div>
+      <div class="cpills"><span class="pill">RG 830/2000</span><span class="pill">Inscripto / No inscripto</span><span class="pill">Pagos acumulados</span></div>
+      <div class="ccta">Calcular <span class="arrow">→</span></div>
+    </a>
+    </div>
   </div>
+
+  <div class="cat-group" id="cat-herramientas">
+    <div class="sec-hd"><h2>🗂️ Herramientas</h2><div class="divider"></div><span>7 herramientas</span></div>
+    <p class="cat-intro">Procesan archivos y generan documentos: recibos, balances, asientos, conciliaciones — subís tus archivos y salen listos para usar.</p>
+    <div class="grid">
+      <a class="tcard span2" data-name="facturador borradores facturas monotributo responsable inscripto arca iva" href="tools/facturador.html" style="--icon-bg:rgba(56,189,248,.12)">
+      <span class="ctag">🧪 Borrador</span>
+      <div class="cicon">🧾</div>
+      <div class="cname">Preparador de facturas</div>
+      <div class="cdesc">Armá borradores de facturas A, B o C para tus clientes, calculá IVA y descargá los datos para revisarlos. La emisión con CAE de ARCA todavía no está habilitada.</div>
+      <div class="cpills"><span class="pill">Borrador</span><span class="pill">Multi cliente</span><span class="pill">Cálculo de IVA</span><span class="pill">Sin CAE</span></div>
+      <div class="ccta">Abrir herramienta <span class="arrow">→</span></div>
+    </a>
+
+      <a class="tcard span2" data-name="recibos de sueldo lsd decreto 407" href="tools/recibos.html" style="--icon-bg:rgba(11,130,245,.12)">
+      <span class="ctag">🆕 Nueva</span>
+      <div class="cicon">📄</div>
+      <div class="cname">Recibos de Sueldo LSD</div>
+      <div class="cdesc">Subí el LSD de ARCA y la plantilla de empleados — ImpoBot genera todos los recibos en el formato oficial del Decreto 407/2026 (Ley 27.802). Plantilla Excel de configuración incluida para descarga.</div>
+      <div class="cpills"><span class="pill">Dec. 407/2026</span><span class="pill">Ley 27.802</span><span class="pill">LSD ARCA</span><span class="pill">Multi-empleado</span><span class="pill">PDF</span></div>
+      <div class="ccta">Abrir herramienta <span class="arrow">→</span></div>
+    </a>
+
+      <a class="tcard span2" data-name="balance presentacion rt 54 estados contables esp eerr eepn efe notas anexos sumas y saldos bienes de uso costo de ventas gastos agro cordoba" href="tools/balance.html" style="--icon-bg:rgba(56,189,248,.12)">
+      <span class="ctag">🆕 Nueva</span>
+      <div class="cicon">📑</div>
+      <div class="cname">Balance de Presentación RT 54</div>
+      <div class="cdesc">Subí el balance de sumas y saldos (y el del ejercicio anterior) y ImpoBot arma ESP, Estado de Resultados, EEPN, EFE, notas y anexos en moneda homogénea. Mapeo automático de cuentas a rubros, controles cruzados y ZIP con Excel + PDF + reporte de validaciones.</div>
+      <div class="cpills"><span class="pill">RT 54 · NUA</span><span class="pill">Sumas y saldos</span><span class="pill">CABA/PBA · Córdoba · Agro</span><span class="pill">Excel + PDF</span><span class="pill">100% local</span></div>
+      <div class="ccta">Abrir herramienta <span class="arrow">→</span></div>
+    </a>
+
+      <a class="tcard span2" data-name="procesador documentos facturas qr arca libro iva digital tarjeta credito resumen extracto bancario conciliacion asientos sos excel" href="tools/procesador.html" style="--icon-bg:rgba(52,211,153,.12)">
+      <span class="ctag">🆕 Nueva</span>
+      <div class="cicon">🗂️</div>
+      <div class="cname">Procesador de Documentos</div>
+      <div class="cdesc">Arrastrá PDFs de facturas, resúmenes de tarjeta y extractos bancarios: ImpoBot los lee (texto y QR de ARCA), valida CUIT, IVA y saldos, y genera Excel, TXT de Libro IVA Digital, importación a SOS y asientos. Todo se procesa en tu navegador.</div>
+      <div class="cpills"><span class="pill">QR ARCA</span><span class="pill">Libro IVA Digital</span><span class="pill">BBVA · Nación · Galicia · Credicoop · Provincia · Santander</span><span class="pill">Control de saldos</span><span class="pill">100% local</span></div>
+      <div class="ccta">Abrir herramienta <span class="arrow">→</span></div>
+    </a>
+
+      <a class="tcard span2" data-name="valores fiscales clave tope sipa smvym gni" href="tools/valores.html" style="--icon-bg:rgba(56,189,248,.1)">
+      <span class="ctag">🆕 Nueva</span>
+      <div class="cicon">📊</div>
+      <div class="cname">Valores Fiscales Clave 2026</div>
+      <div class="cdesc">Todos los valores de referencia en un solo lugar: tope SIPA, SMVyM, GNI, deducciones Ganancias, cuotas autónomos, tasas de interés ARCA, RG 830, contribuciones patronales y más. Buscador integrado.</div>
+      <div class="cpills"><span class="pill">Tope SIPA</span><span class="pill">SMVyM</span><span class="pill">GNI</span><span class="pill">UVA</span><span class="pill">Intereses ARCA</span></div>
+      <div class="ccta">Ver valores <span class="arrow">→</span></div>
+    </a>
+
+      <a class="tcard" data-name="vencimientos arca iva f931 autonomos monotributo calendario" href="tools/vencimientos.html" style="--icon-bg:rgba(245,158,11,.1)">
+      <span class="ctag">✓ Actualizada</span>
+      <div class="cicon">📅</div>
+      <div class="cname">Vencimientos ARCA 2026</div>
+      <div class="cdesc">Fechas exactas de IVA, Cargas Sociales, Autónomos y Monotributo con corrección por feriados.</div>
+      <div class="cpills"><span class="pill">IVA</span><span class="pill">F.931</span><span class="pill">Autónomos</span></div>
+      <div class="ccta">Ver calendario <span class="arrow">→</span></div>
+    </a>
+
+      <a class="tcard" data-name="conciliacion bancaria extracto libro banco cheques pendientes" href="tools/conciliacion-bancaria.html" style="--icon-bg:rgba(11,130,245,.1)">
+      <span class="ctag">🆕 Nueva</span>
+      <div class="cicon">🏦</div>
+      <div class="cname">Conciliación Bancaria</div>
+      <div class="cdesc">Conciliá tu extracto bancario contra tu libro banco propio: emparejamiento automático por importe y fecha, detección de cheques pendientes, depósitos en tránsito y gastos bancarios no registrados.</div>
+      <div class="cpills"><span class="pill">Extracto</span><span class="pill">Libro Banco</span><span class="pill">Auto-match</span></div>
+      <div class="ccta">Calcular <span class="arrow">→</span></div>
+    </a>
+    </div>
+  </div>
+
   <p id="no-results" style="display:none;text-align:center;color:var(--ink-3);font-size:.82rem;padding:30px 0">Ninguna herramienta coincide con tu búsqueda.</p>
 </div>
+
 
 <!-- SERVICIOS -->
 <div class="wide-wrap" id="servicios">
@@ -429,7 +592,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
     <div class="servicios-hd">
       <div class="servicios-tag">🧑‍💼 Servicios profesionales</div>
       <h2 class="servicios-title">¿Necesitás un contador?</h2>
-      <p class="servicios-sub">Además de las herramientas gratuitas, ofrecemos servicios profesionales de contabilidad e impuestos.</p>
+      <p class="servicios-sub">Además de las herramientas, ofrecemos servicios profesionales de contabilidad e impuestos.</p>
     </div>
     <div class="servicios-grid">
       <div class="serv-card">
@@ -503,7 +666,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
   <div class="card support-inner">
     <div style="font-size:1.8rem;margin-bottom:10px">☕</div>
     <h3>¿ImpoBot te ahorró tiempo?</h3>
-    <p>ImpoBot es 100% gratuito y sin publicidad. Si te resultó útil, podés invitarnos un café para mantener las tablas actualizadas y seguir agregando herramientas.</p>
+    <p>Si ImpoBot te resultó útil, podés invitarnos un café para mantener las tablas actualizadas y seguir agregando herramientas.</p>
     <div class="support-btns">
       <a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" class="btn-bmc">☕ Invitarnos un café</a>
       <a href="https://ko-fi.com/impobot" target="_blank" rel="noopener" class="btn-kofi">💙 Apoyar en Ko-fi</a>
@@ -535,6 +698,7 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
           <option>SAC / Aguinaldo</option>
           <option>Indemnización</option>
           <option>F.931</option>
+          <option>Simulador FAL</option>
           <option>Otro / Página general</option>
         </select>
       </div>
@@ -559,18 +723,24 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
         <img src="logo-sm.png" alt="ImpoBot"/>
         <div style="font-size:1.1rem;font-weight:900;letter-spacing:-.04em"><span style="color:#fff">impo</span><span style="color:var(--blue-l)">bot</span></div>
       </div>
-      <p>Calculadoras impositivas y laborales para contadores y empresas argentinas. Tablas ARCA y ANSES actualizadas. Gratis, sin registro.</p>
+      <p>Calculadoras impositivas y laborales para contadores y empresas argentinas. Consultá la fecha y las fuentes de cada herramienta.</p>
     </div>
     <div class="footer-col">
       <h4>Herramientas</h4>
       <a href="tools/ganancias.html">Ganancias 4ª Categoría</a>
       <a href="tools/recibos.html">Recibos de Sueldo LSD</a>
+      <a href="tools/facturador.html">Preparador de facturas (borrador)</a>
+      <a href="tools/procesador.html">Procesador de Documentos</a>
+      <a href="tools/balance.html">Balance de Presentación RT 54</a>
       <a href="tools/monotributo.html">Monotributo</a>
       <a href="tools/sueldos.html">Liquidador de Sueldos</a>
       <a href="tools/autonomos.html">Aportes Autónomos</a>
       <a href="tools/vencimientos.html">Vencimientos ARCA</a>
       <a href="tools/cm.html">Convenio Multilateral</a>
       <a href="tools/uva.html">Conversor UVA</a>
+      <a href="tools/inflacion.html">Calculadora de Inflación (IPC)</a>
+      <a href="tools/ajuste-inflacion.html">Ajuste por Inflación (RT 6)</a>
+      <a href="tools/conciliacion-bancaria.html">Conciliación Bancaria</a>
     </div>
     <div class="footer-col">
       <h4>Normativa</h4>
@@ -584,8 +754,8 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
       <a href="https://www.buymeacoffee.com/impobot" target="_blank">☕ Buy Me a Coffee</a>
       <a href="https://ko-fi.com/impobot" target="_blank">💙 Ko-fi</a>
       <h4 style="margin-top:18px">Contacto</h4>
-      <a href="https://api.whatsapp.com/send?phone=5491155985886&text=Hola!%20Quiero%20consultar%20sobre%20los%20servicios%20de%20ImpoBot%20%F0%9F%87%A6%F0%9F%87%B7" target="_blank">📱 WhatsApp</a>
-      <a href="https://www.instagram.com/impobotar/" target="_blank">📸 @impobotar</a>
+      <a href="https://api.whatsapp.com/send?phone=5491155985886&text=Hola!%20Quiero%20consultar%20sobre%20los%20servicios%20de%20ImpoBot%20%F0%9F%87%A6%F0%9F%87%B7" target="_blank" style="display:flex;align-items:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>WhatsApp</a>
+      <a href="https://www.instagram.com/impobot.ar/" target="_blank" style="display:flex;align-items:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none"/></svg>@impobot.ar</a>
     </div>
   </div>
   <div class="footer-bottom">© 2026 ImpoBot · impobot.com.ar · Uso orientativo — verificar siempre con la normativa vigente</div>
@@ -600,6 +770,29 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
   Consultar
 </a>
 <a href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" class="bmc-float">☕ Café</a>
+
+<!-- Asistente ImpoBot (chat) -->
+<div class="chat-panel" id="chat-panel" hidden>
+  <div class="chat-head">
+    <img src="logo.png" alt="ImpoBot"/>
+    <div><b>Asistente ImpoBot</b><small>● En línea</small></div>
+    <button onclick="cerrarChat()" title="Cerrar" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="chat-body" id="chat-body">
+    <div class="bubble bot">¡Hola! Soy ImpoBot 🤖 Puedo ayudarte a entender impuestos, sueldos y vencimientos. ¿En qué te puedo ayudar?</div>
+  </div>
+  <div class="chat-foot">
+    <form class="chat-input" onsubmit="return enviarChat(event)">
+      <input type="text" id="chat-input" placeholder="Escribí tu consulta…" maxlength="500" autocomplete="off"/>
+      <button type="submit" id="chat-send" aria-label="Enviar">➤</button>
+    </form>
+    <div class="chat-disclaimer">Información orientativa. No reemplaza a tu contador.</div>
+  </div>
+</div>
+<button class="chat-fab" onclick="toggleChat()" title="Preguntale a ImpoBot" aria-label="Abrir chat">
+  <img src="logo.png" alt=""/><span class="dot"></span>
+</button>
+
 <button onclick="abrirBugReport()" title="Reportar un problema"
   style="position:fixed;bottom:126px;right:20px;z-index:998;background:#fff;border:1px solid var(--border);width:44px;height:44px;border-radius:50%;padding:0;cursor:pointer;box-shadow:0 2px 12px rgba(16,24,40,.18);transition:all .2s;overflow:hidden"
   onmouseover="this.style.borderColor='var(--blue-l)';this.style.transform='scale(1.06)'"
@@ -609,15 +802,32 @@ footer{background:var(--navy-1);border-top:1px solid rgba(255,255,255,.06);paddi
 // ── Buscador de herramientas ──────────────────────────────
 function filtrarHerramientas(q){
   q = q.trim().toLowerCase();
-  var cards = document.querySelectorAll('#tools-grid .tcard');
-  var visibles = 0;
-  cards.forEach(function(c){
-    var hay = !q || (c.dataset.name || '').includes(q) || c.querySelector('.cname').textContent.toLowerCase().includes(q);
-    c.hidden = !hay;
-    if(hay) visibles++;
+  var totalVisible = 0;
+  document.querySelectorAll('.cat-group').forEach(function(group){
+    var visibleInGroup = 0;
+    group.querySelectorAll('.tcard').forEach(function(c){
+      var hay = !q || (c.dataset.name || '').includes(q) || c.querySelector('.cname').textContent.toLowerCase().includes(q);
+      c.hidden = !hay;
+      if(hay){ visibleInGroup++; totalVisible++; }
+    });
+    group.style.display = (q && visibleInGroup === 0) ? 'none' : '';
   });
-  document.getElementById('no-results').style.display = visibles === 0 ? 'block' : 'none';
+  document.getElementById('no-results').style.display = totalVisible === 0 ? 'block' : 'none';
 }
+
+// ── Menus desplegables de categorias (header) ─────────────
+document.querySelectorAll('.ib-dropdown > button').forEach(function(btn){
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    var dd = btn.parentElement;
+    var wasOpen = dd.classList.contains('open');
+    document.querySelectorAll('.ib-dropdown.open').forEach(function(d){ d.classList.remove('open'); });
+    if(!wasOpen) dd.classList.add('open');
+  });
+});
+document.addEventListener('click', function(){
+  document.querySelectorAll('.ib-dropdown.open').forEach(function(d){ d.classList.remove('open'); });
+});
 
 // ── Newsletter ────────────────────────────────────────────
 function suscribir(e){
@@ -635,9 +845,17 @@ function suscribir(e){
 // ── PWA Service Worker ────────────────────────────────────
 if('serviceWorker' in navigator){
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('/sw.js').then(function(reg){
+    navigator.serviceWorker.register('/sw.js?v=11', { updateViaCache: 'none' }).then(function(reg){
       console.log('SW registrado:', reg.scope);
+      reg.update();
+      setInterval(function(){ reg.update(); }, 1800000);
     }).catch(function(e){ console.log('SW error:', e); });
+  });
+  var _swReloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function(){
+    if(_swReloaded) return;
+    _swReloaded = true;
+    location.reload();
   });
 }
 
@@ -656,7 +874,8 @@ function enviarBug(e){
   var endpoint = 'https://formspree.io/f/xpwzakqj'; // ← configurar
   fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({herramienta:tool,descripcion:desc,email:email})})
-    .then(function(){
+    .then(function(r){
+      if(!r.ok) throw new Error('No se pudo enviar el reporte');
       document.getElementById('bug-form-msg').textContent='✓ Reporte enviado. ¡Gracias!';
       document.getElementById('bug-form-msg').style.color='#10b981';
       setTimeout(cerrarBugReport, 2000);
@@ -665,8 +884,80 @@ function enviarBug(e){
       window.location='mailto:impobot.ar@gmail.com?subject=Bug en '+tool+'&body='+encodeURIComponent(desc);
     });
 }
+// ── Asistente ImpoBot (chat) ──────────────────────────────
+var chatHistory = [];
+var chatEnviando = false;
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+function toggleChat(){
+  var panel = document.getElementById('chat-panel');
+  if(panel.hidden){
+    panel.hidden = false;
+    document.getElementById('chat-input').focus();
+  } else {
+    panel.hidden = true;
+  }
+}
+function cerrarChat(){
+  document.getElementById('chat-panel').hidden = true;
+}
+
+function agregarBurbuja(texto, clase){
+  var body = document.getElementById('chat-body');
+  var div = document.createElement('div');
+  div.className = 'bubble ' + clase;
+  div.innerHTML = escapeHtml(texto);
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+  return div;
+}
+
+function enviarChat(e){
+  e.preventDefault();
+  if(chatEnviando) return false;
+  var input = document.getElementById('chat-input');
+  var msg = input.value.trim();
+  if(!msg) return false;
+
+  agregarBurbuja(msg, 'user');
+  chatHistory.push({role:'user', content: msg});
+  input.value = '';
+  chatEnviando = true;
+  document.getElementById('chat-send').disabled = true;
+  var typing = agregarBurbuja('escribiendo…', 'bot typing');
+
+  fetch('/.netlify/functions/chat', {
+    method: 'POST',
+    headers: {'content-type':'application/json'},
+    body: JSON.stringify({message: msg, history: chatHistory.slice(0, -1)})
+  })
+  .then(function(r){ return r.json().then(function(data){ return {ok:r.ok, data:data}; }); })
+  .then(function(res){
+    typing.remove();
+    if(!res.ok || !res.data || !res.data.answer){
+      agregarBurbuja('No pude responder eso ahora. Probá de nuevo en un momento, o usá directamente las calculadoras del sitio.', 'bot');
+      return;
+    }
+    agregarBurbuja(res.data.answer, 'bot');
+    chatHistory.push({role:'assistant', content: res.data.answer});
+  })
+  .catch(function(){
+    typing.remove();
+    agregarBurbuja('No pude conectarme. Revisá tu conexión y probá de nuevo.', 'bot');
+  })
+  .finally(function(){
+    chatEnviando = false;
+    document.getElementById('chat-send').disabled = false;
+  });
+
+  return false;
+}
 </script>
 
-<script src="/bot.js"></script>
 </body>
 </html>
