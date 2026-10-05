@@ -1,5 +1,5 @@
 // ImpoBot Service Worker — Cache primero para assets estáticos
-var CACHE = 'impobot-v15'; // bump para forzar reinstalación del SW y descartar el precache viejo
+var CACHE = 'impobot-v16'; // bump para forzar reinstalación del SW y descartar el precache viejo
 var ASSETS = [
   '/',
   '/index.html',
@@ -64,7 +64,7 @@ self.addEventListener('fetch', function(e){
   // Consultar primero la red para páginas y scripts; usar caché si no hay conexión.
   var url = e.request.url;
   var sameOrigin = new URL(url).origin === self.location.origin;
-  if((sameOrigin && (e.request.mode === 'navigate' || /\.(html|js)$/.test(new URL(url).pathname))) ||
+  if((sameOrigin && (e.request.mode === 'navigate' || /\.(html|js)$/.test(new URL(url).pathname) || new URL(url).pathname.indexOf('/.netlify/functions/') === 0)) ||
      url.includes('api.bcra') || url.includes('dolarapi') || url.includes('formspree') || url.includes('brevo')){
     // Omitir el caché HTTP: fetch() normal puede devolver HTML/JS viejo sin ir a la red.
     var freshUrl = sameOrigin ? new URL(e.request.url) : null;
