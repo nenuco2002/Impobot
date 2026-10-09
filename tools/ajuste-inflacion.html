@@ -147,6 +147,19 @@ table.filas input[type=number]{text-align:right}
 </div>
 
 <div class="card">
+  <div class="card-title">📥 Importar rubros desde Excel</div>
+  <p style="font-size:.76rem;color:var(--sub);margin-bottom:10px;line-height:1.5">Cargá un Excel con los rubros de Activo, Pasivo, Patrimonio Neto y Estado de Resultados en vez de tipearlos a mano. Descargá la plantilla, completala con tus rubros (respetando los nombres de hoja y de columna) y subila acá. <strong>Importar reemplaza las filas actuales de cada hoja que venga en el Excel</strong> (las hojas que no incluyas quedan como estaban).</p>
+  <div class="row2" style="align-items:end">
+    <div class="field" style="margin-bottom:0"><label>Archivo Excel (.xlsx)</label><input type="file" id="fExcelRubros" accept=".xlsx,.xls"/></div>
+    <div style="display:flex;gap:8px">
+      <button type="button" class="btn-add" onclick="descargarPlantillaExcel()">📄 Descargar plantilla</button>
+      <button type="button" class="btn-add" onclick="importarExcelRubros()">📥 Importar Excel</button>
+    </div>
+  </div>
+  <div id="import-msg" style="margin-top:10px"></div>
+</div>
+
+<div class="card">
   <div class="card-title"><span>💰 Activo</span><button class="btn-add" onclick="agregarFila('activo')">+ Agregar rubro</button></div>
   <table class="filas" id="tabla-activo">
     <thead><tr><th style="width:34%">Descripción</th><th style="width:16%">Tipo</th><th style="width:18%">Importe</th><th style="width:20%">Fecha de origen</th><th style="width:30px"></th></tr></thead>
@@ -195,6 +208,7 @@ table.filas input[type=number]{text-align:right}
   <div id="pdf-cont"></div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 // ── IPC Nacional Nivel General (base dic-2016=100) — mismo dataset que tools/inflacion.html ──
 var IPC = {'2016-12':100.0,'2017-01':101.5859,'2017-02':103.6859,'2017-03':106.1476,'2017-04':108.9667,'2017-05':110.5301,'2017-06':111.8477,'2017-07':113.7852,'2017-08':115.3819,'2017-09':117.5719,'2017-10':119.3528,'2017-11':120.994,'2017-12':124.7956,'2018-01':126.9887,'2018-02':130.0606,'2018-03':133.1054,'2018-04':136.7512,'2018-05':139.5893,'2018-06':144.8053,'2018-07':149.2966,'2018-08':155.1034,'2018-09':165.2383,'2018-10':174.1473,'2018-11':179.6388,'2018-12':184.2552,'2019-01':189.6101,'2019-02':196.7501,'2019-03':205.9571,'2019-04':212.9596414,'2019-05':219.5691,'2019-06':225.537,'2019-07':230.494,'2019-08':239.6077,'2019-09':253.7102,'2019-10':262.0661,'2019-11':273.2158,'2019-12':283.4442,'2020-01':289.8299,'2020-02':295.666,'2020-03':305.5515,'2020-04':310.1243,'2020-05':314.9087,'2020-06':321.9738,'2020-07':328.2014,'2020-08':337.0632,'2020-09':346.6207,'2020-10':359.657,'2020-11':371.0211,'2020-12':385.8826,'2021-01':401.5071,'2021-02':415.8595,'2021-03':435.8657,'2021-04':453.6503,'2021-05':468.725,'2021-06':483.6049,'2021-07':498.0987,'2021-08':510.3942,'2021-09':528.4968,'2021-10':547.0802,'2021-11':560.9184,'2021-12':582.4575,'2022-01':605.0317,'2022-02':633.4341,'2022-03':676.0566,'2022-04':716.9399,'2022-05':753.147,'2022-06':793.0278,'2022-07':851.761,'2022-08':911.1316,'2022-09':967.3076,'2022-10':1028.706,'2022-11':1079.2787,'2022-12':1134.5875,'2023-01':1202.979,'2023-02':1282.7091,'2023-03':1381.1601,'2023-04':1497.2147,'2023-05':1613.5895,'2023-06':1709.6115,'2023-07':1818.0838,'2023-08':2044.2832,'2023-09':2304.9242,'2023-10':2496.273,'2023-11':2816.0628,'2023-12':3533.1922,'2024-01':4261.5324,'2024-02':4825.7881,'2024-03':5357.0929,'2024-04':5830.2271,'2024-05':6073.7,'2024-06':6351.7145,'2024-07':6607.7479,'2024-08':6883.4412,'2024-09':7122.2421,'2024-10':7313.9542,'2024-11':7491.4314,'2024-12':7694.0075,'2025-01':7864.1257,'2025-02':8052.9927,'2025-03':8353.3158,'2025-04':8585.6078,'2025-05':8714.4871,'2025-06':8855.5681,'2025-07':9023.973,'2025-08':9193.2441,'2025-09':9384.0922,'2025-10':9603.8623,'2025-11':9841.3581,'2025-12':10121.3715,'2026-01':10413.0309,'2026-02':10714.6255,'2026-03':11077.0608,'2026-04':11363.0904,'2026-05':11607.3937,'2026-06':11826.4103,'2026-07':12076.3937,'2026-08':12276.766};
@@ -474,6 +488,256 @@ function generarPDF(){
   document.getElementById('pdf-cont').innerHTML=html;
   document.getElementById('pdf-overlay').style.display='block';
   window.scrollTo(0,0);
+}
+
+// ============================================================
+// Importar / exportar rubros vía Excel
+// ============================================================
+var HOJAS_RUBROS = {
+  'activo':    { nombres: ['activo'], tbody: 'tbody-activo', fila: 'activoPasivo' },
+  'pasivo':    { nombres: ['pasivo'], tbody: 'tbody-pasivo', fila: 'activoPasivo' },
+  'pn':        { nombres: ['patrimonio neto', 'patrimonio_neto', 'pn'], tbody: 'tbody-pn', fila: 'pn' },
+  'resultado': { nombres: ['resultados', 'resultado', 'estado de resultados'], tbody: 'tbody-resultado', fila: 'resultado' },
+};
+
+function normalizarTxt(s){
+  return String(s==null?'':s).trim().toLowerCase()
+    .replace(/[áàä]/g,'a').replace(/[éèë]/g,'e').replace(/[íìï]/g,'i').replace(/[óòö]/g,'o').replace(/[úùü]/g,'u').replace(/ñ/g,'n');
+}
+
+// Devuelve una clave válida de CLAVES (AAAA-MM), '' si la celda vino vacía
+// (válido para rubros monetarios / resultados "distribuidos"), o null si el
+// valor no se pudo interpretar como fecha de origen.
+function parsearFechaOrigenExcel(val){
+  if(val===null || val===undefined || val==='') return '';
+  if(val instanceof Date){
+    var k = val.getFullYear()+'-'+String(val.getMonth()+1).padStart(2,'0');
+    return CLAVES.indexOf(k)!==-1 ? k : null;
+  }
+  if(typeof val === 'number'){
+    // fecha-serial de Excel (sistema 1900, sin 1904)
+    var d = new Date(Math.round((val - 25569) * 86400 * 1000));
+    if(isNaN(d.getTime())) return null;
+    var k2 = d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0');
+    return CLAVES.indexOf(k2)!==-1 ? k2 : null;
+  }
+  var s = String(val).trim();
+  if(s==='') return '';
+  var m = s.match(/^(\d{4})-(\d{1,2})$/);
+  if(m){ var k3 = m[1]+'-'+m[2].padStart(2,'0'); return CLAVES.indexOf(k3)!==-1 ? k3 : null; }
+  m = s.match(/^(\d{1,2})[\/\-](\d{4})$/); // MM/AAAA
+  if(m){ var k4 = m[2]+'-'+m[1].padStart(2,'0'); return CLAVES.indexOf(k4)!==-1 ? k4 : null; }
+  m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/); // DD/MM/AAAA
+  if(m){ var k5 = m[3]+'-'+m[2].padStart(2,'0'); return CLAVES.indexOf(k5)!==-1 ? k5 : null; }
+  return null;
+}
+
+function tipoActivoPasivoDesdeTexto(s){
+  var n = normalizarTxt(s);
+  if(n==='no monetario' || n==='no_monetario' || n==='nomonetario') return 'no_monetario';
+  if(n==='monetario') return 'monetario';
+  return null;
+}
+function tipoResultadoDesdeTexto(s){
+  var n = normalizarTxt(s);
+  if(n==='ingreso') return 'ingreso';
+  if(n==='gasto') return 'gasto';
+  return null;
+}
+function boolDesdeTexto(s){
+  var n = normalizarTxt(s);
+  if(n==='si' || n==='sí' || n==='true' || n==='1' || n==='x') return true;
+  if(n==='no' || n==='false' || n==='0' || n==='') return false;
+  return null;
+}
+
+function descargarPlantillaExcel(){
+  var wb = XLSX.utils.book_new();
+
+  var wsActivo = XLSX.utils.aoa_to_sheet([
+    ['Descripción','Tipo','Importe','Fecha de origen (AAAA-MM)'],
+    ['Caja y Bancos','Monetario',150000,''],
+    ['Bienes de Cambio','No monetario',2000000,'2026-01'],
+  ]);
+  XLSX.utils.book_append_sheet(wb, wsActivo, 'Activo');
+
+  var wsPasivo = XLSX.utils.aoa_to_sheet([
+    ['Descripción','Tipo','Importe','Fecha de origen (AAAA-MM)'],
+    ['Proveedores','Monetario',500000,''],
+  ]);
+  XLSX.utils.book_append_sheet(wb, wsPasivo, 'Pasivo');
+
+  var wsPN = XLSX.utils.aoa_to_sheet([
+    ['Descripción','Importe','Fecha de origen (AAAA-MM)'],
+    ['Capital',100000,'2017-01'],
+  ]);
+  XLSX.utils.book_append_sheet(wb, wsPN, 'Patrimonio Neto');
+
+  var wsResultado = XLSX.utils.aoa_to_sheet([
+    ['Descripción','Tipo','Importe','Distribuido uniforme (SI/NO)','Fecha de origen (AAAA-MM, sólo si NO está distribuido)'],
+    ['Ventas','Ingreso',5000000,'SI',''],
+    ['Costo de Mercadería Vendida','Gasto',3000000,'SI',''],
+  ]);
+  XLSX.utils.book_append_sheet(wb, wsResultado, 'Resultados');
+
+  var wsInstr = XLSX.utils.aoa_to_sheet([
+    ['Instrucciones para la plantilla de Ajuste por Inflación (RT 6) — ImpoBot'],
+    [''],
+    ['No cambiar los nombres de las hojas (Activo / Pasivo / Patrimonio Neto / Resultados) ni los encabezados de cada columna.'],
+    [''],
+    ['Hojas "Activo" y "Pasivo":'],
+    ['  Tipo: escribir "Monetario" o "No monetario".'],
+    ['  Fecha de origen: sólo para filas "No monetario". Formato AAAA-MM (ej: 2026-01). Dejar vacío si es "Monetario".'],
+    [''],
+    ['Hoja "Patrimonio Neto": todas las filas se reexpresan, así que siempre necesitan Fecha de origen (AAAA-MM).'],
+    [''],
+    ['Hoja "Resultados":'],
+    ['  Tipo: escribir "Ingreso" o "Gasto".'],
+    ['  Distribuido uniforme: "SI" si el monto se generó pareja durante todo el ejercicio (ej: Ventas, sueldos). "NO" si tiene una fecha puntual.'],
+    ['  Fecha de origen: sólo si Distribuido uniforme = "NO". Formato AAAA-MM.'],
+    [''],
+    ['Los importes van sin signo (siempre positivos); el signo de ingreso/gasto lo define la columna Tipo.'],
+    [''],
+    ['Importar este Excel en la calculadora reemplaza las filas actuales de cada hoja que esté presente en el archivo.'],
+  ]);
+  XLSX.utils.book_append_sheet(wb, wsInstr, 'Instrucciones');
+
+  XLSX.writeFile(wb, 'Plantilla_AjusteInflacion_RT6_ImpoBot.xlsx');
+}
+
+function hallarHoja(wb, nombresPosibles){
+  for(var i=0;i<wb.SheetNames.length;i++){
+    if(nombresPosibles.indexOf(normalizarTxt(wb.SheetNames[i])) !== -1) return wb.SheetNames[i];
+  }
+  return null;
+}
+
+function importarExcelRubros(){
+  var input = document.getElementById('fExcelRubros');
+  var file = input.files && input.files[0];
+  var msgBox = document.getElementById('import-msg');
+  if(!file){ msgBox.innerHTML = '<div class="alerta alerta-warn">⚠️ Elegí primero un archivo Excel (.xlsx).</div>'; return; }
+
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var wb = XLSX.read(e.target.result, { type: 'array' });
+      var avisos = [];
+      var hojasImportadas = [];
+
+      var nombreActivo = hallarHoja(wb, HOJAS_RUBROS.activo.nombres);
+      if(nombreActivo) hojasImportadas.push(importarHojaActivoPasivo(wb, nombreActivo, 'tbody-activo', 'Activo', avisos));
+
+      var nombrePasivo = hallarHoja(wb, HOJAS_RUBROS.pasivo.nombres);
+      if(nombrePasivo) hojasImportadas.push(importarHojaActivoPasivo(wb, nombrePasivo, 'tbody-pasivo', 'Pasivo', avisos));
+
+      var nombrePN = hallarHoja(wb, HOJAS_RUBROS.pn.nombres);
+      if(nombrePN) hojasImportadas.push(importarHojaPN(wb, nombrePN, avisos));
+
+      var nombreResultado = hallarHoja(wb, HOJAS_RUBROS.resultado.nombres);
+      if(nombreResultado) hojasImportadas.push(importarHojaResultado(wb, nombreResultado, avisos));
+
+      if(hojasImportadas.length === 0){
+        msgBox.innerHTML = '<div class="alerta alerta-err">⚠️ No encontré ninguna hoja con los nombres esperados (Activo, Pasivo, Patrimonio Neto, Resultados). Revisá que uses la plantilla descargada sin cambiar los nombres de hoja.</div>';
+        return;
+      }
+
+      var html = '<div class="alerta alerta-ok">✅ Se importaron ' + hojasImportadas.join(', ') + '.</div>';
+      if(avisos.length){
+        html += '<div class="alerta alerta-warn">⚠️ ' + avisos.length + ' fila(s) con datos que no pude interpretar y quedaron afuera:<br>' + avisos.map(function(a){return '• '+a;}).join('<br>') + '</div>';
+      }
+      msgBox.innerHTML = html;
+    }catch(err){
+      msgBox.innerHTML = '<div class="alerta alerta-err">⚠️ No pude leer el archivo: ' + err.message + '</div>';
+    }
+  };
+  reader.onerror = function(){ msgBox.innerHTML = '<div class="alerta alerta-err">⚠️ No se pudo leer el archivo ' + file.name + '.</div>'; };
+  reader.readAsArrayBuffer(file);
+}
+
+function importarHojaActivoPasivo(wb, nombreHoja, tbodyId, etiqueta, avisos){
+  var filas = XLSX.utils.sheet_to_json(wb.Sheets[nombreHoja], { defval: '' });
+  var validas = [];
+  filas.forEach(function(r, idx){
+    var desc = String(r['Descripción']||r['Descripcion']||'').trim();
+    var tipoTxt = r['Tipo'];
+    var importe = parseFloat(r['Importe']);
+    var fechaTxt = r['Fecha de origen (AAAA-MM)'] !== undefined ? r['Fecha de origen (AAAA-MM)'] : r['Fecha de origen'];
+    if(desc==='' && (tipoTxt===''||tipoTxt===undefined) && isNaN(importe)) return; // fila vacía, se ignora sin aviso
+
+    var tipo = tipoActivoPasivoDesdeTexto(tipoTxt);
+    if(tipo===null){ avisos.push(etiqueta+', fila '+(idx+2)+': Tipo "'+tipoTxt+'" no reconocido (debe ser Monetario o No monetario) — fila omitida.'); return; }
+    var fecha = parsearFechaOrigenExcel(fechaTxt);
+    if(fecha===null){ avisos.push(etiqueta+', fila '+(idx+2)+': Fecha de origen "'+fechaTxt+'" no reconocida (formato esperado AAAA-MM) — fila omitida.'); return; }
+    if(tipo==='no_monetario' && fecha===''){ avisos.push(etiqueta+', fila '+(idx+2)+' ("'+desc+'"): es No monetario pero no tiene Fecha de origen — fila omitida.'); return; }
+
+    validas.push({ desc: desc, tipo: tipo, fecha: fecha, importe: isNaN(importe) ? 0 : importe });
+  });
+
+  var tbody = document.getElementById(tbodyId);
+  tbody.innerHTML = validas.map(function(v){ return filaActivoPasivo(v.desc, v.tipo, v.fecha); }).join('');
+  var trs = tbody.querySelectorAll('tr');
+  trs.forEach(function(tr, i){ tr.querySelector('.f-importe').value = validas[i].importe; });
+  return validas.length + ' en ' + etiqueta;
+}
+
+function importarHojaPN(wb, nombreHoja, avisos){
+  var filas = XLSX.utils.sheet_to_json(wb.Sheets[nombreHoja], { defval: '' });
+  var validas = [];
+  filas.forEach(function(r, idx){
+    var desc = String(r['Descripción']||r['Descripcion']||'').trim();
+    var importe = parseFloat(r['Importe']);
+    var fechaTxt = r['Fecha de origen (AAAA-MM)'] !== undefined ? r['Fecha de origen (AAAA-MM)'] : r['Fecha de origen'];
+    if(desc==='' && isNaN(importe) && (fechaTxt===''||fechaTxt===undefined)) return;
+
+    var fecha = parsearFechaOrigenExcel(fechaTxt);
+    if(fecha===null){ avisos.push('Patrimonio Neto, fila '+(idx+2)+': Fecha de origen "'+fechaTxt+'" no reconocida — fila omitida.'); return; }
+    if(fecha===''){ avisos.push('Patrimonio Neto, fila '+(idx+2)+' ("'+desc+'"): falta la Fecha de origen — fila omitida.'); return; }
+
+    validas.push({ desc: desc, fecha: fecha, importe: isNaN(importe) ? 0 : importe });
+  });
+
+  var tbody = document.getElementById('tbody-pn');
+  tbody.innerHTML = validas.map(function(v){ return filaPN(v.desc, v.fecha); }).join('');
+  var trs = tbody.querySelectorAll('tr');
+  trs.forEach(function(tr, i){ tr.querySelector('.f-importe').value = validas[i].importe; });
+  return validas.length + ' en Patrimonio Neto';
+}
+
+function importarHojaResultado(wb, nombreHoja, avisos){
+  var filas = XLSX.utils.sheet_to_json(wb.Sheets[nombreHoja], { defval: '' });
+  var validas = [];
+  filas.forEach(function(r, idx){
+    var desc = String(r['Descripción']||r['Descripcion']||'').trim();
+    var tipoTxt = r['Tipo'];
+    var importe = parseFloat(r['Importe']);
+    var distribTxt = r['Distribuido uniforme (SI/NO)'] !== undefined ? r['Distribuido uniforme (SI/NO)'] : r['Distribuido uniforme'];
+    var fechaTxt = r['Fecha de origen (AAAA-MM, sólo si NO está distribuido)'];
+    if(fechaTxt===undefined) fechaTxt = r['Fecha de origen'];
+    if(desc==='' && (tipoTxt===''||tipoTxt===undefined) && isNaN(importe)) return;
+
+    var tipo = tipoResultadoDesdeTexto(tipoTxt);
+    if(tipo===null){ avisos.push('Resultados, fila '+(idx+2)+': Tipo "'+tipoTxt+'" no reconocido (debe ser Ingreso o Gasto) — fila omitida.'); return; }
+    var distrib = boolDesdeTexto(distribTxt);
+    if(distrib===null){ avisos.push('Resultados, fila '+(idx+2)+': "Distribuido uniforme" = "'+distribTxt+'" no reconocido (debe ser SI o NO) — fila omitida.'); return; }
+    var fecha = '';
+    if(!distrib){
+      fecha = parsearFechaOrigenExcel(fechaTxt);
+      if(fecha===null){ avisos.push('Resultados, fila '+(idx+2)+' ("'+desc+'"): Fecha de origen "'+fechaTxt+'" no reconocida — fila omitida.'); return; }
+      if(fecha===''){ avisos.push('Resultados, fila '+(idx+2)+' ("'+desc+'"): no está distribuida y no tiene Fecha de origen — fila omitida.'); return; }
+    }
+
+    validas.push({ desc: desc, tipo: tipo, distrib: distrib, fecha: fecha, importe: isNaN(importe) ? 0 : importe });
+  });
+
+  var tbody = document.getElementById('tbody-resultado');
+  tbody.innerHTML = validas.map(function(v){ return filaResultado(v.desc, v.tipo, v.distrib); }).join('');
+  var trs = tbody.querySelectorAll('tr');
+  trs.forEach(function(tr, i){
+    tr.querySelector('.f-importe').value = validas[i].importe;
+    if(validas[i].fecha){ tr.querySelector('.f-fecha').value = validas[i].fecha; }
+  });
+  return validas.length + ' en Resultados';
 }
 
 // Init

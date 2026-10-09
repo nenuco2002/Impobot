@@ -134,11 +134,11 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-
         </div>
         <div class="field">
           <label for="mes-desde">Desde (mes de origen)</label>
-          <select id="mes-desde"></select>
+          <select id="mes-desde" onchange="calcular()"></select>
         </div>
         <div class="field">
           <label for="mes-hasta">Hasta (mes de destino)</label>
-          <select id="mes-hasta"></select>
+          <select id="mes-hasta" onchange="calcular()"></select>
         </div>
         <div style="grid-column:1/-1;display:flex;justify-content:flex-end">
           <button type="button" class="swap-btn" onclick="invertir()" title="Invertir período">⇄</button>
@@ -218,10 +218,11 @@ function fmtPct(n){
 }
 
 function calcular(){
-  var monto = parseFloat(document.getElementById('monto').value);
-  if(isNaN(monto) || monto < 0){ alert('Ingresá un monto válido.'); return; }
   var pDesde = document.getElementById('mes-desde').value;
   var pHasta = document.getElementById('mes-hasta').value;
+  renderTabla(); // la tabla de abajo siempre refleja el período elegido arriba
+  var monto = parseFloat(document.getElementById('monto').value);
+  if(isNaN(monto) || monto < 0){ alert('Ingresá un monto válido.'); return; }
   if(pDesde === pHasta){
     document.getElementById('card-resultado').style.display='';
     document.getElementById('r-monto').textContent = fmtMoneda(monto);
@@ -268,21 +269,38 @@ function invertir(){
 
 function renderTabla(){
   var tbody = document.getElementById('tabla-body');
-  var n = 12;
-  var desde = Math.max(1, PERIODOS.length - n);
+  var pDesde = document.getElementById('mes-desde').value;
+  var pHasta = document.getElementById('mes-hasta').value;
+  var idxDesde = PERIODOS.indexOf(pDesde);
+  var idxHasta = PERIODOS.indexOf(pHasta);
+  // Siempre se muestra el rango seleccionado arriba (Desde/Hasta), en orden
+  // cronológico descendente (el mes más reciente primero), sin importar si
+  // el usuario lo usó para actualizar hacia adelante o para deflactar hacia atrás.
+  var idxIni = Math.min(idxDesde, idxHasta);
+  var idxFin = Math.max(idxDesde, idxHasta);
   var filas = [];
-  for(var i = PERIODOS.length - 1; i >= desde; i--){
-    var p = PERIODOS[i], pPrev = PERIODOS[i-1];
-    var mom = (IPC[p]/IPC[pPrev]-1)*100;
+  for(var i = idxFin; i >= idxIni; i--){
+    var p = PERIODOS[i];
+    var pPrev = i > 0 ? PERIODOS[i-1] : null;
+    var momTxt = '—', claseMom = '';
+    if(pPrev){
+      var mom = (IPC[p]/IPC[pPrev]-1)*100;
+      claseMom = mom >= 5 ? 'red' : (mom >= 2.5 ? 'amber' : 'green');
+      momTxt = fmtPct(mom);
+    }
     var ia = '—';
     var idx12 = i-12;
     if(idx12 >= 0){
       ia = fmtPct((IPC[p]/IPC[PERIODOS[idx12]]-1)*100);
     }
-    var claseMom = mom >= 5 ? 'red' : (mom >= 2.5 ? 'amber' : 'green');
-    filas.push('<tr><td class="mm">'+etiquetaPeriodo(p)+'</td><td class="pct" style="color:var(--'+claseMom+')">'+fmtPct(mom)+'</td><td class="pct">'+ia+'</td></tr>');
+    filas.push('<tr><td class="mm">'+etiquetaPeriodo(p)+'</td><td class="pct"'+(claseMom?' style="color:var(--'+claseMom+')"':'')+'>'+momTxt+'</td><td class="pct">'+ia+'</td></tr>');
   }
   tbody.innerHTML = filas.join('');
+
+  var sub = document.getElementById('tabla-sub');
+  sub.textContent = (idxIni === idxFin)
+    ? etiquetaPeriodo(PERIODOS[idxIni])
+    : (etiquetaPeriodo(PERIODOS[idxIni]) + ' – ' + etiquetaPeriodo(PERIODOS[idxFin]));
 }
 
 poblarSelects();

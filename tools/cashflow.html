@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Proyección de Cashflow — ImpoBot</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#2d4f68;--card:#35546f;--card2:#35546f;--border:#4d7a96;--text:#f0f6fb;--sub:#9dbdd6;--blue:#0b82f5;--blue-l:#60a5fa;--green:#10b981;--amber:#f59e0b;--red:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:60px}
+.shell{max-width:1040px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:16px}
+.card-title{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-l);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.68rem;font-weight:600;color:var(--sub);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select{width:100%;background:#1e3a4e;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:.88rem;outline:none;font-family:'Inter',sans-serif}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.field small{display:block;margin-top:4px;color:var(--sub);font-size:.68rem;line-height:1.4}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.checkrow{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.checkrow input[type=checkbox]{width:16px;height:16px;accent-color:var(--blue)}
+.checkrow label{font-size:.82rem;color:var(--text);font-weight:600;text-transform:none;letter-spacing:0}
+.btn-calc{width:100%;background:linear-gradient(135deg,#0762c8,var(--blue));color:#fff;border:none;padding:12px;border-radius:10px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:4px}
+.btn-calc:hover{filter:brightness(1.1)}
+.btn-sec{background:#1e3a4e;border:1.5px solid var(--border);color:var(--text);padding:9px 14px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-sec:hover{border-color:var(--blue)}
+.result-box{display:none}
+.result-box.show{display:block}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.r-item{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.r-label{font-size:.65rem;color:var(--sub);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.r-val{font-size:1.1rem;font-weight:800;color:#fff}
+.r-val.big{font-size:1.4rem}
+.r-val.red{color:var(--red)}
+.r-val.green{color:var(--green)}
+.datatable{width:100%;border-collapse:collapse;font-size:.74rem;margin-bottom:6px}
+.datatable th{background:rgba(11,130,245,.1);color:var(--blue-l);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:7px 8px;text-align:right;border-bottom:1px solid var(--border)}
+.datatable th:first-child,.datatable td:first-child{text-align:left}
+.datatable td{padding:6px 8px;border-bottom:1px solid rgba(26,47,69,.5);color:var(--text);text-align:right}
+.datatable tr:last-child td{border-bottom:none}
+.datatable td.neg{color:var(--red);font-weight:700}
+.datatable td.pos{color:var(--green);font-weight:700}
+.bar-wrap{height:5px;background:rgba(0,0,0,.25);border-radius:3px;margin-top:3px;overflow:hidden;min-width:60px}
+.bar-fill{height:100%;border-radius:3px}
+.alerta{border-radius:8px;padding:10px 13px;font-size:.75rem;line-height:1.5;margin-bottom:12px}
+.alerta-warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.alerta-info{background:rgba(11,130,245,.07);border:1px solid rgba(11,130,245,.2);color:var(--blue-l)}
+.alerta-bad{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:#fca5a5}
+.fileinput{position:relative}
+.fileinput input[type=file]{width:100%;background:#1e3a4e;border:1.5px dashed var(--border);color:var(--sub);padding:14px 12px;border-radius:8px;font-size:.78rem;font-family:'Inter',sans-serif}
+.fileinput .ok-tag{color:var(--green);font-size:.68rem;font-weight:700;margin-top:4px;display:none}
+.manual-table{width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:10px}
+.manual-table th{text-align:left;font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;padding:4px 6px}
+.manual-table td{padding:4px 6px}
+.manual-table input,.manual-table select{width:100%;background:#1e3a4e;border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:6px;font-size:.78rem;font-family:'Inter',sans-serif}
+.manual-table .x{background:none;border:0;color:var(--sub);cursor:pointer;font-size:1rem}
+.manual-table .x:hover{color:var(--red)}
+.manual-table input[type=checkbox]{width:16px;height:16px;accent-color:var(--blue)}
+.guia-wrap{margin:0 0 16px;border:1px solid rgba(77,122,150,.35);border-radius:10px;overflow:hidden}
+.guia-wrap summary{cursor:pointer;padding:10px 16px;background:rgba(30,58,78,.6);color:var(--sub);font-size:.8rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+.guia-wrap summary:hover{color:var(--text)}
+.guia-wrap[open] summary{color:var(--text);background:rgba(30,58,78,.9)}
+.guia-body{padding:14px 18px;background:rgba(30,58,78,.4);font-size:.82rem;line-height:1.65;color:var(--text)}
+.guia-body ol{margin:8px 0 8px 18px;padding:0}
+.guia-body li{margin-bottom:5px}
+.guia-nota{margin-top:10px;padding:8px 12px;background:rgba(245,158,11,.07);border-left:3px solid #f59e0b;border-radius:4px;font-size:.75rem;color:var(--sub)}
+@media(max-width:700px){.row2,.row3,.result-grid{grid-template-columns:1fr}}
+
+.fh-head{position:sticky;top:0;z-index:500;font-family:'Inter',system-ui,sans-serif}
+.fh-bar{height:46px;display:flex;align-items:center;gap:10px;padding:0 16px;background:linear-gradient(135deg,#0b1220,#141d2e);border-bottom:1px solid rgba(255,255,255,.06)}
+.fh-brand{display:flex;align-items:center;gap:7px;text-decoration:none;flex-shrink:0}
+.fh-brand img{width:24px;height:24px;border-radius:50%;display:block}
+.fh-word{font-size:.86rem;font-weight:800;color:#eaf1f8;letter-spacing:-.02em;white-space:nowrap}
+.fh-word b{color:#38bdf8;font-weight:800}
+.fh-sep{width:1px;height:20px;background:rgba(255,255,255,.15);flex-shrink:0}
+.fh-title{font-size:.78rem;font-weight:700;color:#eaf1f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fh-tools{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.fh-chip{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-size:.75rem;text-decoration:none;background:rgba(255,255,255,.07);transition:background .15s}
+.fh-chip:hover{background:rgba(255,255,255,.14)}
+.fh-strip{height:28px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px;background:linear-gradient(90deg,#0b82f5,#0ea5e9);font-size:.66rem;font-weight:600;color:#eaf6ff;overflow:hidden}
+.fh-crumb a{color:#eaf6ff;opacity:.85;text-decoration:none}
+.fh-crumb a:hover{opacity:1;text-decoration:underline}
+.fh-crumb i{opacity:.6;margin:0 4px;font-style:normal}
+.fh-meta{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
+.fh-badge{background:rgba(255,255,255,.2);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.02em}
+@media(max-width:640px){.fh-strip .fh-meta-text{display:none}.fh-title{max-width:130px}}
+</style>
+<link rel="manifest" href="../manifest.json"/>
+<meta name="theme-color" content="#0b82f5"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<link rel="apple-touch-icon" href="../logo.png"/>
+</head>
+<body>
+<header class="fh-head">
+  <div class="fh-bar">
+    <a class="fh-brand" href="../index.html">
+      <img src="../logo-sm.png" alt="ImpoBot"/>
+      <span class="fh-word"><b>impo</b>bot</span>
+    </a>
+    <span class="fh-sep"></span>
+    <span class="fh-title">📊 Proyección de Cashflow</span>
+    <div class="fh-tools">
+      <a class="fh-chip" style="background:#FFDD00;color:#000" href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" title="Buy Me a Coffee">☕</a>
+      <a class="fh-chip" style="background:#FF5E5B;color:#fff" href="https://ko-fi.com/impobot" target="_blank" rel="noopener" title="Ko-fi">💙</a>
+    </div>
+  </div>
+  <div class="fh-strip">
+    <span class="fh-crumb"><a href="../index.html">Herramientas</a><i>›</i><strong>Cashflow</strong></span>
+    <span class="fh-meta"><span class="fh-meta-text">Proyección mensual · 12 meses</span><span class="fh-badge">Tramo 2/4</span></span>
+  </div>
+</header>
+
+<div class="shell">
+  <div style="margin-bottom:18px">
+    <details class="guia-wrap">
+      <summary>❓ ¿Cómo usar la Proyección de Cashflow?</summary>
+      <div class="guia-body">
+        <ol>
+          <li>Cargá el <strong>saldo de caja y bancos actual</strong> y el mes desde el que querés proyectar.</li>
+          <li>Opcional: subí tus <strong>Comprobantes de Compras y Ventas</strong> (mismo formato que el F.2051) e indicá cuántos días tardás en cobrar y pagar en promedio — con eso se proyecta en qué mes se hace efectivo cada comprobante.</li>
+          <li>Activá <strong>IVA</strong> y/o <strong>Monotributo</strong> para que se sumen automáticamente como egresos recurrentes, en la fecha que corresponde según tu CUIT.</li>
+          <li>Opcional: subí uno o más CSV de <strong>Movimientos</strong> que exporta el <a href="procesador.html" style="color:inherit;text-decoration:underline">Procesador de Documentos</a> de ImpoBot a partir de tus extractos bancarios. Con 1 extracto clasificamos cada movimiento por rubro; con 2 o más también detectamos transferencias entre tus propias cuentas; con 3 o más meses calculamos qué rubros son recurrentes (lo vas a ver en una tabla nueva, abajo del todo).</li>
+          <li>Agregá cualquier <strong>ingreso o egreso fijo</strong> (sueldos, alquiler, cuotas) que no salga de ningún archivo, con la opción de repetirlo todos los meses.</li>
+          <li>Hacé clic en <strong>Proyectar</strong>. Todo el cálculo ocurre en tu navegador.</li>
+        </ol>
+        <div class="guia-nota">⚠ Es una proyección orientativa basada en los supuestos que cargues (plazos de cobro/pago, montos estimados de impuestos). No es asesoramiento financiero ni reemplaza un análisis profesional de tu flujo de fondos. Vamos por el <strong>Tramo 2</strong> de la mejora: si cargaste 3+ meses de extracto con rubros recurrentes, la tabla de abajo pasa a mostrar <strong>3 escenarios</strong> (conservador/base/optimista) que suman esos rubros recurrentes a los montos ciertos — todavía faltan los próximos tramos (KPIs/alertas y comparación contra presupuesto). La clasificación es automática por palabras clave y puede equivocarse — revisala y reclasificá lo que haga falta con el selector de cada fila, porque eso cambia directamente los escenarios.</div>
+      </div>
+    </details>
+    <h1 style="font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:5px">Proyección de Cashflow</h1>
+    <p style="font-size:.82rem;color:var(--sub)">Proyectá tu saldo de caja mes a mes, combinando comprobantes pendientes de cobro/pago, vencimientos impositivos y tus ingresos/egresos fijos.</p>
+  </div>
+
+  <div class="alerta alerta-info">
+    🔒 <strong>Tus archivos nunca salen de tu navegador.</strong> Todo el cálculo se hace localmente, en tu computadora.
+  </div>
+
+  <!-- DATOS GENERALES -->
+  <div class="card">
+    <div class="card-title">⚙️ Datos generales</div>
+    <div class="row3">
+      <div class="field">
+        <label>Mes de inicio</label>
+        <input type="month" id="mesInicio"/>
+      </div>
+      <div class="field">
+        <label>Saldo actual de caja y bancos</label>
+        <input type="number" id="saldoInicial" placeholder="0" step="0.01"/>
+      </div>
+      <div class="field">
+        <label>CUIT (para vencimientos)</label>
+        <input type="text" id="cuit" placeholder="30-71648425-0"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- VENCIMIENTOS -->
+  <div class="card">
+    <div class="card-title">🗓️ Vencimientos impositivos automáticos</div>
+    <div class="checkrow"><input type="checkbox" id="chkIVA"/><label for="chkIVA">Responsable Inscripto — incluir vencimiento mensual de IVA</label></div>
+    <div class="row2">
+      <div class="field"><label>Monto estimado de IVA a pagar por mes</label><input type="number" id="montoIVA" placeholder="0" step="0.01"/></div>
+      <div class="field"><label>Día de vencimiento (según tu CUIT)</label><input type="text" id="diaIVA" disabled placeholder="Ingresá el CUIT arriba"/></div>
+    </div>
+    <div class="checkrow"><input type="checkbox" id="chkMono"/><label for="chkMono">Monotributista — incluir cuota mensual</label></div>
+    <div class="row2">
+      <div class="field"><label>Monto de la cuota mensual</label><input type="number" id="montoMono" placeholder="0" step="0.01"/></div>
+      <div class="field"><label>Día de vencimiento</label><input type="text" value="20 (todas las terminaciones)" disabled/></div>
+    </div>
+    <small style="color:var(--sub)">Cronograma ARCA 2026 — IVA: terminación 0-1 día 18, 2-3 día 19, 4-5 día 20, 6-7 día 21, 8-9 día 22. Monotributo: día 20 para todas las terminaciones.</small>
+  </div>
+
+  <!-- COMPROBANTES -->
+  <div class="card">
+    <div class="card-title">📂 Comprobantes pendientes de cobro / pago (opcional)</div>
+    <div class="row2">
+      <div class="field">
+        <label>Comprobantes de Ventas (.xlsx)</label>
+        <div class="fileinput">
+          <input type="file" id="fVentas" accept=".xlsx,.xls"/>
+          <div class="ok-tag" id="ok-ventas">✓ Archivo cargado</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Comprobantes de Compras (.xlsx)</label>
+        <div class="fileinput">
+          <input type="file" id="fCompras" accept=".xlsx,.xls"/>
+          <div class="ok-tag" id="ok-compras">✓ Archivo cargado</div>
+        </div>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Días promedio de cobro</label><input type="number" id="plazoCobro" value="30" min="0"/></div>
+      <div class="field"><label>Días promedio de pago</label><input type="number" id="plazoPago" value="30" min="0"/></div>
+    </div>
+  </div>
+
+  <!-- EXTRACTO BANCARIO -->
+  <div class="card">
+    <div class="card-title">🏦 Extracto bancario — clasificación automática (opcional)</div>
+    <p style="font-size:.74rem;color:var(--sub);margin-bottom:10px">Subí uno o más CSV de <strong>Movimientos</strong> que exporta el <a href="procesador.html" style="color:var(--blue-l)">Procesador de Documentos</a> a partir de tus extractos bancarios. Con 1 extracto clasificamos cada movimiento por rubro; con 2 o más también detectamos transferencias entre tus propias cuentas y las excluimos. Con 3 o más meses cargados calculamos qué rubros son recurrentes y la <strong>Proyección mensual</strong> de abajo pasa a mostrar 3 escenarios (conservador/base/optimista) que los incorporan.</p>
+    <div class="field">
+      <div class="fileinput">
+        <input type="file" id="fBanco" accept=".csv" multiple/>
+        <div class="ok-tag" id="ok-banco">✓ Archivo(s) cargado(s)</div>
+      </div>
+    </div>
+    <div id="bancoResumen" style="display:none" class="alerta alerta-info"></div>
+    <div id="bancoClasifWrap" style="display:none">
+      <div class="table-wrap" style="overflow-x:auto">
+        <table class="datatable" id="tablaClasificacion" style="min-width:760px">
+          <thead><tr><th>Fecha</th><th>Cuenta</th><th style="text-align:left">Descripción</th><th>Monto</th><th style="text-align:left">Rubro</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="recurrenciasWrap" style="margin-top:14px">
+        <div class="card-title" style="margin-bottom:8px">🔁 Recurrencias detectadas</div>
+        <div id="recurrenciasVacio" class="alerta alerta-info" style="display:none">Cargá al menos 3 meses de extracto para detectar rubros recurrentes.</div>
+        <table class="datatable" id="tablaRecurrencias" style="display:none">
+          <thead><tr><th style="text-align:left">Rubro</th><th>Meses con movimiento</th><th>Promedio mensual</th><th>Desvío</th><th>Día medio</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANUALES -->
+  <div class="card">
+    <div class="card-title">✍️ Ingresos y egresos manuales</div>
+    <table class="manual-table">
+      <thead><tr><th>Concepto</th><th>Tipo</th><th>Monto</th><th>Mes</th><th>Repetir cada mes</th><th></th></tr></thead>
+      <tbody id="manualBody"></tbody>
+    </table>
+    <button class="btn-sec" onclick="agregarFilaManual()">+ Agregar fila</button>
+  </div>
+
+  <button class="btn-calc" onclick="proyectar()">📊 Proyectar</button>
+  <div id="errores" style="margin-top:10px"></div>
+
+  <!-- RESULTADOS -->
+  <div class="result-box" id="result-box">
+    <div id="alertasResultado"></div>
+
+    <div class="card">
+      <div class="card-title">📈 Proyección mensual</div>
+      <div class="table-wrap" style="overflow-x:auto">
+        <table class="datatable" style="min-width:760px">
+          <thead><tr id="theadProyeccion"><th>Mes</th><th>Saldo inicial</th><th>Cobros</th><th>Ing. manuales</th><th>Pagos</th><th>Vencimientos</th><th>Egr. manuales</th><th>Saldo final</th></tr></thead>
+          <tbody id="tablaProyeccion"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⬇️ Exportar</div>
+      <button class="btn-sec" onclick="exportarExcel()">📄 Descargar Excel</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ============================================================
+// Núcleo de cálculo (ver /tmp/f2051/cashflow_calc.js para la versión testeada en Node)
+// ============================================================
+function parseFechaDDMMYYYY(v){
+  if(v==null) return null;
+  var s = String(v).trim();
+  var m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m) return new Date(Number(m[3]), Number(m[2])-1, Number(m[1]));
+  var m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m2) return new Date(Number(m2[1]), Number(m2[2])-1, Number(m2[3]));
+  var d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+function mesKey(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
+function mesesHorizonte(mesInicioStr, n){
+  var partes = mesInicioStr.split('-').map(Number), y=partes[0], m=partes[1];
+  var out = [];
+  for(var i=0;i<n;i++){
+    var idx = m-1+i, yy = y + Math.floor(idx/12), mm = (idx%12)+1;
+    out.push(yy + '-' + String(mm).padStart(2,'0'));
+  }
+  return out;
+}
+function proyectarMes(fechaStr, plazoDias){
+  var d = parseFechaDDMMYYYY(fechaStr);
+  if(!d) return null;
+  d.setDate(d.getDate() + (plazoDias||0));
+  return mesKey(d);
+}
+function terminacionCuit(cuit){
+  var digits = String(cuit||'').replace(/\D/g,'');
+  if(!digits.length) return null;
+  return parseInt(digits.slice(-1),10);
+}
+function diaVencimientoIVA(term){
+  if(term===0||term===1) return 18;
+  if(term===2||term===3) return 19;
+  if(term===4||term===5) return 20;
+  if(term===6||term===7) return 21;
+  if(term===8||term===9) return 22;
+  return null;
+}
+function round2(n){ return Math.round((n+Number.EPSILON)*100)/100; }
+function agruparComprobantesPorMes(comprobantes, plazoDias){
+  var porMes = {};
+  (comprobantes||[]).forEach(function(r){
+    var mes = proyectarMes(r.Fecha, plazoDias);
+    if(!mes) return;
+    var monto = Math.abs(parseFloat(r.Total)||0);
+    porMes[mes] = round2((porMes[mes]||0) + monto);
+  });
+  return porMes;
+}
+var ESCENARIOS = ['conservador', 'base', 'optimista'];
+
+// Tramo 2: a partir de las recurrencias del Tramo 1 (por rubro:
+// frecuenciaMeses/promedio/desvio/signo), arma el monto mensual estimado de
+// ingresos y egresos recurrentes para cada uno de los 3 escenarios.
+//
+// Fórmula (no documentada por ConciliaBot — diseño propio, ver plan):
+//   base = promedio
+//   conservador = el más adverso para la caja:
+//     ingreso (signo 'credito'): max(0, promedio - desvio)
+//     egreso  (signo 'debito'):  promedio + desvio
+//   optimista = el inverso de conservador.
+// Rubros con signo ambiguo (ej. "Mercado Pago", "Moneda extranjera" — pueden
+// ser tanto ingreso como egreso) no se proyectan por recurrencia: no hay forma
+// honesta de asumir la dirección del próximo movimiento, así que quedan afuera.
+function calcularRecurrentesPorEscenario(recurrencias){
+  var porEscenario = {
+    conservador: { ingresos: 0, egresos: 0 },
+    base: { ingresos: 0, egresos: 0 },
+    optimista: { ingresos: 0, egresos: 0 },
+  };
+  var detalle = [];
+  Object.keys(recurrencias||{}).forEach(function(key){
+    var r = recurrencias[key];
+    if(r.signo !== 'credito' && r.signo !== 'debito') return;
+    var esIngreso = r.signo === 'credito';
+    var campo = esIngreso ? 'ingresos' : 'egresos';
+    var base = round2(r.promedio);
+    var conservador, optimista;
+    if(esIngreso){
+      conservador = Math.max(0, round2(r.promedio - r.desvio));
+      optimista = round2(r.promedio + r.desvio);
+    } else {
+      conservador = round2(r.promedio + r.desvio);
+      optimista = Math.max(0, round2(r.promedio - r.desvio));
+    }
+    porEscenario.conservador[campo] = round2(porEscenario.conservador[campo] + conservador);
+    porEscenario.base[campo] = round2(porEscenario.base[campo] + base);
+    porEscenario.optimista[campo] = round2(porEscenario.optimista[campo] + optimista);
+    detalle.push({ actividad: r.actividad, rubro: r.rubro, signo: r.signo, conservador: conservador, base: base, optimista: optimista });
+  });
+  return { porEscenario: porEscenario, detalle: detalle };
+}
+
+// Proyección de N meses con 3 escenarios. Los montos "ciertos" (cobros, pagos,
+// vencimientos, manuales) son iguales en los 3 — lo único que varía es el
+// aporte de los rubros recurrentes del extracto (opts.recurrentesPorEscenario;
+// si no hay extracto con recurrencias, los 3 escenarios dan el mismo resultado
+// — mismo comportamiento que antes de este tramo).
+function proyectarCashflow(opts){
+  var meses = mesesHorizonte(opts.mesInicio, opts.nMeses);
+  var cobrosPorMes = agruparComprobantesPorMes(opts.ventas||[], opts.plazoCobro||0);
+  var pagosPorMes = agruparComprobantesPorMes(opts.compras||[], opts.plazoPago||0);
+  var term = terminacionCuit(opts.cuit);
+  var diaIVA = diaVencimientoIVA(term);
+  var rec = opts.recurrentesPorEscenario || { conservador:{ingresos:0,egresos:0}, base:{ingresos:0,egresos:0}, optimista:{ingresos:0,egresos:0} };
+
+  var filas = [];
+  var saldo = { conservador: round2(opts.saldoInicial||0), base: round2(opts.saldoInicial||0), optimista: round2(opts.saldoInicial||0) };
+
+  meses.forEach(function(mes){
+    var saldoInicial = { conservador: saldo.conservador, base: saldo.base, optimista: saldo.optimista };
+    var cobros = cobrosPorMes[mes] || 0;
+    var pagos = pagosPorMes[mes] || 0;
+
+    var vencimientos = 0, detalleVenc = [];
+    if(opts.incluirIVA && diaIVA){ vencimientos = round2(vencimientos + (opts.montoIVA||0)); detalleVenc.push('IVA (día '+diaIVA+')'); }
+    if(opts.incluirMonotributo){ vencimientos = round2(vencimientos + (opts.montoMonotributo||0)); detalleVenc.push('Monotributo (día 20)'); }
+
+    var ingresosManuales = 0, egresosManuales = 0, detalleManual = [];
+    (opts.manuales||[]).forEach(function(r){
+      var aplica = r.mes === mes || (r.repetir && r.mes <= mes);
+      if(!aplica) return;
+      var monto = Math.abs(parseFloat(r.monto)||0);
+      if(r.tipo === 'ingreso'){ ingresosManuales = round2(ingresosManuales + monto); }
+      else { egresosManuales = round2(egresosManuales + monto); }
+      detalleManual.push(r.concepto + ' (' + (r.tipo==='ingreso'?'+':'-') + monto.toFixed(2) + ')');
+    });
+
+    var totalIngresos = {}, totalEgresos = {}, saldoFinal = {}, recurrentes = {};
+    ESCENARIOS.forEach(function(esc){
+      var recIng = (rec[esc] && rec[esc].ingresos) || 0;
+      var recEgr = (rec[esc] && rec[esc].egresos) || 0;
+      recurrentes[esc] = { ingresos: recIng, egresos: recEgr };
+      totalIngresos[esc] = round2(cobros + ingresosManuales + recIng);
+      totalEgresos[esc] = round2(pagos + vencimientos + egresosManuales + recEgr);
+      saldoFinal[esc] = round2(saldoInicial[esc] + totalIngresos[esc] - totalEgresos[esc]);
+    });
+
+    filas.push({ mes:mes, saldoInicial:saldoInicial, cobros:cobros, ingresosManuales:ingresosManuales,
+      pagos:pagos, vencimientos:vencimientos, detalleVenc:detalleVenc,
+      egresosManuales:egresosManuales, detalleManual:detalleManual,
+      recurrentes:recurrentes, totalIngresos:totalIngresos, totalEgresos:totalEgresos, saldoFinal:saldoFinal });
+    saldo = { conservador: saldoFinal.conservador, base: saldoFinal.base, optimista: saldoFinal.optimista };
+  });
+
+  var mesMasBajo = {}, primerNegativo = {};
+  ESCENARIOS.forEach(function(esc){
+    mesMasBajo[esc] = filas.reduce(function(min,f){ return (min==null || f.saldoFinal[esc] < min.saldoFinal[esc]) ? f : min; }, null);
+    primerNegativo[esc] = filas.find(function(f){ return f.saldoFinal[esc] < 0; }) || null;
+  });
+
+  return { filas: filas, mesMasBajo: mesMasBajo, primerNegativo: primerNegativo };
+}
+
+// ============================================================
+// Parsers de archivos
+// ============================================================
+var COLS = ["Fecha","Tipo","PuntoVenta","NumeroDesde","NumeroHasta","TipoDoc","NroDoc","Denominacion","TipoCambio","Moneda","NetoGravado","NoGravado","Exento","IVA","Total"];
+
+function parseComprobantesXLSX(arrayBuffer){
+  var wb = XLSX.read(arrayBuffer, { type: 'array' });
+  var ws = wb.Sheets[wb.SheetNames[0]];
+  var rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+  var headerIdx = -1;
+  for(var i=0;i<Math.min(rows.length,6);i++){
+    if(rows[i] && String(rows[i][0]||'').trim().toLowerCase() === 'fecha'){ headerIdx = i; break; }
+  }
+  if(headerIdx === -1) throw new Error('No se encontró la fila de encabezado (buscando "Fecha" en la primera columna).');
+  var out = [];
+  for(var r=headerIdx+1; r<rows.length; r++){
+    var row = rows[r];
+    if(!row || row.every(function(c){return c===null || c==='';})) continue;
+    var obj = {};
+    for(var c=0;c<COLS.length;c++) obj[COLS[c]] = row[c] !== undefined ? row[c] : null;
+    out.push(obj);
+  }
+  return out;
+}
+
+// CSV "Bancos_movimientos" del Procesador de Documentos: separador ; por defecto, decimal coma, encabezado:
+// Cuenta bancaria;Fecha;Descripción;Débito;Crédito;Categoría;Cuenta;Archivo
+// nombreArchivoFallback: si el CSV no trae columna de cuenta (o viene vacía),
+// se usa el nombre del archivo para distinguir cuentas cuando se cargan 2+.
+function parseBancoCSV(texto, nombreArchivoFallback){
+  var sep = texto.indexOf(';') >= 0 ? ';' : ',';
+  var lineas = texto.split(/\r?\n/).filter(function(l){ return l.trim().length; });
+  if(!lineas.length) return [];
+  var header = lineas[0].split(sep).map(function(h){ return h.trim().toLowerCase(); });
+  var idxDeb = header.findIndex(function(h){ return h.indexOf('débito')>=0 || h.indexOf('debito')>=0; });
+  var idxCred = header.findIndex(function(h){ return h.indexOf('crédito')>=0 || h.indexOf('credito')>=0; });
+  var idxFecha = header.findIndex(function(h){ return h.indexOf('fecha')>=0; });
+  var idxDesc = header.findIndex(function(h){ return h.indexOf('descrip')>=0; });
+  var idxCuenta = header.findIndex(function(h){ return h.indexOf('cuenta')>=0; });
+  var out = [];
+  for(var i=1;i<lineas.length;i++){
+    var cols = lineas[i].split(sep);
+    if(cols.length < 2) continue;
+    var deb = parseFloat((cols[idxDeb]||'0').replace(/\./g,'').replace(',', '.')) || 0;
+    var cred = parseFloat((cols[idxCred]||'0').replace(/\./g,'').replace(',', '.')) || 0;
+    var fechaStr = idxFecha>=0 ? cols[idxFecha] : '';
+    var cuenta = (idxCuenta>=0 && cols[idxCuenta] && cols[idxCuenta].trim()) ? cols[idxCuenta].trim() : (nombreArchivoFallback || 'Cuenta 1');
+    out.push({
+      fecha: fechaStr, descripcion: idxDesc>=0 ? cols[idxDesc] : '', debito: deb, credito: cred,
+      cuenta: cuenta, _fechaObj: parseFechaDDMMYYYY(fechaStr),
+    });
+  }
+  return out;
+}
+
+// ============================================================
+// Tramo 1: clasificación automática + detección de transferencias + recurrencias
+// (ver /tmp/cashflow/cashflow_calc_t1.js para la versión testeada en Node)
+// ============================================================
+var RUBROS = [
+  { rubro: 'Cobranzas de clientes', actividad: 'Operativo', signo: 'credito', keywords: ['cobro cliente', 'cobranza', 'pago de cliente', 'factura cobrada'] },
+  { rubro: 'Otros ingresos operativos', actividad: 'Operativo', signo: 'credito', keywords: ['otros ingresos', 'ingreso vario'] },
+  { rubro: 'Mercado Pago', actividad: 'Operativo', signo: null, keywords: ['mercadopago', 'mercado pago', 'mp*'] },
+  { rubro: 'Pagos a proveedores', actividad: 'Operativo', signo: 'debito', keywords: ['pago proveedor', 'pago a proveedor', 'transferencia proveedor'] },
+  { rubro: 'Servicios', actividad: 'Operativo', signo: 'debito', keywords: ['edenor', 'edesur', 'metrogas', 'aysa', 'telecom', 'personal flow', 'movistar', 'claro', 'internet', 'telefonia', 'telefonía', 'luz', 'gas natural', 'alquiler'] },
+  { rubro: 'Tarjetas de crédito', actividad: 'Operativo', signo: 'debito', keywords: ['tarjeta de credito', 'tarjeta de crédito', 'visa', 'mastercard', 'amex', 'cabal'] },
+  { rubro: 'Sueldos', actividad: 'Operativo', signo: 'debito', keywords: ['sueldo', 'sueldos', 'haberes', 'remuneracion', 'remuneración', 'liquidacion de haberes'] },
+  { rubro: 'Impuestos y cargas', actividad: 'Operativo', signo: 'debito', keywords: ['afip', 'arca', 'iva', 'monotributo', 'ingresos brutos', 'iibb', 'ganancias', 'cargas sociales', 'f931', 'f.931'] },
+  { rubro: 'Gastos bancarios y seguros', actividad: 'Operativo', signo: 'debito', keywords: ['comision', 'comisión', 'mantenimiento de cuenta', 'gasto bancario', 'seguro', 'iva comision'] },
+  { rubro: 'Otros egresos operativos', actividad: 'Operativo', signo: 'debito', keywords: ['otros egresos', 'gasto vario'] },
+  { rubro: 'Colocaciones (FCI/PF)', actividad: 'Inversión', signo: 'debito', keywords: ['plazo fijo', 'suscripcion fci', 'suscripción fci', 'colocacion', 'colocación'] },
+  { rubro: 'Rescates (FCI/PF)', actividad: 'Inversión', signo: 'credito', keywords: ['rescate fci', 'rescate plazo fijo', 'vencimiento plazo fijo'] },
+  { rubro: 'Rendimientos', actividad: 'Inversión', signo: 'credito', keywords: ['interes ganado', 'interés ganado', 'rendimiento', 'renta fci'] },
+  { rubro: 'Moneda extranjera', actividad: 'Inversión', signo: null, keywords: ['compra de dolares', 'compra de dólares', 'venta de dolares', 'venta de dólares', 'compraventa usd', 'mep'] },
+  { rubro: 'Altas de deuda', actividad: 'Financiación', signo: 'credito', keywords: ['desembolso prestamo', 'desembolso préstamo', 'acreditacion prestamo', 'adelanto cuenta corriente'] },
+  { rubro: 'Servicio de deuda', actividad: 'Financiación', signo: 'debito', keywords: ['cuota prestamo', 'cuota préstamo', 'amortizacion prestamo', 'amortización préstamo'] },
+  { rubro: 'Intereses pagados', actividad: 'Financiación', signo: 'debito', keywords: ['interes pagado', 'interés pagado', 'interes deudor', 'interés deudor', 'interes financiero'] },
+];
+var RUBRO_TRANSFERENCIA = 'Transferencia entre cuentas propias';
+var RUBRO_SIN_CLASIFICAR = 'Sin clasificar';
+
+function normalizarTexto(s){
+  return String(s==null?'':s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+}
+function clasificarMovimiento(descripcion, signo){
+  var desc = normalizarTexto(descripcion);
+  if(!desc) return null;
+  for(var i=0;i<RUBROS.length;i++){
+    var r = RUBROS[i];
+    if(r.signo && r.signo !== signo) continue;
+    for(var k=0;k<r.keywords.length;k++){
+      if(desc.indexOf(normalizarTexto(r.keywords[k])) !== -1) return { actividad: r.actividad, rubro: r.rubro };
+    }
+  }
+  return null;
+}
+function diffDias(d1, d2){ return Math.round(Math.abs(d1.getTime()-d2.getTime())/86400000); }
+
+// Detecta transferencias entre cuentas propias cuando hay 2+ cuentas: mismo
+// importe, sentidos opuestos, cuentas distintas, hasta 2 días de diferencia.
+function detectarTransferencias(movimientos){
+  var cuentas = {};
+  movimientos.forEach(function(m){ cuentas[m.cuenta] = true; });
+  movimientos.forEach(function(m){ m._esTransferencia = false; });
+  if(Object.keys(cuentas).length < 2) return movimientos;
+  var usados = {};
+  for(var i=0;i<movimientos.length;i++){
+    var a = movimientos[i];
+    if(usados[i] || !a._fechaObj) continue;
+    var montoA = a.debito>0 ? a.debito : a.credito;
+    var signoA = a.debito>0 ? 'debito' : 'credito';
+    for(var j=i+1;j<movimientos.length;j++){
+      var b = movimientos[j];
+      if(usados[j] || !b._fechaObj) continue;
+      if(b.cuenta === a.cuenta) continue;
+      var montoB = b.debito>0 ? b.debito : b.credito;
+      var signoB = b.debito>0 ? 'debito' : 'credito';
+      if(signoA === signoB) continue;
+      if(round2(montoA) !== round2(montoB)) continue;
+      if(diffDias(a._fechaObj, b._fechaObj) > 2) continue;
+      a._esTransferencia = true; b._esTransferencia = true;
+      usados[i] = true; usados[j] = true;
+      break;
+    }
+  }
+  return movimientos;
+}
+
+// Clasifica todos los movimientos y arma el histórico mensual por rubro.
+// `overrides`: { índice: {actividad, rubro} } para las reclasificaciones manuales.
+function clasificarYAgrupar(movimientos, overrides){
+  overrides = overrides || {};
+  var historico = {};
+  var clasificados = movimientos.map(function(m, idx){
+    var signo = m.debito>0 ? 'debito' : 'credito';
+    var monto = m.debito>0 ? m.debito : m.credito;
+    var actividad, rubro;
+    if(overrides[idx]){
+      actividad = overrides[idx].actividad; rubro = overrides[idx].rubro;
+    } else if(m._esTransferencia){
+      actividad = null; rubro = RUBRO_TRANSFERENCIA;
+    } else {
+      var match = clasificarMovimiento(m.descripcion, signo);
+      if(match){ actividad = match.actividad; rubro = match.rubro; }
+      else { actividad = null; rubro = RUBRO_SIN_CLASIFICAR; }
+    }
+    if(rubro !== RUBRO_TRANSFERENCIA && m._fechaObj){
+      var key = (actividad||'') + '|' + rubro;
+      if(!historico[key]) historico[key] = { actividad: actividad, rubro: rubro, signo: signo, porMes: {} };
+      var mes = mesKey(m._fechaObj);
+      historico[key].porMes[mes] = round2((historico[key].porMes[mes]||0) + monto);
+    }
+    return Object.assign({}, m, { _idx: idx, signo: signo, monto: monto, actividad: actividad, rubro: rubro });
+  });
+  return { clasificados: clasificados, historico: historico };
+}
+
+// Rubros con 3+ meses distintos de historial: frecuencia, promedio, desvío y día medio.
+function calcularRecurrencias(historico, movimientosClasificados){
+  var out = {};
+  Object.keys(historico).forEach(function(key){
+    var h = historico[key];
+    var meses = Object.keys(h.porMes);
+    if(meses.length < 3) return;
+    var montos = meses.map(function(mm){ return h.porMes[mm]; });
+    var promedio = round2(montos.reduce(function(a,b){return a+b;},0) / montos.length);
+    var varianza = montos.reduce(function(a,b){return a+Math.pow(b-promedio,2);},0) / montos.length;
+    var desvio = round2(Math.sqrt(varianza));
+    var dias = movimientosClasificados.filter(function(m){ return m.rubro===h.rubro && m.actividad===h.actividad && m._fechaObj; }).map(function(m){ return m._fechaObj.getDate(); });
+    var diaMedio = dias.length ? Math.round(dias.reduce(function(a,b){return a+b;},0)/dias.length) : null;
+    out[key] = { actividad: h.actividad, rubro: h.rubro, signo: h.signo, frecuenciaMeses: meses.length, promedio: promedio, desvio: desvio, diaMedio: diaMedio };
+  });
+  return out;
+}
+
+// ============================================================
+// Estado y UI
+// ============================================================
+var DATA = { ventas: null, compras: null, banco: null };
+var MANUAL_ID = 0;
+var CLASIF_RESULT = null;
+var RECLASIFICACIONES = {}; // { idx: {actividad, rubro} } — reclasificaciones manuales
+var BANCO_FILES_SIGNATURE = null; // identifica el set de archivos de banco cargado; si no cambió, no se pisan las reclasificaciones manuales
+
+// Firma de los archivos cargados en el input de banco (nombre+tamaño+fecha de
+// modificación de cada uno). Mientras el usuario no cargue archivos nuevos,
+// la firma es la misma entre un clic en "Proyectar" y el siguiente.
+function firmaArchivosBanco(input){
+  var files = input && input.files;
+  if(!files || !files.length) return '';
+  var partes = [];
+  for(var i=0;i<files.length;i++){
+    var f = files[i];
+    partes.push(f.name + '|' + f.size + '|' + f.lastModified);
+  }
+  return partes.join(';');
+}
+
+// Opciones del selector de reclasificación: todos los rubros conocidos + "Sin clasificar".
+function opcionesRubro(seleccionActual){
+  var opts = '<option value="__sin_clasificar__"' + (seleccionActual===RUBRO_SIN_CLASIFICAR?' selected':'') + '>' + RUBRO_SIN_CLASIFICAR + '</option>';
+  RUBROS.forEach(function(r){
+    var key = r.actividad + '|' + r.rubro;
+    opts += '<option value="' + key + '"' + (seleccionActual===r.rubro?' selected':'') + '>' + r.rubro + ' (' + r.actividad + ')</option>';
+  });
+  return opts;
+}
+
+function reclasificarMovimiento(idx, valor){
+  if(valor === '__sin_clasificar__') delete RECLASIFICACIONES[idx];
+  else {
+    var partes = valor.split('|');
+    RECLASIFICACIONES[idx] = { actividad: partes[0], rubro: partes[1] };
+  }
+  var clasif = clasificarYAgrupar(DATA.banco, RECLASIFICACIONES);
+  CLASIF_RESULT = clasif;
+  renderClasificacion(clasif.clasificados);
+  renderRecurrencias(calcularRecurrencias(clasif.historico, clasif.clasificados));
+}
+
+function renderClasificacion(clasificados){
+  var tbody = document.querySelector('#tablaClasificacion tbody');
+  tbody.innerHTML = clasificados.map(function(m){
+    var fechaTxt = m._fechaObj ? (String(m._fechaObj.getDate()).padStart(2,'0')+'/'+String(m._fechaObj.getMonth()+1).padStart(2,'0')+'/'+m._fechaObj.getFullYear()) : (m.fecha||'');
+    var montoTxt = (m.signo==='debito' ? '− ' : '+ ') + fmt(m.monto);
+    var rubroCelda;
+    if(m.rubro === RUBRO_TRANSFERENCIA){
+      rubroCelda = '<span class="badge-amber" style="font-size:.65rem;padding:2px 7px;border-radius:5px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:var(--amber)">Transferencia propia</span>';
+    } else {
+      rubroCelda = '<select onchange="reclasificarMovimiento(' + m._idx + ', this.value)" style="width:auto;font-size:.72rem;padding:4px 6px">' + opcionesRubro(m.rubro) + '</select>';
+    }
+    return '<tr>' +
+      '<td>' + fechaTxt + '</td>' +
+      '<td>' + (m.cuenta||'') + '</td>' +
+      '<td style="text-align:left;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + (m.descripcion||'').replace(/"/g,'&quot;') + '">' + (m.descripcion||'') + '</td>' +
+      '<td class="' + (m.signo==='debito'?'neg':'pos') + '">' + montoTxt + '</td>' +
+      '<td style="text-align:left">' + rubroCelda + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function renderRecurrencias(recurrencias){
+  var keys = Object.keys(recurrencias);
+  var tabla = document.getElementById('tablaRecurrencias');
+  var vacio = document.getElementById('recurrenciasVacio');
+  if(!keys.length){ tabla.style.display = 'none'; vacio.style.display = 'block'; return; }
+  vacio.style.display = 'none';
+  tabla.style.display = 'table';
+  var tbody = tabla.querySelector('tbody');
+  tbody.innerHTML = keys.map(function(k){
+    var r = recurrencias[k];
+    return '<tr>' +
+      '<td style="text-align:left">' + r.rubro + ' <span style="color:var(--sub);font-size:.68rem">(' + r.actividad + ')</span></td>' +
+      '<td>' + r.frecuenciaMeses + '</td>' +
+      '<td>' + fmt(r.promedio) + '</td>' +
+      '<td>' + fmt(r.desvio) + '</td>' +
+      '<td>' + (r.diaMedio!=null ? ('día ' + r.diaMedio) : '—') + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function leerArchivo(input, tipo){
+  return new Promise(function(resolve, reject){
+    var file = input.files && input.files[0];
+    if(!file){ resolve(null); return; }
+    var reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        if(tipo === 'xlsx') resolve(parseComprobantesXLSX(e.target.result));
+        else resolve(parseBancoCSV(e.target.result));
+      }catch(err){ reject(err); }
+    };
+    reader.onerror = function(){ reject(new Error('No se pudo leer el archivo ' + file.name)); };
+    if(tipo === 'xlsx') reader.readAsArrayBuffer(file);
+    else reader.readAsText(file, 'UTF-8');
+  });
+}
+
+function leerUnCSV(file){
+  return new Promise(function(resolve, reject){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      try{ resolve(parseBancoCSV(e.target.result, file.name.replace(/\.[^.]+$/, ''))); }
+      catch(err){ reject(err); }
+    };
+    reader.onerror = function(){ reject(new Error('No se pudo leer el archivo ' + file.name)); };
+    reader.readAsText(file, 'UTF-8');
+  });
+}
+
+// Lee uno o más CSV de extracto bancario y concatena sus movimientos.
+function leerArchivosBanco(input){
+  var files = input.files ? Array.prototype.slice.call(input.files) : [];
+  if(!files.length) return Promise.resolve([]);
+  return Promise.all(files.map(leerUnCSV)).then(function(listas){
+    return listas.reduce(function(acc, lista){ return acc.concat(lista); }, []);
+  });
+}
+
+function fmt(n){
+  n = parseFloat(n)||0;
+  return '$ ' + n.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+['fVentas','fCompras','fBanco'].forEach(function(id){
+  document.getElementById(id).addEventListener('change', function(){
+    var tag = document.getElementById('ok-' + id.replace('f','').toLowerCase());
+    if(tag) tag.style.display = this.files.length ? 'block' : 'none';
+  });
+});
+
+document.getElementById('cuit').addEventListener('input', function(){
+  var term = terminacionCuit(this.value);
+  var dia = diaVencimientoIVA(term);
+  document.getElementById('diaIVA').value = dia ? ('Día ' + dia + ' (terminación ' + term + ')') : '';
+});
+
+function agregarFilaManual(concepto, tipo, monto, mes, repetir){
+  var id = 'm' + (MANUAL_ID++);
+  var tbody = document.getElementById('manualBody');
+  var tr = document.createElement('tr');
+  tr.id = id;
+  tr.innerHTML =
+    '<td><input type="text" class="mc-concepto" value="'+(concepto||'')+'" placeholder="Ej: Alquiler"></td>' +
+    '<td><select class="mc-tipo"><option value="egreso"'+(tipo==='egreso'?' selected':'')+'>Egreso</option><option value="ingreso"'+(tipo==='ingreso'?' selected':'')+'>Ingreso</option></select></td>' +
+    '<td><input type="number" class="mc-monto" value="'+(monto||'')+'" step="0.01" placeholder="0"></td>' +
+    '<td><input type="month" class="mc-mes" value="'+(mes||'')+'"></td>' +
+    '<td style="text-align:center"><input type="checkbox" class="mc-repetir" '+(repetir?'checked':'')+'></td>' +
+    '<td><button class="x" onclick="document.getElementById(\''+id+'\').remove()">✕</button></td>';
+  tbody.appendChild(tr);
+}
+
+function leerFilasManuales(){
+  var filas = [];
+  document.querySelectorAll('#manualBody tr').forEach(function(tr){
+    var concepto = tr.querySelector('.mc-concepto').value.trim();
+    var monto = parseFloat(tr.querySelector('.mc-monto').value) || 0;
+    var mes = tr.querySelector('.mc-mes').value;
+    if(!concepto || !monto || !mes) return;
+    filas.push({
+      concepto: concepto,
+      tipo: tr.querySelector('.mc-tipo').value,
+      monto: monto,
+      mes: mes,
+      repetir: tr.querySelector('.mc-repetir').checked,
+    });
+  });
+  return filas;
+}
+
+var RESULTADO = null;
+var RECURRENTES_INFO = null; // salida de calcularRecurrentesPorEscenario() del último cálculo
+
+function mostrarError(msg){
+  document.getElementById('errores').innerHTML = '<div class="alerta alerta-warn">⚠ ' + msg + '</div>';
+}
+
+function proyectar(){
+  document.getElementById('errores').innerHTML = '';
+  var mesInicio = document.getElementById('mesInicio').value;
+  if(!mesInicio){ mostrarError('Elegí el mes de inicio de la proyección.'); return; }
+  var saldoInicial = parseFloat(document.getElementById('saldoInicial').value) || 0;
+  var cuit = document.getElementById('cuit').value;
+  var bancoSigNueva = firmaArchivosBanco(document.getElementById('fBanco'));
+
+  Promise.all([
+    leerArchivo(document.getElementById('fVentas'), 'xlsx'),
+    leerArchivo(document.getElementById('fCompras'), 'xlsx'),
+    leerArchivosBanco(document.getElementById('fBanco')),
+  ]).then(function(res){
+    DATA.ventas = res[0]; DATA.compras = res[1]; DATA.banco = res[2];
+
+    if(DATA.banco && DATA.banco.length){
+      var totDeb = DATA.banco.reduce(function(a,m){ return a + m.debito; }, 0);
+      var totCred = DATA.banco.reduce(function(a,m){ return a + m.credito; }, 0);
+      var nCuentas = Object.keys(DATA.banco.reduce(function(acc,m){ acc[m.cuenta]=1; return acc; }, {})).length;
+      var el = document.getElementById('bancoResumen');
+      el.style.display = 'block';
+      el.innerHTML = 'ℹ️ <strong>' + DATA.banco.length + ' movimiento(s)</strong> en ' + nCuentas + ' cuenta(s) — Débitos: ' + fmt(totDeb) + ' · Créditos: ' + fmt(totCred) + ' · Neto: ' + fmt(totCred - totDeb);
+
+      if(bancoSigNueva !== BANCO_FILES_SIGNATURE){
+        RECLASIFICACIONES = {}; // cambiaron los archivos cargados: las reclasificaciones manuales ya no corresponden
+        BANCO_FILES_SIGNATURE = bancoSigNueva;
+      }
+      detectarTransferencias(DATA.banco);
+      var clasif = clasificarYAgrupar(DATA.banco, RECLASIFICACIONES);
+      CLASIF_RESULT = clasif;
+      renderClasificacion(clasif.clasificados);
+      var recurrencias = calcularRecurrencias(clasif.historico, clasif.clasificados);
+      renderRecurrencias(recurrencias);
+      RECURRENTES_INFO = calcularRecurrentesPorEscenario(recurrencias);
+      document.getElementById('bancoClasifWrap').style.display = 'block';
+    } else {
+      document.getElementById('bancoClasifWrap').style.display = 'none';
+      RECURRENTES_INFO = null;
+    }
+
+    RESULTADO = proyectarCashflow({
+      mesInicio: mesInicio, nMeses: 12, saldoInicial: saldoInicial,
+      ventas: DATA.ventas || [], compras: DATA.compras || [],
+      plazoCobro: parseFloat(document.getElementById('plazoCobro').value) || 0,
+      plazoPago: parseFloat(document.getElementById('plazoPago').value) || 0,
+      cuit: cuit,
+      incluirIVA: document.getElementById('chkIVA').checked,
+      montoIVA: parseFloat(document.getElementById('montoIVA').value) || 0,
+      incluirMonotributo: document.getElementById('chkMono').checked,
+      montoMonotributo: parseFloat(document.getElementById('montoMono').value) || 0,
+      manuales: leerFilasManuales(),
+      recurrentesPorEscenario: RECURRENTES_INFO ? RECURRENTES_INFO.porEscenario : null,
+    });
+    renderResultados(RESULTADO);
+  }).catch(function(err){
+    mostrarError('Error procesando archivos: ' + err.message);
+  });
+}
+
+function nombreMes(mesKey){
+  var partes = mesKey.split('-');
+  var nombres = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  return nombres[parseInt(partes[1],10)-1] + ' ' + partes[0];
+}
+
+function renderResultados(res){
+  var tieneEscenarios = !!(RECURRENTES_INFO && RECURRENTES_INFO.detalle.length);
+  var thead = document.getElementById('theadProyeccion');
+  var tbody = document.getElementById('tablaProyeccion');
+  tbody.innerHTML = '';
+
+  if(tieneEscenarios){
+    thead.innerHTML = '<th>Mes</th><th>Cobros</th><th>Ing. manuales</th><th>Pagos</th><th>Vencimientos</th><th>Egr. manuales</th><th>Recurrentes extracto (neto, Base)</th><th>Saldo final Conservador</th><th>Saldo final Base</th><th>Saldo final Optimista</th>';
+    var maxAbs = Math.max.apply(null, res.filas.map(function(f){ return Math.abs(f.saldoFinal.base); })) || 1;
+    res.filas.forEach(function(f){
+      var tr = document.createElement('tr');
+      var recNeto = round2(f.recurrentes.base.ingresos - f.recurrentes.base.egresos);
+      var recTxt = (recNeto>=0?'+ ':'− ') + fmt(Math.abs(recNeto));
+      var saldoClassBase = f.saldoFinal.base < 0 ? 'neg' : 'pos';
+      var barPct = Math.min(100, Math.round(Math.abs(f.saldoFinal.base) / maxAbs * 100));
+      var barColor = f.saldoFinal.base < 0 ? 'var(--red)' : 'var(--green)';
+      tr.innerHTML =
+        '<td>' + nombreMes(f.mes) + '</td>' +
+        '<td>' + fmt(f.cobros) + '</td>' +
+        '<td>' + fmt(f.ingresosManuales) + '</td>' +
+        '<td>' + fmt(f.pagos) + '</td>' +
+        '<td title="' + f.detalleVenc.join(', ') + '">' + fmt(f.vencimientos) + '</td>' +
+        '<td title="' + f.detalleManual.join(', ') + '">' + fmt(f.egresosManuales) + '</td>' +
+        '<td title="Ingresos recurrentes: ' + fmt(f.recurrentes.base.ingresos) + ' · Egresos recurrentes: ' + fmt(f.recurrentes.base.egresos) + '">' + recTxt + '</td>' +
+        '<td class="' + (f.saldoFinal.conservador<0?'neg':'pos') + '">' + fmt(f.saldoFinal.conservador) + '</td>' +
+        '<td class="' + saldoClassBase + '">' + fmt(f.saldoFinal.base) + '<div class="bar-wrap"><div class="bar-fill" style="width:' + barPct + '%;background:' + barColor + '"></div></div></td>' +
+        '<td class="' + (f.saldoFinal.optimista<0?'neg':'pos') + '">' + fmt(f.saldoFinal.optimista) + '</td>';
+      tbody.appendChild(tr);
+    });
+  } else {
+    thead.innerHTML = '<th>Mes</th><th>Saldo inicial</th><th>Cobros</th><th>Ing. manuales</th><th>Pagos</th><th>Vencimientos</th><th>Egr. manuales</th><th>Saldo final</th>';
+    var maxAbs2 = Math.max.apply(null, res.filas.map(function(f){ return Math.abs(f.saldoFinal.base); })) || 1;
+    res.filas.forEach(function(f){
+      var tr = document.createElement('tr');
+      var saldoClass = f.saldoFinal.base < 0 ? 'neg' : 'pos';
+      var barPct = Math.min(100, Math.round(Math.abs(f.saldoFinal.base) / maxAbs2 * 100));
+      var barColor = f.saldoFinal.base < 0 ? 'var(--red)' : 'var(--green)';
+      tr.innerHTML =
+        '<td>' + nombreMes(f.mes) + '</td>' +
+        '<td>' + fmt(f.saldoInicial.base) + '</td>' +
+        '<td>' + fmt(f.cobros) + '</td>' +
+        '<td>' + fmt(f.ingresosManuales) + '</td>' +
+        '<td>' + fmt(f.pagos) + '</td>' +
+        '<td title="' + f.detalleVenc.join(', ') + '">' + fmt(f.vencimientos) + '</td>' +
+        '<td title="' + f.detalleManual.join(', ') + '">' + fmt(f.egresosManuales) + '</td>' +
+        '<td class="' + saldoClass + '">' + fmt(f.saldoFinal.base) + '<div class="bar-wrap"><div class="bar-fill" style="width:' + barPct + '%;background:' + barColor + '"></div></div></td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  var alertasEl = document.getElementById('alertasResultado');
+  var alertasHtml = '';
+  if(res.primerNegativo.base){
+    alertasHtml += '<div class="alerta alerta-bad">🔴 En el escenario <strong>Base</strong>, tu saldo proyectado se vuelve negativo en <strong>' + nombreMes(res.primerNegativo.base.mes) + '</strong> (' + fmt(res.primerNegativo.base.saldoFinal.base) + ').</div>';
+  } else {
+    alertasHtml += '<div class="alerta alerta-info">✅ En el escenario <strong>Base</strong>, el saldo proyectado se mantiene positivo en los ' + res.filas.length + ' meses. El punto más bajo es ' + nombreMes(res.mesMasBajo.base.mes) + ' (' + fmt(res.mesMasBajo.base.saldoFinal.base) + ').</div>';
+  }
+  if(tieneEscenarios){
+    if(res.primerNegativo.conservador && (!res.primerNegativo.base || res.primerNegativo.conservador.mes !== res.primerNegativo.base.mes)){
+      alertasHtml += '<div class="alerta alerta-warn">⚠️ En el escenario <strong>Conservador</strong> (el más adverso), el saldo se vuelve negativo antes: en <strong>' + nombreMes(res.primerNegativo.conservador.mes) + '</strong> (' + fmt(res.primerNegativo.conservador.saldoFinal.conservador) + ').</div>';
+    }
+    alertasHtml += '<div class="alerta alerta-info" style="font-size:.78rem">ℹ️ Los 3 escenarios suman/restan los rubros recurrentes detectados en tu extracto (tabla de arriba) a los montos ciertos de esta proyección. Si un mismo concepto ya está contado en otro lado (ej.: un vencimiento de IVA tildado arriba Y el mismo pago reconocido como rubro "Impuestos y cargas" del banco), se va a estar duplicando — reclasificá esa fila como "Sin clasificar" en la tabla de extracto si no querés que la recurrencia se sume.</div>';
+  }
+  alertasEl.innerHTML = alertasHtml;
+
+  document.getElementById('result-box').classList.add('show');
+  document.getElementById('result-box').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function exportarExcel(){
+  if(!RESULTADO) return;
+  var tieneEscenarios = !!(RECURRENTES_INFO && RECURRENTES_INFO.detalle.length);
+  var rows = RESULTADO.filas.map(function(f){
+    var row = {
+      'Mes': nombreMes(f.mes), 'Cobros': f.cobros, 'Ingresos manuales': f.ingresosManuales,
+      'Pagos': f.pagos, 'Vencimientos impositivos': f.vencimientos, 'Egresos manuales': f.egresosManuales,
+    };
+    if(tieneEscenarios){
+      row['Recurrentes ingresos (Conservador)'] = f.recurrentes.conservador.ingresos;
+      row['Recurrentes egresos (Conservador)'] = f.recurrentes.conservador.egresos;
+      row['Recurrentes ingresos (Base)'] = f.recurrentes.base.ingresos;
+      row['Recurrentes egresos (Base)'] = f.recurrentes.base.egresos;
+      row['Recurrentes ingresos (Optimista)'] = f.recurrentes.optimista.ingresos;
+      row['Recurrentes egresos (Optimista)'] = f.recurrentes.optimista.egresos;
+      row['Saldo final Conservador'] = f.saldoFinal.conservador;
+      row['Saldo final Base'] = f.saldoFinal.base;
+      row['Saldo final Optimista'] = f.saldoFinal.optimista;
+    } else {
+      row['Saldo inicial'] = f.saldoInicial.base;
+      row['Total ingresos'] = f.totalIngresos.base;
+      row['Total egresos'] = f.totalEgresos.base;
+      row['Saldo final'] = f.saldoFinal.base;
+    }
+    return row;
+  });
+  var ws = XLSX.utils.json_to_sheet(rows);
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Cashflow');
+  XLSX.writeFile(wb, 'Cashflow_' + (document.getElementById('mesInicio').value || 'proyeccion') + '.xlsx');
+}
+
+// Inicializar mes con el actual y agregar una fila manual de ejemplo vacía
+(function(){
+  var hoy = new Date();
+  document.getElementById('mesInicio').value = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0');
+  agregarFilaManual();
+})();
+</script>
+
+<a href="https://api.whatsapp.com/send?text=Proyecci%C3%B3n%20de%20Cashflow%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/cashflow.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
+  style="position:fixed;bottom:76px;right:20px;z-index:998;background:#25D366;color:#fff;
+    width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;text-decoration:none;box-shadow:0 2px 12px rgba(37,211,102,.3);transition:all .2s"
+  onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('../sw.js?v=11', { updateViaCache: 'none' }).then(function(reg){ reg.update(); setInterval(function(){ reg.update(); }, 1800000); }).catch(function(){}); var _swReloaded=false; navigator.serviceWorker.addEventListener('controllerchange', function(){ if(_swReloaded)return; _swReloaded=true; location.reload(); });}</script>
+<script src="/report-widget.js"></script>
+</body>
+</html>
