@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Calculadora de Personal de Casas Particulares — ImpoBot</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#2d4f68;--card:#35546f;--card2:#35546f;--border:#4d7a96;--text:#f0f6fb;--sub:#9dbdd6;--blue:#0b82f5;--blue-l:#60a5fa;--green:#10b981;--amber:#f59e0b;--red:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:60px}
+.shell{max-width:1040px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:16px}
+.card-title{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-l);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.68rem;font-weight:600;color:var(--sub);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select{width:100%;background:#1e3a4e;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:.88rem;outline:none;font-family:'Inter',sans-serif}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.field input[readonly]{opacity:.75}
+.field small{display:block;margin-top:4px;color:var(--sub);font-size:.68rem;line-height:1.4}
+.field small.warn{color:#fcd34d}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.checkrow{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.checkrow input[type=checkbox]{width:16px;height:16px;accent-color:var(--blue)}
+.checkrow label{font-size:.82rem;color:var(--text);font-weight:600;text-transform:none;letter-spacing:0}
+.radiorow{display:flex;gap:16px;margin-bottom:12px}
+.radiorow label{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:var(--text);cursor:pointer}
+.radiorow input[type=radio]{width:15px;height:15px;accent-color:var(--blue)}
+.btn-calc{width:100%;background:linear-gradient(135deg,#0762c8,var(--blue));color:#fff;border:none;padding:12px;border-radius:10px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:4px}
+.btn-calc:hover{filter:brightness(1.1)}
+.result-box{display:none}
+.result-box.show{display:block}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.r-item{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.r-label{font-size:.65rem;color:var(--sub);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.r-val{font-size:1.1rem;font-weight:800;color:#fff}
+.r-val.big{font-size:1.4rem}
+.datatable{width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:6px}
+.datatable th{background:rgba(11,130,245,.1);color:var(--blue-l);font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:7px 8px;text-align:left;border-bottom:1px solid var(--border)}
+.datatable td{padding:7px 8px;border-bottom:1px solid rgba(26,47,69,.5);color:var(--text)}
+.datatable td:last-child,.datatable th:last-child{text-align:right}
+.datatable tr:last-child td{border-bottom:none}
+.datatable tr.total td{font-weight:800;color:#fff;border-top:2px solid var(--border)}
+.alerta{border-radius:8px;padding:10px 13px;font-size:.75rem;line-height:1.5;margin-bottom:12px}
+.alerta-warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.alerta-info{background:rgba(11,130,245,.07);border:1px solid rgba(11,130,245,.2);color:var(--blue-l)}
+.alerta-bad{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:#fca5a5}
+.guia-wrap{margin:0 0 16px;border:1px solid rgba(77,122,150,.35);border-radius:10px;overflow:hidden}
+.guia-wrap summary{cursor:pointer;padding:10px 16px;background:rgba(30,58,78,.6);color:var(--sub);font-size:.8rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+.guia-wrap summary:hover{color:var(--text)}
+.guia-wrap[open] summary{color:var(--text);background:rgba(30,58,78,.9)}
+.guia-body{padding:14px 18px;background:rgba(30,58,78,.4);font-size:.82rem;line-height:1.65;color:var(--text)}
+.guia-body ol{margin:8px 0 8px 18px;padding:0}
+.guia-body li{margin-bottom:5px}
+.guia-nota{margin-top:10px;padding:8px 12px;background:rgba(245,158,11,.07);border-left:3px solid #f59e0b;border-radius:4px;font-size:.75rem;color:var(--sub)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tabbtn{background:#1e3a4e;border:1.5px solid var(--border);color:var(--sub);padding:9px 16px;border-radius:9px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.tabbtn.active{background:linear-gradient(135deg,#0762c8,var(--blue));color:#fff;border-color:var(--blue)}
+.tabpanel{display:none}
+.tabpanel.active{display:block}
+@media(max-width:700px){.row2,.row3,.result-grid{grid-template-columns:1fr}}
+
+.fh-head{position:sticky;top:0;z-index:500;font-family:'Inter',system-ui,sans-serif}
+.fh-bar{height:46px;display:flex;align-items:center;gap:10px;padding:0 16px;background:linear-gradient(135deg,#0b1220,#141d2e);border-bottom:1px solid rgba(255,255,255,.06)}
+.fh-brand{display:flex;align-items:center;gap:7px;text-decoration:none;flex-shrink:0}
+.fh-brand img{width:24px;height:24px;border-radius:50%;display:block}
+.fh-word{font-size:.86rem;font-weight:800;color:#eaf1f8;letter-spacing:-.02em;white-space:nowrap}
+.fh-word b{color:#38bdf8;font-weight:800}
+.fh-sep{width:1px;height:20px;background:rgba(255,255,255,.15);flex-shrink:0}
+.fh-title{font-size:.78rem;font-weight:700;color:#eaf1f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fh-tools{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.fh-chip{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-size:.75rem;text-decoration:none;background:rgba(255,255,255,.07);transition:background .15s}
+.fh-chip:hover{background:rgba(255,255,255,.14)}
+.fh-strip{height:28px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px;background:linear-gradient(90deg,#0b82f5,#0ea5e9);font-size:.66rem;font-weight:600;color:#eaf6ff;overflow:hidden}
+.fh-crumb a{color:#eaf6ff;opacity:.85;text-decoration:none}
+.fh-crumb a:hover{opacity:1;text-decoration:underline}
+.fh-crumb i{opacity:.6;margin:0 4px;font-style:normal}
+.fh-meta{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
+.fh-badge{background:rgba(255,255,255,.2);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.02em}
+@media(max-width:640px){.fh-strip .fh-meta-text{display:none}.fh-title{max-width:130px}}
+</style>
+<link rel="manifest" href="../manifest.json"/>
+<meta name="theme-color" content="#0b82f5"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<link rel="apple-touch-icon" href="../logo.png"/>
+</head>
+<body>
+<header class="fh-head">
+  <div class="fh-bar">
+    <a class="fh-brand" href="../index.html">
+      <img src="../logo-sm.png" alt="ImpoBot"/>
+      <span class="fh-word"><b>impo</b>bot</span>
+    </a>
+    <span class="fh-sep"></span>
+    <span class="fh-title">🏠 Personal de Casas Particulares</span>
+    <div class="fh-tools">
+      <a class="fh-chip" style="background:#FFDD00;color:#000" href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" title="Buy Me a Coffee">☕</a>
+      <a class="fh-chip" style="background:#FF5E5B;color:#fff" href="https://ko-fi.com/impobot" target="_blank" rel="noopener" title="Ko-fi">💙</a>
+    </div>
+  </div>
+  <div class="fh-strip">
+    <span class="fh-crumb"><a href="../index.html">Herramientas</a><i>›</i><strong>Casas Particulares</strong></span>
+    <span class="fh-meta"><span class="fh-meta-text">Haberes · Vacaciones · Feriados · SAC · Indemnización</span><span class="fh-badge">Ley 26.844</span></span>
+  </div>
+</header>
+
+<div class="shell">
+  <div style="margin-bottom:18px">
+    <details class="guia-wrap">
+      <summary>❓ ¿Cómo usar esta calculadora?</summary>
+      <div class="guia-body">
+        <ol>
+          <li>Elegí la <strong>categoría</strong> del personal, si trabaja <strong>con o sin retiro</strong> y si corresponde el adicional por <strong>zona desfavorable</strong> (31%, Patagonia y Partido de Patagones).</li>
+          <li>En <strong>Haberes</strong> se autocompleta la remuneración mínima vigente según el período elegido; podés editarla si pagás por encima del mínimo. Calculá primero esta solapa.</li>
+          <li><strong>Vacaciones</strong>, <strong>Aguinaldo (SAC)</strong> e <strong>Indemnización</strong> toman la remuneración calculada en Haberes como base — podés ajustarla manualmente en cada solapa.</li>
+          <li><strong>Feriados</strong> es independiente: solo necesita la remuneración mensual y las horas trabajadas en feriados nacionales.</li>
+          <li>Todo el cálculo ocurre en tu navegador. Nada se sube a ningún servidor.</li>
+        </ol>
+        <div class="guia-nota">⚠ Los resultados son orientativos y están basados en la Resolución 6/2026 de la Comisión Nacional de Trabajo en Casas Particulares (escala vigente agosto–diciembre 2026) y en la Ley 26.844. No constituyen un recibo de sueldo ni asesoramiento legal — verificá siempre la normativa vigente al momento del pago.</div>
+      </div>
+    </details>
+    <h1 style="font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:5px">Calculadora de Personal de Casas Particulares</h1>
+    <p style="font-size:.82rem;color:var(--sub)">Haberes, vacaciones, feriados, aguinaldo (SAC) e indemnización para el Régimen Especial de la Ley 26.844.</p>
+  </div>
+
+  <div class="alerta alerta-info">
+    🔒 <strong>Todo se calcula en tu navegador.</strong> Ningún dato se envía a un servidor.
+  </div>
+
+  <div class="tabs">
+    <button class="tabbtn active" data-tab="haberes">Haberes</button>
+    <button class="tabbtn" data-tab="vacaciones">Vacaciones</button>
+    <button class="tabbtn" data-tab="feriados">Feriados</button>
+    <button class="tabbtn" data-tab="aguinaldo">Aguinaldo (SAC)</button>
+    <button class="tabbtn" data-tab="indemnizacion">Indemnización</button>
+  </div>
+
+  <!-- ===================== HABERES ===================== -->
+  <div class="tabpanel active" id="panel-haberes">
+    <div class="card">
+      <div class="card-title">⚙️ Categoría y condiciones</div>
+      <div class="row2">
+        <div class="field">
+          <label>Categoría</label>
+          <select id="h-categoria">
+            <option value="tareas_generales">Personal para tareas generales</option>
+            <option value="supervisor">Supervisor/a</option>
+            <option value="tareas_especificas">Personal para tareas específicas</option>
+            <option value="caseros">Caseros</option>
+            <option value="asistencia_cuidado">Asistencia y cuidado de personas</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Período (para la escala vigente)</label>
+          <input type="month" id="h-periodoMes" value="2026-10" min="2026-08" max="2026-12"/>
+          <small>La escala cargada cubre agosto–diciembre 2026 (Resolución 6/2026 CNTCP). Fuera de ese rango se usa el mes más cercano como referencia.</small>
+        </div>
+      </div>
+      <div class="radiorow" id="h-retiro-row">
+        <label><input type="radio" name="h-retiro" value="con" checked/> Con retiro</label>
+        <label><input type="radio" name="h-retiro" value="sin"/> Sin retiro</label>
+      </div>
+      <div class="checkrow">
+        <input type="checkbox" id="h-zona"/>
+        <label for="h-zona">Zona desfavorable (+31% — La Pampa, Río Negro, Chubut, Neuquén, Santa Cruz, Tierra del Fuego, Partido de Patagones)</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🧾 Calculá el pago de haberes</div>
+      <div class="row2">
+        <div class="field"><label>Período inicio</label><input type="date" id="h-periodoInicio" value="2026-10-01"/></div>
+        <div class="field"><label>Período fin</label><input type="date" id="h-periodoFin" value="2026-10-31"/></div>
+      </div>
+      <div class="radiorow">
+        <label><input type="radio" name="h-modalidad" value="mensual" checked/> Mensual</label>
+        <label><input type="radio" name="h-modalidad" value="horas"/> Horas</label>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label id="h-remBase-label">Remuneración base (mensual)</label>
+          <input type="number" id="h-remBase" step="0.01"/>
+          <small id="h-remBase-nota"></small>
+        </div>
+        <div class="field">
+          <label>Valor hora (para horas extra)</label>
+          <input type="number" id="h-valorHoraExtra" step="0.01"/>
+          <small>Se usa para calcular las horas extra, incluso si pagás por mes.</small>
+        </div>
+      </div>
+      <div class="row3" id="h-horasTrabajadas-wrap" style="display:none">
+        <div class="field"><label>Cantidad de horas trabajadas</label><input type="number" id="h-horasTrabajadas" step="0.5" value="0"/></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Horas extra (día de semana, hasta sábado 13hs)</label><input type="number" id="h-horasExtra" step="0.5" value="0"/><small>Recargo 50%.</small></div>
+        <div class="field"><label>Horas extra (domingo, feriado nacional o sábado después de 13hs)</label><input type="number" id="h-horasExtraRecargo100" step="0.5" value="0"/><small>Recargo 100%.</small></div>
+      </div>
+      <div class="field"><label>Fecha de ingreso</label><input type="date" id="h-fechaIngreso"/></div>
+      <div class="row2">
+        <div class="field"><label>Viáticos del período</label><input type="number" id="h-viaticos" step="0.01" value="0"/></div>
+        <div class="field"><label>Gratificaciones</label><input type="number" id="h-gratificaciones" step="0.01" value="0"/></div>
+      </div>
+      <div class="field"><label>Aportes y contribuciones (informativo, calculados en ARCA)</label><input type="number" id="h-aportes" step="0.01" value="0"/></div>
+      <button class="btn-calc" onclick="onCalcularHaberes()">🧾 Calcular Haberes</button>
+    </div>
+
+    <div class="card result-box" id="h-result">
+      <div class="card-title">Resultado — Haberes</div>
+      <table class="datatable">
+        <tbody id="h-tabla"></tbody>
+      </table>
+      <div id="h-alertas"></div>
+    </div>
+  </div>
+
+  <!-- ===================== VACACIONES ===================== -->
+  <div class="tabpanel" id="panel-vacaciones">
+    <div class="card">
+      <div class="card-title">🏖️ Calculá las vacaciones</div>
+      <div class="alerta alerta-info" style="margin-bottom:14px">Las vacaciones se pagan siempre, ya sea que se use modalidad de pago por horas o mensual.</div>
+      <div class="field">
+        <label>Remuneración (calculada en la solapa Haberes)</label>
+        <input type="number" id="v-remuneracion" step="0.01"/>
+      </div>
+      <div class="checkrow"><input type="checkbox" id="v-menor6"/><label for="v-menor6">Antigüedad menor a 6 meses</label></div>
+      <div class="row2">
+        <div class="field" id="v-antig-wrap"><label>Antigüedad (años)</label><input type="number" id="v-antiguedad" step="0.1" value="1"/></div>
+        <div class="field" id="v-dias-wrap" style="display:none"><label>Días trabajados en el año</label><input type="number" id="v-diasTrabajados" step="1" value="0"/></div>
+      </div>
+      <button class="btn-calc" onclick="onCalcularVacaciones()">🏖️ Calcular Vacaciones</button>
+    </div>
+    <div class="card result-box" id="v-result">
+      <div class="card-title">Resultado — Vacaciones</div>
+      <div class="result-grid">
+        <div class="r-item"><div class="r-label">Días</div><div class="r-val" id="v-r-dias">—</div></div>
+        <div class="r-item"><div class="r-label">Valor día</div><div class="r-val" id="v-r-valorDia">—</div></div>
+        <div class="r-item"><div class="r-label">Total a cobrar</div><div class="r-val big" id="v-r-monto">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== FERIADOS ===================== -->
+  <div class="tabpanel" id="panel-feriados">
+    <div class="card">
+      <div class="card-title">📅 Calculá los feriados</div>
+      <div class="field"><label>Remuneración mensual</label><input type="number" id="f-remuneracion" step="0.01"/></div>
+      <div class="row2">
+        <div class="field"><label>Cantidad de horas trabajadas en el período</label><input type="number" id="f-horasTrabajadas" step="0.5" value="0"/></div>
+        <div class="field"><label>Horas trabajadas en feriados nacionales</label><input type="number" id="f-horasFeriados" step="0.5" value="0"/></div>
+      </div>
+      <button class="btn-calc" onclick="onCalcularFeriados()">📅 Calcular Feriados</button>
+    </div>
+    <div class="card result-box" id="f-result">
+      <div class="card-title">Resultado — Feriados</div>
+      <div class="result-grid">
+        <div class="r-item"><div class="r-label">Valor hora</div><div class="r-val" id="f-r-valorHora">—</div></div>
+        <div class="r-item"><div class="r-label">Recargo por feriados trabajados</div><div class="r-val" id="f-r-recargo">—</div></div>
+        <div class="r-item"><div class="r-label">Total feriado trabajado (doble)</div><div class="r-val big" id="f-r-total">—</div></div>
+      </div>
+      <div class="alerta alerta-info">El feriado no trabajado se paga igual (ya está incluido en tu mensual). Si lo trabajás, cobrás ese día + este recargo (día doble).</div>
+    </div>
+  </div>
+
+  <!-- ===================== AGUINALDO ===================== -->
+  <div class="tabpanel" id="panel-aguinaldo">
+    <div class="card">
+      <div class="card-title">🎁 Calculá el aguinaldo (SAC)</div>
+      <div class="field">
+        <label>Remuneración (calculada en la solapa Haberes)</label>
+        <input type="number" id="a-remuneracion" step="0.01"/>
+      </div>
+      <div class="checkrow"><input type="checkbox" id="a-menor6"/><label for="a-menor6">Antigüedad menor a 6 meses</label></div>
+      <div class="field" id="a-dias-wrap" style="display:none"><label>Días trabajados en el semestre</label><input type="number" id="a-diasTrabajados" step="1" value="0"/></div>
+      <button class="btn-calc" onclick="onCalcularAguinaldo()">🎁 Calcular aguinaldo (SAC)</button>
+    </div>
+    <div class="card result-box" id="a-result">
+      <div class="card-title">Resultado — Aguinaldo (SAC)</div>
+      <div class="result-grid">
+        <div class="r-item"><div class="r-label">SAC completo (semestre)</div><div class="r-val" id="a-r-completo">—</div></div>
+        <div class="r-item"><div class="r-label">A cobrar</div><div class="r-val big" id="a-r-monto">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== INDEMNIZACIÓN ===================== -->
+  <div class="tabpanel" id="panel-indemnizacion">
+    <div class="card">
+      <div class="card-title">⚖️ Calculá la indemnización</div>
+      <div class="alerta alerta-info" style="margin-bottom:14px">La indemnización se calcula teniendo en cuenta montos mensuales.</div>
+      <div class="field">
+        <label>Remuneración (calculada en la solapa Haberes)</label>
+        <input type="number" id="i-remuneracion" step="0.01"/>
+      </div>
+      <div class="radiorow">
+        <label><input type="radio" name="i-retiro" value="con" checked/> Con retiro</label>
+        <label><input type="radio" name="i-retiro" value="sin"/> Sin retiro</label>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Fecha de ingreso</label><input type="date" id="i-fechaIngreso"/></div>
+        <div class="field"><label>Fecha de finalización</label><input type="date" id="i-fechaFin"/></div>
+      </div>
+      <div class="field">
+        <label>¿Hubo preaviso en tiempo y forma?</label>
+        <div class="radiorow">
+          <label><input type="radio" name="i-preaviso" value="si" checked/> Sí</label>
+          <label><input type="radio" name="i-preaviso" value="no"/> No</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Motivo del cese laboral</label>
+        <select id="i-motivo">
+          <option value="despido_sin_causa">Despido sin causa</option>
+          <option value="despido_con_causa">Despido con causa</option>
+          <option value="renuncia">Renuncia del trabajador</option>
+          <option value="mutuo_acuerdo">Mutuo acuerdo</option>
+          <option value="fallecimiento_empleador">Fallecimiento del empleador</option>
+          <option value="fallecimiento_trabajador">Fallecimiento del trabajador</option>
+          <option value="fuerza_mayor">Fuerza mayor / falta o disminución de trabajo</option>
+        </select>
+      </div>
+      <div class="card-title" style="margin-top:10px">Campos adicionales</div>
+      <div class="field">
+        <label>Indemnización especial por embarazo o matrimonio</label>
+        <div class="radiorow">
+          <label><input type="radio" name="i-especial" value="no" checked/> No</label>
+          <label><input type="radio" name="i-especial" value="si"/> Sí</label>
+        </div>
+      </div>
+      <div class="field"><label>Días de vacaciones no gozadas</label><input type="number" id="i-diasVacNoGozadas" step="1" value="0"/></div>
+      <button class="btn-calc" onclick="onCalcularIndemnizacion()">⚖️ Calcular Indemnización</button>
+    </div>
+    <div class="card result-box" id="i-result">
+      <div class="card-title">Resultado — Indemnización</div>
+      <table class="datatable">
+        <tbody id="i-tabla"></tbody>
+      </table>
+      <div id="i-alertas"></div>
+    </div>
+  </div>
+
+</div>
+
+<a href="https://api.whatsapp.com/send?text=Calculadora%20de%20Personal%20de%20Casas%20Particulares%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/personal-casas-particulares.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
+  style="position:fixed;bottom:76px;right:20px;z-index:998;background:#25D366;color:#fff;
+    width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;text-decoration:none;box-shadow:0 2px 12px rgba(37,211,102,.3);transition:all .2s"
+  onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>
+// ============================================================
+// Núcleo de cálculo (idéntico a /tmp/pcp/calc.js, testeado en Node)
+// Fuentes: Resolución 6/2026 CNTCP (escala ago-dic 2026 y zona desfavorable 31%);
+// Ley 26.844 arts. 26-28 (SAC), 29-33 (vacaciones), 41-50 (preaviso/indemnización).
+// Horas extra y feriados: régimen general (Ley 11.544 / art.201 LCT) por analogía.
+// ============================================================
+function round2(n){ return Math.round((n+Number.EPSILON)*100)/100; }
+
+var ESCALA = {
+  '2026-08': { tareas_generales:{con:{mes:466756.24,hora:3804.66},sin:{mes:514903.51,hora:4072.38}}, supervisor:{con:{mes:564246.70,hora:4523.11},sin:{mes:624313.90,hora:4920.89}}, tareas_especificas:{con:{mes:526829.56,hora:4303.50},sin:{mes:582283.26,hora:4684.53}}, caseros:{sin:{mes:514903.51,hora:4072.38}}, asistencia_cuidado:{con:{mes:514903.51,hora:4072.38},sin:{mes:569593.41,hora:4520.15}} },
+  '2026-09': { tareas_generales:{con:{mes:480247.85,hora:3914.64},sin:{mes:529261.78,hora:4185.94}}, supervisor:{con:{mes:579493.14,hora:4645.33},sin:{mes:640641.55,hora:5049.58}}, tareas_especificas:{con:{mes:541402.49,hora:4422.54},sin:{mes:597854.36,hora:4809.80}}, caseros:{sin:{mes:529261.78,hora:4185.94}}, asistencia_cuidado:{con:{mes:529261.78,hora:4185.94},sin:{mes:584936.09,hora:4641.90}} },
+  '2026-10': { tareas_generales:{con:{mes:498582.06,hora:4064.08},sin:{mes:548429.23,hora:4337.53}}, supervisor:{con:{mes:599514.52,hora:4805.82},sin:{mes:661702.46,hora:5215.59}}, tareas_especificas:{con:{mes:560776.33,hora:4580.80},sin:{mes:618187.89,hora:4973.38}}, caseros:{sin:{mes:548429.23,hora:4337.53}}, asistencia_cuidado:{con:{mes:548429.23,hora:4337.53},sin:{mes:605050.00,hora:4801.52}} },
+  '2026-11': { tareas_generales:{con:{mes:512142.96,hora:4174.62},sin:{mes:562837.52,hora:4451.49}}, supervisor:{con:{mes:614791.27,hora:4928.28},sin:{mes:678036.40,hora:5344.33}}, tareas_especificas:{con:{mes:575394.53,hora:4700.21},sin:{mes:633782.08,hora:5098.84}}, caseros:{sin:{mes:562837.52,hora:4451.49}}, asistencia_cuidado:{con:{mes:562837.52,hora:4451.49},sin:{mes:620420.85,hora:4923.50}} },
+  '2026-12': { tareas_generales:{con:{mes:520337.24,hora:4241.42},sin:{mes:571842.92,hora:4522.71}}, supervisor:{con:{mes:624627.93,hora:5007.14},sin:{mes:688884.98,hora:5429.84}}, tareas_especificas:{con:{mes:584600.84,hora:4775.41},sin:{mes:643922.59,hora:5180.42}}, caseros:{sin:{mes:571842.92,hora:4522.71}}, asistencia_cuidado:{con:{mes:571842.92,hora:4522.71},sin:{mes:630347.58,hora:5002.28}} },
+};
+var ESCALA_MESES = Object.keys(ESCALA).sort();
+var ZONA_PCT = 0.31;
+
+function mesEscalaMasCercano(mesKey){
+  if(!mesKey) return { mes: ESCALA_MESES[ESCALA_MESES.length-1], clamped:true };
+  if(ESCALA[mesKey]) return { mes: mesKey, clamped:false };
+  if(mesKey < ESCALA_MESES[0]) return { mes: ESCALA_MESES[0], clamped:true };
+  return { mes: ESCALA_MESES[ESCALA_MESES.length-1], clamped:true };
+}
+function obtenerEscala(categoria, retiro, mesKey){
+  var ref = mesEscalaMasCercano(mesKey);
+  var tabla = ESCALA[ref.mes][categoria];
+  if(!tabla) return null;
+  var fila = tabla[retiro];
+  if(!fila) return null;
+  return { mes: fila.mes, hora: fila.hora, mesUsado: ref.mes, clamped: ref.clamped };
+}
+function diasEnMes(anio, mes1a12){ return new Date(anio, mes1a12, 0).getDate(); }
+function diasEntre(fechaIniStr, fechaFinStr){
+  var fi = new Date(fechaIniStr), ff = new Date(fechaFinStr);
+  if(isNaN(fi.getTime()) || isNaN(ff.getTime())) return 0;
+  return Math.round((ff-fi)/86400000) + 1;
+}
+
+function calcularHaberes(opts){
+  var modalidad = opts.modalidad || 'mensual';
+  var remuneracionBase = parseFloat(opts.remuneracionBase)||0;
+  var valorHoraExtra = parseFloat(opts.valorHoraExtra)||0;
+  var horasTrabajadas = parseFloat(opts.horasTrabajadas)||0;
+  var horasExtra = parseFloat(opts.horasExtra)||0;
+  var horasExtraRecargo100 = parseFloat(opts.horasExtraRecargo100)||0;
+  var viaticos = parseFloat(opts.viaticos)||0;
+  var gratificaciones = parseFloat(opts.gratificaciones)||0;
+
+  var remuneracionDevengada = 0;
+  if(modalidad === 'horas'){
+    remuneracionDevengada = round2(remuneracionBase * horasTrabajadas);
+  } else {
+    var fi = new Date(opts.periodoInicio);
+    var dMes = isNaN(fi.getTime()) ? 30 : diasEnMes(fi.getFullYear(), fi.getMonth()+1);
+    var dPeriodo = diasEntre(opts.periodoInicio, opts.periodoFin) || dMes;
+    remuneracionDevengada = round2(remuneracionBase * Math.min(dPeriodo,dMes) / dMes);
+  }
+  var pagoHorasExtra = round2(horasExtra * valorHoraExtra * 1.5);
+  var pagoHorasExtraRecargo100 = round2(horasExtraRecargo100 * valorHoraExtra * 2);
+  var subtotalAntesZona = round2(remuneracionDevengada + pagoHorasExtra + pagoHorasExtraRecargo100);
+  var adicionalZona = opts.zonaDesfavorable ? round2(subtotalAntesZona * ZONA_PCT) : 0;
+  var totalRemunerativo = round2(subtotalAntesZona + adicionalZona);
+  var totalHaberes = round2(totalRemunerativo + viaticos + gratificaciones);
+  return { remuneracionDevengada:remuneracionDevengada, pagoHorasExtra:pagoHorasExtra, pagoHorasExtraRecargo100:pagoHorasExtraRecargo100, adicionalZona:adicionalZona, totalRemunerativo:totalRemunerativo, viaticos:viaticos, gratificaciones:gratificaciones, totalHaberes:totalHaberes };
+}
+function diasVacacionesPorAntiguedad(a){ if(a<5) return 14; if(a<10) return 21; if(a<20) return 28; return 35; }
+function calcularVacaciones(opts){
+  var remuneracionMensual = parseFloat(opts.remuneracionMensual)||0;
+  var valorDia = round2(remuneracionMensual/25);
+  var dias;
+  if(opts.antiguedadMenor6Meses){
+    var dt = parseFloat(opts.diasTrabajadosEnElAnio)||0;
+    dias = Math.floor(dt/20);
+  } else {
+    dias = diasVacacionesPorAntiguedad(parseFloat(opts.antiguedadAnios)||0);
+  }
+  return { dias:dias, valorDia:valorDia, monto: round2(valorDia*dias) };
+}
+function calcularFeriados(opts){
+  var remuneracionMensual = parseFloat(opts.remuneracionMensual)||0;
+  var valorHora = round2(remuneracionMensual/200);
+  var horasTrabajadasFeriados = parseFloat(opts.horasTrabajadasFeriados)||0;
+  var recargoFeriados = round2(horasTrabajadasFeriados*valorHora);
+  var totalFeriadoTrabajado = round2(horasTrabajadasFeriados*valorHora*2);
+  return { valorHora:valorHora, recargoFeriados:recargoFeriados, totalFeriadoTrabajado:totalFeriadoTrabajado };
+}
+function calcularAguinaldo(opts){
+  var remuneracionMensual = parseFloat(opts.remuneracionMensual)||0;
+  var sacCompleto = round2(remuneracionMensual*0.5);
+  var monto = sacCompleto, proporcional=false;
+  if(opts.antiguedadMenor6Meses){
+    var dias = parseFloat(opts.diasTrabajadosEnElSemestre)||0;
+    var diasSemestre = 182.5;
+    monto = round2(sacCompleto * Math.min(dias,diasSemestre) / diasSemestre);
+    proporcional = true;
+  }
+  return { sacCompleto:sacCompleto, monto:monto, proporcional:proporcional };
+}
+function antiguedadEnAnios(fechaIngreso, fechaFin){
+  var fi = new Date(fechaIngreso), ff = new Date(fechaFin);
+  if(isNaN(fi.getTime()) || isNaN(ff.getTime())) return { anios:0, aniosCompletos:0, mesesFraccion:0 };
+  var totalDias = (ff-fi)/86400000;
+  var anios = totalDias/365.25;
+  var aniosCompletos = Math.floor(anios);
+  var fechaAniversario = new Date(fi);
+  fechaAniversario.setFullYear(fi.getFullYear()+aniosCompletos);
+  var mesesFraccion = Math.max(0, (ff-fechaAniversario)/86400000/30.44);
+  return { anios:anios, aniosCompletos:aniosCompletos, mesesFraccion:mesesFraccion };
+}
+function calcularIndemnizacion(opts){
+  var remuneracionMensual = parseFloat(opts.remuneracionMensual)||0;
+  var motivo = opts.motivo || 'despido_sin_causa';
+  var ant = antiguedadEnAnios(opts.fechaIngreso, opts.fechaFin);
+  var mesesIndemnizacion = ant.aniosCompletos + (ant.mesesFraccion>3 ? 1:0);
+  if(mesesIndemnizacion<1 && (ant.anios>0 || motivo==='despido_sin_causa')) mesesIndemnizacion=1;
+  var corresponde = (motivo==='despido_sin_causa'||motivo==='fuerza_mayor'||motivo==='fallecimiento_empleador');
+  var indemnizacionAntiguedad = 0;
+  if(corresponde){
+    indemnizacionAntiguedad = round2(mesesIndemnizacion*remuneracionMensual);
+    if(motivo==='fallecimiento_empleador') indemnizacionAntiguedad = round2(indemnizacionAntiguedad*0.5);
+    if(motivo==='fuerza_mayor') indemnizacionAntiguedad = round2(indemnizacionAntiguedad*0.5);
+  }
+  var diasPreaviso = ant.anios>=1 ? 30 : 10;
+  var sustitutivaPreaviso=0, integracionMes=0;
+  if(motivo==='despido_sin_causa' && !opts.preavisoEnTiempoYForma){
+    sustitutivaPreaviso = round2(remuneracionMensual*diasPreaviso/30);
+    var ff = new Date(opts.fechaFin);
+    if(!isNaN(ff.getTime())){
+      var diasRestantesMes = diasEnMes(ff.getFullYear(), ff.getMonth()+1) - ff.getDate();
+      integracionMes = round2(remuneracionMensual*diasRestantesMes/30);
+    }
+  }
+  var sacSustitutivaPreaviso = round2(sustitutivaPreaviso/12);
+  var sacIntegracionMes = round2(integracionMes/12);
+  var diasVacNoGozadas = parseFloat(opts.diasVacacionesNoGozadas)||0;
+  var valorDiaVac = round2(remuneracionMensual/25);
+  var vacacionesNoGozadas = round2(valorDiaVac*diasVacNoGozadas);
+  var sacVacacionesNoGozadas = round2(vacacionesNoGozadas/12);
+  var sacProporcional = round2(remuneracionMensual*0.5/6);
+  var especial = opts.indemnizacionEspecial ? round2(remuneracionMensual*12) : 0;
+  var totalIndemnizacion = round2(indemnizacionAntiguedad+sustitutivaPreaviso+integracionMes+sacSustitutivaPreaviso+sacIntegracionMes+sacProporcional+vacacionesNoGozadas+sacVacacionesNoGozadas+especial);
+  return { antiguedadAnios:ant.anios, mesesIndemnizacion:mesesIndemnizacion, indemnizacionAntiguedad:indemnizacionAntiguedad, diasPreaviso:diasPreaviso, sustitutivaPreaviso:sustitutivaPreaviso, integracionMes:integracionMes, sacSustitutivaPreaviso:sacSustitutivaPreaviso, sacIntegracionMes:sacIntegracionMes, sacProporcional:sacProporcional, vacacionesNoGozadas:vacacionesNoGozadas, sacVacacionesNoGozadas:sacVacacionesNoGozadas, especial:especial, totalIndemnizacion:totalIndemnizacion, corresponde:corresponde };
+}
+
+// ============================================================
+// Estado y UI
+// ============================================================
+var ESTADO = { remuneracionHaberes: null, fechaIngreso: null };
+
+function fmt(n){ n=parseFloat(n)||0; return '$ ' + n.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+document.querySelectorAll('.tabbtn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.tabbtn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.tabpanel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+function categoriaSoloSinRetiro(cat){ return cat === 'caseros'; }
+
+function actualizarRetiroDisponible(){
+  var cat = document.getElementById('h-categoria').value;
+  var radios = document.querySelectorAll('input[name="h-retiro"]');
+  var conRadio = document.querySelector('input[name="h-retiro"][value="con"]');
+  if(categoriaSoloSinRetiro(cat)){
+    conRadio.disabled = true;
+    document.querySelector('input[name="h-retiro"][value="sin"]').checked = true;
+  } else {
+    conRadio.disabled = false;
+  }
+}
+
+function retiroSeleccionado(){
+  var sel = document.querySelector('input[name="h-retiro"]:checked');
+  return sel ? sel.value : 'sin';
+}
+
+function autocompletarEscala(){
+  var cat = document.getElementById('h-categoria').value;
+  var retiro = retiroSeleccionado();
+  var mesKey = document.getElementById('h-periodoMes').value;
+  var esc = obtenerEscala(cat, retiro, mesKey);
+  var nota = document.getElementById('h-remBase-nota');
+  if(!esc){ nota.textContent = ''; return; }
+  var modalidad = document.querySelector('input[name="h-modalidad"]:checked').value;
+  document.getElementById('h-remBase').value = modalidad === 'horas' ? esc.hora : esc.mes;
+  document.getElementById('h-valorHoraExtra').value = esc.hora;
+  if(esc.clamped){
+    nota.textContent = '⚠ No hay escala cargada para ese mes — se usó ' + esc.mesUsado + ' como referencia. Verificá el valor vigente.';
+    nota.className = 'warn';
+  } else {
+    nota.textContent = 'Mínimo vigente ' + esc.mesUsado + ' (Resolución 6/2026 CNTCP). Editable si pagás por encima del mínimo.';
+    nota.className = '';
+  }
+}
+
+['h-categoria','h-periodoMes'].forEach(function(id){
+  document.getElementById(id).addEventListener('change', function(){ actualizarRetiroDisponible(); autocompletarEscala(); });
+});
+document.querySelectorAll('input[name="h-retiro"]').forEach(function(r){ r.addEventListener('change', autocompletarEscala); });
+document.querySelectorAll('input[name="h-modalidad"]').forEach(function(r){
+  r.addEventListener('change', function(){
+    var modalidad = this.value;
+    document.getElementById('h-horasTrabajadas-wrap').style.display = modalidad === 'horas' ? '' : 'none';
+    document.getElementById('h-remBase-label').textContent = modalidad === 'horas' ? 'Remuneración base (valor hora)' : 'Remuneración base (mensual)';
+    autocompletarEscala();
+  });
+});
+document.getElementById('h-periodoInicio').addEventListener('change', function(){
+  document.getElementById('h-periodoMes').value = this.value.slice(0,7);
+  autocompletarEscala();
+});
+
+document.getElementById('h-fechaIngreso').addEventListener('change', function(){
+  ESTADO.fechaIngreso = this.value;
+  var iFecha = document.getElementById('i-fechaIngreso');
+  if(iFecha && !iFecha.value) iFecha.value = this.value;
+});
+
+function onCalcularHaberes(){
+  var res = calcularHaberes({
+    modalidad: document.querySelector('input[name="h-modalidad"]:checked').value,
+    periodoInicio: document.getElementById('h-periodoInicio').value,
+    periodoFin: document.getElementById('h-periodoFin').value,
+    remuneracionBase: document.getElementById('h-remBase').value,
+    valorHoraExtra: document.getElementById('h-valorHoraExtra').value,
+    horasTrabajadas: document.getElementById('h-horasTrabajadas').value,
+    horasExtra: document.getElementById('h-horasExtra').value,
+    horasExtraRecargo100: document.getElementById('h-horasExtraRecargo100').value,
+    zonaDesfavorable: document.getElementById('h-zona').checked,
+    viaticos: document.getElementById('h-viaticos').value,
+    gratificaciones: document.getElementById('h-gratificaciones').value,
+  });
+  var aportes = parseFloat(document.getElementById('h-aportes').value) || 0;
+
+  var filas = [
+    ['Remuneración devengada', fmt(res.remuneracionDevengada)],
+    ['Horas extra (50%)', fmt(res.pagoHorasExtra)],
+    ['Horas extra (100%)', fmt(res.pagoHorasExtraRecargo100)],
+    ['Adicional zona desfavorable (31%)', fmt(res.adicionalZona)],
+    ['Viáticos', fmt(res.viaticos)],
+    ['Gratificaciones', fmt(res.gratificaciones)],
+  ];
+  var tbody = document.getElementById('h-tabla');
+  tbody.innerHTML = filas.map(function(f){ return '<tr><td>'+f[0]+'</td><td>'+f[1]+'</td></tr>'; }).join('') +
+    '<tr class="total"><td>Total Haberes</td><td>'+fmt(res.totalHaberes)+'</td></tr>' +
+    (aportes ? '<tr><td style="color:var(--sub)">Aportes y contribuciones (informativo)</td><td style="color:var(--sub)">'+fmt(aportes)+'</td></tr>' : '');
+  document.getElementById('h-alertas').innerHTML = '<div class="alerta alerta-info">💡 La remuneración total remunerativa (<strong>'+fmt(res.totalRemunerativo)+'</strong>, sin viáticos ni gratificaciones) se usó como base en las solapas Vacaciones, Feriados, Aguinaldo e Indemnización.</div>';
+  document.getElementById('h-result').classList.add('show');
+
+  ESTADO.remuneracionHaberes = res.totalRemunerativo;
+  ['v-remuneracion','f-remuneracion','a-remuneracion','i-remuneracion'].forEach(function(id){
+    document.getElementById(id).value = res.totalRemunerativo;
+  });
+}
+
+// --- Vacaciones ---
+document.getElementById('v-menor6').addEventListener('change', function(){
+  document.getElementById('v-antig-wrap').style.display = this.checked ? 'none' : '';
+  document.getElementById('v-dias-wrap').style.display = this.checked ? '' : 'none';
+});
+function onCalcularVacaciones(){
+  var res = calcularVacaciones({
+    remuneracionMensual: document.getElementById('v-remuneracion').value,
+    antiguedadMenor6Meses: document.getElementById('v-menor6').checked,
+    antiguedadAnios: document.getElementById('v-antiguedad').value,
+    diasTrabajadosEnElAnio: document.getElementById('v-diasTrabajados').value,
+  });
+  document.getElementById('v-r-dias').textContent = res.dias;
+  document.getElementById('v-r-valorDia').textContent = fmt(res.valorDia);
+  document.getElementById('v-r-monto').textContent = fmt(res.monto);
+  document.getElementById('v-result').classList.add('show');
+}
+
+// --- Feriados ---
+function onCalcularFeriados(){
+  var res = calcularFeriados({
+    remuneracionMensual: document.getElementById('f-remuneracion').value,
+    horasTrabajadasFeriados: document.getElementById('f-horasFeriados').value,
+  });
+  document.getElementById('f-r-valorHora').textContent = fmt(res.valorHora);
+  document.getElementById('f-r-recargo').textContent = fmt(res.recargoFeriados);
+  document.getElementById('f-r-total').textContent = fmt(res.totalFeriadoTrabajado);
+  document.getElementById('f-result').classList.add('show');
+}
+
+// --- Aguinaldo ---
+document.getElementById('a-menor6').addEventListener('change', function(){
+  document.getElementById('a-dias-wrap').style.display = this.checked ? '' : 'none';
+});
+function onCalcularAguinaldo(){
+  var res = calcularAguinaldo({
+    remuneracionMensual: document.getElementById('a-remuneracion').value,
+    antiguedadMenor6Meses: document.getElementById('a-menor6').checked,
+    diasTrabajadosEnElSemestre: document.getElementById('a-diasTrabajados').value,
+  });
+  document.getElementById('a-r-completo').textContent = fmt(res.sacCompleto);
+  document.getElementById('a-r-monto').textContent = fmt(res.monto);
+  document.getElementById('a-result').classList.add('show');
+}
+
+// --- Indemnización ---
+function onCalcularIndemnizacion(){
+  var motivo = document.getElementById('i-motivo').value;
+  var res = calcularIndemnizacion({
+    remuneracionMensual: document.getElementById('i-remuneracion').value,
+    fechaIngreso: document.getElementById('i-fechaIngreso').value,
+    fechaFin: document.getElementById('i-fechaFin').value,
+    preavisoEnTiempoYForma: document.querySelector('input[name="i-preaviso"]:checked').value === 'si',
+    motivo: motivo,
+    indemnizacionEspecial: document.querySelector('input[name="i-especial"]:checked').value === 'si',
+    diasVacacionesNoGozadas: document.getElementById('i-diasVacNoGozadas').value,
+  });
+  var filas = [];
+  if(res.corresponde){
+    filas.push(['Indemnización por antigüedad ('+res.mesesIndemnizacion+' mes(es))', fmt(res.indemnizacionAntiguedad)]);
+  }
+  if(res.sustitutivaPreaviso) filas.push(['Indemnización sustitutiva de preaviso ('+res.diasPreaviso+' días)', fmt(res.sustitutivaPreaviso)]);
+  if(res.integracionMes) filas.push(['Integración del mes de despido', fmt(res.integracionMes)]);
+  if(res.sacSustitutivaPreaviso) filas.push(['SAC sobre preaviso', fmt(res.sacSustitutivaPreaviso)]);
+  if(res.sacIntegracionMes) filas.push(['SAC sobre integración', fmt(res.sacIntegracionMes)]);
+  filas.push(['SAC proporcional', fmt(res.sacProporcional)]);
+  filas.push(['Vacaciones no gozadas', fmt(res.vacacionesNoGozadas)]);
+  filas.push(['SAC sobre vacaciones no gozadas', fmt(res.sacVacacionesNoGozadas)]);
+  if(res.especial) filas.push(['Indemnización especial (embarazo/matrimonio)', fmt(res.especial)]);
+
+  var tbody = document.getElementById('i-tabla');
+  tbody.innerHTML = filas.map(function(f){ return '<tr><td>'+f[0]+'</td><td>'+f[1]+'</td></tr>'; }).join('') +
+    '<tr class="total"><td>Total Indemnización</td><td>'+fmt(res.totalIndemnizacion)+'</td></tr>';
+
+  var alertas = '';
+  if(!res.corresponde){
+    alertas += '<div class="alerta alerta-warn">⚠ Con el motivo seleccionado ("' + document.getElementById('i-motivo').selectedOptions[0].textContent + '") no corresponde indemnización por antigüedad ni por preaviso — solo los rubros proporcionales (SAC, vacaciones) que se le deben al trabajador en cualquier caso.</div>';
+  }
+  alertas += '<div class="alerta alerta-info">Antigüedad calculada: ' + res.antiguedadAnios.toFixed(2) + ' años.</div>';
+  document.getElementById('i-alertas').innerHTML = alertas;
+  document.getElementById('i-result').classList.add('show');
+}
+
+// Inicializar
+actualizarRetiroDisponible();
+autocompletarEscala();
+</script>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('../sw.js?v=11', { updateViaCache: 'none' }).then(function(reg){ reg.update(); setInterval(function(){ reg.update(); }, 1800000); }).catch(function(){}); var _swReloaded=false; navigator.serviceWorker.addEventListener('controllerchange', function(){ if(_swReloaded)return; _swReloaded=true; location.reload(); });}</script>
+<script src="/report-widget.js"></script>
+</body>
+</html>
