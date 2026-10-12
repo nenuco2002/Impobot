@@ -2,10 +2,10 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Conversor UVA — ImpoBot</title>
+<title>Conversor UVA — FiscalAR</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-:root{--ink:#2d4f68;--card:#375e7a;--border:#4d7a96;--text:#e8edf5;--sub:#8899b4;--cyan:#00c9b8;--amber:#f59e0b;--green:#10b981;--red:#ef4444}
+:root{--ink:#0a0f1a;--card:#131e31;--border:#1e2d47;--text:#e8edf5;--sub:#8899b4;--cyan:#00c9b8;--amber:#f59e0b;--green:#10b981;--red:#ef4444}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
 .topnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,15,26,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 20px;height:54px}
@@ -14,7 +14,7 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
 .nav-title{font-size:.88rem;font-weight:700;color:#fff}
 .nav-sub{font-size:.65rem;color:var(--sub)}
 .nav-badge{margin-left:auto;background:rgba(0,201,184,.1);border:1px solid rgba(0,201,184,.25);color:var(--cyan);font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:5px;text-transform:uppercase}
-.main{margin-top:0;padding:18px;max-width:900px;margin-left:auto;margin-right:auto}
+.main{margin-top:54px;padding:18px;max-width:900px;margin-left:auto;margin-right:auto}
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
 .card-hd{padding:10px 14px;border-bottom:1px solid var(--border);font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:7px}
 .card-body{padding:18px}
@@ -22,9 +22,9 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
 @media(max-width:700px){.grid2{grid-template-columns:1fr}}
 .field{margin-bottom:14px}
 .field label{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);margin-bottom:5px}
-.inp-big{width:100%;background:#2d4f68;border:1.5px solid var(--border);color:var(--text);padding:12px 14px;border-radius:9px;font-size:1.1rem;font-family:'JetBrains Mono',monospace;outline:none;transition:border-color .15s;font-weight:600}
+.inp-big{width:100%;background:#0a0f1a;border:1.5px solid var(--border);color:var(--text);padding:12px 14px;border-radius:9px;font-size:1.1rem;font-family:'JetBrains Mono',monospace;outline:none;transition:border-color .15s;font-weight:600}
 .inp-big:focus{border-color:var(--cyan)}
-.result-box{background:#2d4f68;border:1px solid var(--border);border-radius:9px;padding:14px;text-align:center;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.result-box{background:#0a0f1a;border:1px solid var(--border);border-radius:9px;padding:14px;text-align:center;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .result-val{font-size:1.6rem;font-weight:800;color:var(--cyan);font-family:'JetBrains Mono',monospace;letter-spacing:-.03em}
 .result-lbl{font-size:.68rem;color:var(--sub);margin-top:4px;text-transform:uppercase;letter-spacing:.07em}
 .rate-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(30,45,71,.6)}
@@ -41,76 +41,36 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
 .alerta{border-radius:8px;padding:10px 13px;font-size:.73rem;line-height:1.5;margin-bottom:10px}
 .alerta.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#fbbf24}
 .alerta.info{background:rgba(0,201,184,.06);border:1px solid rgba(0,201,184,.15);color:var(--cyan)}
-
-/* ── FH: header ImpoBot (rediseño, estructura tipo dashboard) ── */
-.fh-head{position:sticky;top:0;z-index:500;font-family:'Inter',system-ui,sans-serif}
-.fh-bar{height:46px;display:flex;align-items:center;gap:10px;padding:0 16px;background:linear-gradient(135deg,#0b1220,#141d2e);border-bottom:1px solid rgba(255,255,255,.06)}
-.fh-brand{display:flex;align-items:center;gap:7px;text-decoration:none;flex-shrink:0}
-.fh-brand img{width:24px;height:24px;border-radius:50%;display:block}
-.fh-word{font-size:.86rem;font-weight:800;color:#eaf1f8;letter-spacing:-.02em;white-space:nowrap}
-.fh-word b{color:#38bdf8;font-weight:800}
-.fh-sep{width:1px;height:20px;background:rgba(255,255,255,.15);flex-shrink:0}
-.fh-title{font-size:.78rem;font-weight:700;color:#eaf1f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fh-tools{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
-.fh-chip{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-size:.75rem;text-decoration:none;background:rgba(255,255,255,.07);transition:background .15s}
-.fh-chip:hover{background:rgba(255,255,255,.14)}
-.fh-strip{height:28px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px;background:linear-gradient(90deg,#0b82f5,#0ea5e9);font-size:.66rem;font-weight:600;color:#eaf6ff;overflow:hidden}
-.fh-crumb a{color:#eaf6ff;opacity:.85;text-decoration:none}
-.fh-crumb a:hover{opacity:1;text-decoration:underline}
-.fh-crumb i{opacity:.6;margin:0 4px;font-style:normal}
-.fh-meta{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
-.fh-badge{background:rgba(255,255,255,.2);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.02em}
-@media(max-width:640px){.fh-strip .fh-meta-text{display:none}.fh-title{max-width:130px}}
 </style>
 <link rel="manifest" href="../manifest.json"/>
 <meta name="theme-color" content="#0b82f5"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <link rel="apple-touch-icon" href="../logo.png"/>
-
-<style>
-.guia-wrap{margin:0 0 16px;border:1px solid rgba(77,122,150,.35);border-radius:10px;overflow:hidden}
-.guia-wrap summary{cursor:pointer;padding:10px 16px;background:rgba(30,58,78,.6);color:var(--sub);font-size:.8rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
-.guia-wrap summary:hover{color:var(--text)}
-.guia-wrap[open] summary{color:var(--text);background:rgba(30,58,78,.9)}
-.guia-body{padding:14px 18px;background:rgba(30,58,78,.4);font-size:.82rem;line-height:1.65;color:var(--text)}
-.guia-body ol{margin:8px 0 8px 18px;padding:0}
-.guia-body li{margin-bottom:5px}
-.guia-nota{margin-top:10px;padding:8px 12px;background:rgba(245,158,11,.07);border-left:3px solid var(--amber);border-radius:4px;font-size:.75rem;color:var(--sub)}
-</style>
 </head>
 <body>
-<header class="fh-head">
-  <div class="fh-bar">
-    <a class="fh-brand" href="../index.html">
-      <img src="../logo-sm.png" alt="ImpoBot"/>
-      <span class="fh-word"><b>impo</b>bot</span>
-    </a>
-    <span class="fh-sep"></span>
-    <span class="fh-title">💱 Conversor UVA y Monedas</span>
-    <div class="fh-tools">
-      <a class="fh-chip" style="background:#FFDD00;color:#000" href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" title="Buy Me a Coffee">☕</a>
-      <a class="fh-chip" style="background:#FF5E5B;color:#fff" href="https://ko-fi.com/impobot" target="_blank" rel="noopener" title="Ko-fi">💙</a>
-    </div>
+<div style="position:fixed;top:0;left:0;right:0;height:46px;background:rgba(6,8,15,.94);border-bottom:1px solid #162035;display:flex;align-items:center;padding:0 16px;gap:10px;z-index:9999;font-family:Inter,system-ui,sans-serif;backdrop-filter:blur(14px)">
+  <a href="../index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+    <img src="../logo-sm.png" alt="ImpoBot" style="width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(11,130,245,.35)"/>
+    <span style="font-size:.88rem;font-weight:900;letter-spacing:-.03em"><span style="color:#e2eaf4">impo</span><span style="color:#0b82f5">bot</span></span>
+  </a>
+  <span style="color:#162035">|</span>
+  <span id="tnav-title" style="color:#dde8f5;font-size:.76rem;font-weight:700"></span>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+    <a href="https://www.buymeacoffee.com/impobot" target="_blank" style="font-size:.65rem;color:#000;background:#FFDD00;padding:3px 9px;border-radius:20px;text-decoration:none;font-weight:700">☕</a>
+    <span style="background:rgba(11,130,245,.1);border:1px solid rgba(11,130,245,.2);color:#60a5fa;font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:4px">ARCA 2026</span>
   </div>
-  <div class="fh-strip">
-    <span class="fh-crumb"><a href="../index.html">Herramientas</a><i>›</i><strong>UVA y Monedas</strong></span>
-    <span class="fh-meta"><span class="fh-meta-text">UVA · Dólar · Índices fiscales 2026</span><span class="fh-badge">ARCA 2026</span></span>
-  </div>
-</header>
-<div style="padding:10px 18px 0;margin-top:12px">
-<details class="guia-wrap">
-  <summary>❓ ¿Cómo usar 📈 Conversor UVA?</summary>
-  <div class="guia-body">
-    <ol><li>Ingresá el <strong>importe en pesos</strong> que querés convertir a UVA, o el importe en UVA para convertir a pesos.</li><li>El tipo de cambio UVA se actualiza diariamente por el BCRA.</li><li>El valor mostrado corresponde a la UVA del <strong>día actual</strong> (o el último publicado disponible).</li><li>Útil para calcular cuotas de créditos hipotecarios o alquileres indexados por UVA.</li></ol>
-    <div class="guia-nota">ℹ️ Valor de referencia: UVA al 15/09/2026 = $2.116,04. El valor se actualiza automáticamente desde la API del BCRA.</div>
-  </div>
-</details>
 </div>
+<div style="height:46px"></div>
+<script>var t=document.getElementById("tnav-title");if(t)t.textContent="💱 Conversor UVA y Monedas";</script>
+<script>var tnav=document.getElementById("tnav-title");if(tnav)tnav.textContent="💱 Conversor UVA y Monedas";</script>
+<nav class="topnav">
+  <a class="back-btn" href="#" onclick="window.location='../index.html';return false">← FiscalAR</a>
+  <div style="width:1px;height:24px;background:var(--border)"></div>
+  <div><div class="nav-title">💱 Conversor UVA y Monedas</div><div class="nav-sub">UVA · Dólar · Índices fiscales 2026</div></div>
+  <div class="nav-badge">✓ Actualizado</div>
+</nav>
 <div class="main">
-
-
-
 
   <!-- UVA HERO -->
   <div class="card">
@@ -165,12 +125,12 @@ body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;font
         <div style="text-align:right"><div class="rate-val">$5.585.736,93</div><div class="rate-sub">Anual (dic 2026)</div></div>
       </div>
       <div class="rate-row">
-        <div><div class="rate-name">Tope SIPA Octubre 2026</div><div class="rate-sub">Base imponible máxima previsional</div></div>
-        <div style="text-align:right"><div class="rate-val">$4.769.631,49</div><div class="rate-sub">Mensual</div></div>
+        <div><div class="rate-name">Tope SIPA Agosto 2026</div><div class="rate-sub">Base imponible máxima previsional</div></div>
+        <div style="text-align:right"><div class="rate-val">$4.594.798,23</div><div class="rate-sub">Mensual</div></div>
       </div>
       <div class="rate-row">
-        <div><div class="rate-name">SMVyM septiembre 2026</div><div class="rate-sub">Salario Mínimo Vital y Móvil</div></div>
-        <div style="text-align:right"><div class="rate-val">$383.800</div><div class="rate-sub">Mensual</div></div>
+        <div><div class="rate-name">SMVyM 2026</div><div class="rate-sub">Salario Mínimo Vital y Móvil</div></div>
+        <div style="text-align:right"><div class="rate-val">$1.010.800</div><div class="rate-sub">Mensual</div></div>
       </div>
       <div class="rate-row">
         <div><div class="rate-name">Canasta Básica Total (jun/26)</div><div class="rate-sub">INDEC — Hogar tipo</div></div>
@@ -201,7 +161,7 @@ const fmtN = n => new Intl.NumberFormat('es-AR',{minimumFractionDigits:2,maximum
 // Valor UVA de referencia (actualizar periódicamente)
 
 // Tipos de cambio de referencia (actualizar o conectar a API)
-const TIPOS = [
+let TIPOS = [
   {nombre:'Oficial BCRA',    val:1085.50, sub:'Tipo de cambio de referencia'},
   {nombre:'Dólar MEP/Bolsa', val:1182.00, sub:'Mercado secundario'},
   {nombre:'CCL',             val:1195.00, sub:'Contado con liquidación'},
@@ -221,7 +181,7 @@ function convertirUvaArs(){
 function convertirDolar(){
   const usd = parseFloat(document.getElementById('usd-inp').value)||0;
   document.getElementById('dolar-results').innerHTML = TIPOS.map(t=>`
-    <div style="background:#2d4f68;border:1px solid var(--border);border-radius:9px;padding:14px;text-align:center">
+    <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:9px;padding:14px;text-align:center">
       <div style="font-size:.68rem;color:var(--sub);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">${t.nombre}</div>
       <div style="font-size:1rem;font-weight:700;color:var(--cyan);font-family:'JetBrains Mono',monospace">${usd?fmt(usd*t.val):'—'}</div>
       <div style="font-size:.62rem;color:var(--sub);margin-top:2px">@${fmtN(t.val)}/USD · ${t.sub}</div>
@@ -236,18 +196,28 @@ let UVA = 2116.04;  // fallback mientras carga
 async function cargarValoresDiarios(){
   let uvaOk = false, dolarOk = false;
 
-  // ── UVA desde BCRA API (pública, sin auth) ──────────────────
+  // ── UVA desde BCRA API v4.0 (pública, sin auth) ──────────────
+  // idVariable 31 = "Unidad de valor adquisitivo (base 31.3.16=14.05)".
+  // OJO: la v2.0 de esta API (que usaba este tool antes) fue dada de baja
+  // por el BCRA el 01/06/2025 — por eso el fetch fallaba siempre y la
+  // página quedaba pegada en el valor de fallback. La v4.0 es la vigente.
   try {
     const hoy   = new Date();
-    const desde = new Date(hoy); desde.setDate(hoy.getDate()-5);
-    const fmt   = d => d.toISOString().slice(0,10);
-    const url   = `https://api.bcra.gob.ar/estadisticas/v2.0/datosvariable/4/${fmt(desde)}/${fmt(hoy)}`;
+    const desde = new Date(hoy); desde.setDate(hoy.getDate()-7);
+    const fmtFecha = d => d.toISOString().slice(0,10);
+    const url   = `https://api.bcra.gob.ar/estadisticas/v4.0/monetarias/31?desde=${fmtFecha(desde)}&hasta=${fmtFecha(hoy)}`;
     const resp  = await fetch(url);
     if(resp.ok){
       const data = await resp.json();
-      const resultados = data.results || data.data || [];
-      if(resultados.length){
-        UVA = resultados[resultados.length-1].valor;
+      const serie = (data.results && data.results[0] && data.results[0].detalle) || [];
+      const hoyStr = fmtFecha(hoy);
+      // de los valores devueltos, nos quedamos con el más reciente cuya fecha
+      // no sea posterior a hoy (la serie a veces trae algún valor proyectado
+      // a futuro, y para "valor UVA hoy" no corresponde usar ese)
+      const vigentes = serie.filter(r => r.fecha <= hoyStr);
+      const elegido = (vigentes.length ? vigentes : serie).reduce((max, r) => (!max || r.fecha > max.fecha) ? r : max, null);
+      if(elegido && typeof elegido.valor === 'number'){
+        UVA = elegido.valor;
         uvaOk = true;
       }
     }
@@ -282,7 +252,7 @@ async function cargarValoresDiarios(){
     ? 'Fuente: BCRA · Actualizado hoy'
     : 'Fuente: BCRA · Valor de referencia — verificar en bcra.gob.ar';
   const statusEl = document.getElementById('api-status');
-  if(statusEl) statusEl.innerHTML = 
+  if(statusEl) statusEl.innerHTML =
     `<span style="color:${uvaOk?'#10b981':'#f59e0b'}">UVA ${uvaOk?'✓ live':'⚠ fallback'}</span> &nbsp;
      <span style="color:${dolarOk?'#10b981':'#f59e0b'}">Dólar ${dolarOk?'✓ live':'⚠ fallback'}</span>`;
 
@@ -306,7 +276,12 @@ window.addEventListener('load', cargarValoresDiarios);
   <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 </a>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('../sw.js?v=11', { updateViaCache: 'none' }).then(function(reg){ reg.update(); setInterval(function(){ reg.update(); }, 1800000); }).catch(function(){}); var _swReloaded=false; navigator.serviceWorker.addEventListener('controllerchange', function(){ if(_swReloaded)return; _swReloaded=true; location.reload(); });}</script>
-<script src="/report-widget.js"></script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('../sw.js').catch(function(){});</script>
+<a href="mailto:impobot.ar@gmail.com?subject=Bug en ImpoBot&body=Herramienta: uva%0AProblema: "
+  title="Reportar un problema con esta herramienta"
+  style="position:fixed;bottom:128px;right:20px;z-index:997;background:#1e293b;border:1px solid #334155;
+    color:#94a3b8;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-size:.95rem;text-decoration:none;box-shadow:0 2px 12px rgba(0,0,0,.3)"
+  onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">🐛</a>
 </body>
 </html>

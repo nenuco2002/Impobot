@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Asistente F.2051 IVA Simple — ImpoBot</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#2d4f68;--card:#35546f;--card2:#35546f;--border:#4d7a96;--text:#f0f6fb;--sub:#9dbdd6;--blue:#0b82f5;--blue-l:#60a5fa;--green:#10b981;--amber:#f59e0b;--red:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:60px}
+.shell{max-width:980px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:16px}
+.card-title{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-l);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.68rem;font-weight:600;color:var(--sub);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select{width:100%;background:#1e3a4e;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:.88rem;outline:none;font-family:'Inter',sans-serif}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.field small{display:block;margin-top:4px;color:var(--sub);font-size:.68rem;line-height:1.4}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.btn-calc{width:100%;background:linear-gradient(135deg,#0762c8,var(--blue));color:#fff;border:none;padding:12px;border-radius:10px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:4px}
+.btn-calc:hover{filter:brightness(1.1)}
+.btn-csv{background:#1e3a4e;border:1.5px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:8px;justify-content:center;width:100%}
+.btn-csv:hover{border-color:var(--blue)}
+.btn-csv:disabled{opacity:.4;cursor:not-allowed}
+.btn-csv .warn-dot{color:var(--amber);font-size:.9rem}
+.result-box{display:none}
+.result-box.show{display:block}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.r-item{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.r-label{font-size:.65rem;color:var(--sub);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.r-val{font-size:1.1rem;font-weight:800;color:#fff}
+.r-val.big{font-size:1.5rem}
+.r-val.red{color:var(--red)}
+.r-val.green{color:var(--green)}
+.datatable{width:100%;border-collapse:collapse;font-size:.76rem;margin-bottom:6px}
+.datatable th{background:rgba(11,130,245,.1);color:var(--blue-l);font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:7px 9px;text-align:right;border-bottom:1px solid var(--border)}
+.datatable th:first-child,.datatable td:first-child{text-align:left}
+.datatable td{padding:6px 9px;border-bottom:1px solid rgba(26,47,69,.5);color:var(--text);text-align:right}
+.datatable tr:last-child td{border-bottom:none}
+.datatable tfoot td{font-weight:800;border-top:1.5px solid var(--border);color:#fff}
+.datatable .dudoso{color:var(--amber)}
+.badge{display:inline-block;font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:5px;margin-left:6px}
+.badge-green{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);color:var(--green)}
+.badge-amber{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:var(--amber)}
+.alerta{border-radius:8px;padding:10px 13px;font-size:.75rem;line-height:1.5;margin-bottom:12px}
+.alerta-warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.alerta-info{background:rgba(11,130,245,.07);border:1px solid rgba(11,130,245,.2);color:var(--blue-l)}
+.alerta-ok{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);color:#6ee7b7}
+.fileinput{position:relative}
+.fileinput input[type=file]{width:100%;background:#1e3a4e;border:1.5px dashed var(--border);color:var(--sub);padding:14px 12px;border-radius:8px;font-size:.78rem;font-family:'Inter',sans-serif}
+.fileinput .ok-tag{color:var(--green);font-size:.68rem;font-weight:700;margin-top:4px;display:none}
+.csv-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(max-width:700px){.row2,.row4,.result-grid,.csv-grid{grid-template-columns:1fr}}
+
+/* ── FH: header ImpoBot ── */
+.fh-head{position:sticky;top:0;z-index:500;font-family:'Inter',system-ui,sans-serif}
+.fh-bar{height:46px;display:flex;align-items:center;gap:10px;padding:0 16px;background:linear-gradient(135deg,#0b1220,#141d2e);border-bottom:1px solid rgba(255,255,255,.06)}
+.fh-brand{display:flex;align-items:center;gap:7px;text-decoration:none;flex-shrink:0}
+.fh-brand img{width:24px;height:24px;border-radius:50%;display:block}
+.fh-word{font-size:.86rem;font-weight:800;color:#eaf1f8;letter-spacing:-.02em;white-space:nowrap}
+.fh-word b{color:#38bdf8;font-weight:800}
+.fh-sep{width:1px;height:20px;background:rgba(255,255,255,.15);flex-shrink:0}
+.fh-title{font-size:.78rem;font-weight:700;color:#eaf1f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fh-tools{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.fh-chip{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-size:.75rem;text-decoration:none;background:rgba(255,255,255,.07);transition:background .15s}
+.fh-chip:hover{background:rgba(255,255,255,.14)}
+.fh-strip{height:28px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px;background:linear-gradient(90deg,#0b82f5,#0ea5e9);font-size:.66rem;font-weight:600;color:#eaf6ff;overflow:hidden}
+.fh-crumb a{color:#eaf6ff;opacity:.85;text-decoration:none}
+.fh-crumb a:hover{opacity:1;text-decoration:underline}
+.fh-crumb i{opacity:.6;margin:0 4px;font-style:normal}
+.fh-meta{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
+.fh-badge{background:rgba(255,255,255,.2);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.02em}
+@media(max-width:640px){.fh-strip .fh-meta-text{display:none}.fh-title{max-width:130px}}
+
+.guia-wrap{margin:0 0 16px;border:1px solid rgba(77,122,150,.35);border-radius:10px;overflow:hidden}
+.guia-wrap summary{cursor:pointer;padding:10px 16px;background:rgba(30,58,78,.6);color:var(--sub,#9dbdd6);font-size:.8rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+.guia-wrap summary:hover{color:var(--text,#f0f6fb)}
+.guia-wrap[open] summary{color:var(--text,#f0f6fb);background:rgba(30,58,78,.9)}
+.guia-body{padding:14px 18px;background:rgba(30,58,78,.4);font-size:.82rem;line-height:1.65;color:var(--text,#f0f6fb)}
+.guia-body ol{margin:8px 0 8px 18px;padding:0}
+.guia-body li{margin-bottom:5px}
+.guia-nota{margin-top:10px;padding:8px 12px;background:rgba(245,158,11,.07);border-left:3px solid #f59e0b;border-radius:4px;font-size:.75rem;color:var(--sub,#9dbdd6)}
+</style>
+<link rel="manifest" href="../manifest.json"/>
+<meta name="theme-color" content="#0b82f5"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<link rel="apple-touch-icon" href="../logo.png"/>
+</head>
+<body>
+<header class="fh-head">
+  <div class="fh-bar">
+    <a class="fh-brand" href="../index.html">
+      <img src="../logo-sm.png" alt="ImpoBot"/>
+      <span class="fh-word"><b>impo</b>bot</span>
+    </a>
+    <span class="fh-sep"></span>
+    <span class="fh-title">🧾 Asistente F.2051 IVA Simple</span>
+    <div class="fh-tools">
+      <a class="fh-chip" style="background:#FFDD00;color:#000" href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" title="Buy Me a Coffee">☕</a>
+      <a class="fh-chip" style="background:#FF5E5B;color:#fff" href="https://ko-fi.com/impobot" target="_blank" rel="noopener" title="Ko-fi">💙</a>
+    </div>
+  </div>
+  <div class="fh-strip">
+    <span class="fh-crumb"><a href="../index.html">Herramientas</a><i>›</i><strong>F.2051 IVA Simple</strong></span>
+    <span class="fh-meta"><span class="fh-meta-text">Primer y Segundo Párrafo · Export Portal IVA</span><span class="fh-badge">ARCA 2026</span></span>
+  </div>
+</header>
+
+<div class="shell">
+  <div style="margin-bottom:18px">
+    <details class="guia-wrap">
+      <summary>❓ ¿Cómo usar el Asistente F.2051?</summary>
+      <div class="guia-body">
+        <ol>
+          <li>Cargá los <strong>Comprobantes de Compras</strong> y <strong>Comprobantes de Ventas</strong> (Excel, formato export estándar) del período a liquidar.</li>
+          <li>Opcional: cargá los archivos <strong>.txt</strong> de Retenciones y Percepciones de IVA sufridas (formato "Mis Retenciones/Percepciones").</li>
+          <li>Indicá el <strong>Código de Actividad</strong> (padrón ARCA) — en v1 se asume una única actividad para todo el período.</li>
+          <li>Hacé clic en <strong>Procesar</strong>: todo el cálculo ocurre en tu navegador, ningún archivo se sube a un servidor.</li>
+          <li>Revisá el resumen (Primer Párrafo, Segundo Párrafo y Saldo DDJJ) y, si todo coincide con tus registros, descargá los CSV para importar en <strong>Portal IVA</strong>.</li>
+        </ol>
+        <div class="guia-nota">⚠ Esto es una <strong>herramienta de control y pre-cálculo</strong>, no una presentación oficial. Verificá siempre los resultados contra tus registros antes de presentar el F.2051.</div>
+      </div>
+    </details>
+    <h1 style="font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:5px">Asistente F.2051 — IVA Simple</h1>
+    <p style="font-size:.82rem;color:var(--sub)">Calculá el Primer y Segundo Párrafo de tu liquidación de IVA Simple a partir de tus comprobantes, y exportá los CSV listos para importar en Portal IVA.</p>
+  </div>
+
+  <div class="alerta alerta-info">
+    🔒 <strong>Tus archivos nunca salen de tu navegador.</strong> No se suben a ningún servidor ni se almacenan — todo el cálculo se hace localmente, en tu computadora.
+  </div>
+  <div class="alerta alerta-warn">
+    ⚠ Herramienta de <strong>control / pre-liquidación</strong>, no reemplaza la presentación oficial en ARCA. El formato de los CSV se basa en ejemplos reales de Portal IVA pero puede variar — revisá siempre antes de importar, especialmente los archivos de <strong>Retenciones</strong> y <strong>Percepciones</strong> (marcados con ⚠ más abajo).
+  </div>
+
+  <!-- DATOS GENERALES -->
+  <div class="card">
+    <div class="card-title">⚙️ Datos generales</div>
+    <div class="row2">
+      <div class="field">
+        <label>Período</label>
+        <input type="month" id="periodo"/>
+      </div>
+      <div class="field">
+        <label>Código de Actividad (padrón ARCA)</label>
+        <input type="number" id="actividad" placeholder="Ej: 466320"/>
+        <small>Se asume una única actividad para todas las ventas del período (v1).</small>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Primer Párrafo — Saldo a favor período anterior</label>
+        <input type="number" id="saldoFavorPrimer" placeholder="0" step="0.01"/>
+        <small>Saldo técnico a favor que viene del período anterior (campo manual, no sale de los archivos).</small>
+      </div>
+      <div class="field">
+        <label>Segundo Párrafo — Saldo a favor período anterior</label>
+        <input type="number" id="saldoFavorSegundo" placeholder="0" step="0.01"/>
+        <small>Saldo de libre disponibilidad (retenciones/percepciones) a favor que viene del período anterior.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARGA DE ARCHIVOS -->
+  <div class="card">
+    <div class="card-title">📂 Carga de archivos</div>
+    <div class="row2">
+      <div class="field">
+        <label>Comprobantes de Compras (.xlsx)</label>
+        <div class="fileinput">
+          <input type="file" id="fCompras" accept=".xlsx,.xls"/>
+          <div class="ok-tag" id="ok-compras">✓ Archivo cargado</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Comprobantes de Ventas (.xlsx)</label>
+        <div class="fileinput">
+          <input type="file" id="fVentas" accept=".xlsx,.xls"/>
+          <div class="ok-tag" id="ok-ventas">✓ Archivo cargado</div>
+        </div>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Retenciones de IVA sufridas (.txt) — opcional</label>
+        <div class="fileinput">
+          <input type="file" id="fRetenciones" accept=".txt"/>
+          <div class="ok-tag" id="ok-retenciones">✓ Archivo cargado</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Percepciones de IVA sufridas (.txt) — opcional</label>
+        <div class="fileinput">
+          <input type="file" id="fPercepciones" accept=".txt"/>
+          <div class="ok-tag" id="ok-percepciones">✓ Archivo cargado</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-calc" onclick="procesar()">📊 Procesar archivos</button>
+    <div id="errores" style="margin-top:10px"></div>
+  </div>
+
+  <!-- RESULTADOS -->
+  <div class="result-box" id="result-box">
+
+    <div class="card">
+      <div class="card-title">🔴 Débito Fiscal — Ventas</div>
+      <table class="datatable" id="tabla-df">
+        <thead><tr><th>Operaciones con...</th><th>Alícuota</th><th>Neto Gravado</th><th>Débito Fiscal</th></tr></thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+      <div id="tabla-dfrest-wrap" style="margin-top:14px;display:none">
+        <div style="font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Notas de Crédito emitidas — Débito Fiscal a Restituir</div>
+        <table class="datatable" id="tabla-dfrest">
+          <thead><tr><th>Operaciones con...</th><th>Alícuota</th><th>Neto Gravado</th><th>Débito a Restituir</th></tr></thead>
+          <tbody></tbody><tfoot></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🟢 Crédito Fiscal — Compras</div>
+      <table class="datatable" id="tabla-cf">
+        <thead><tr><th>Concepto</th><th>Alícuota</th><th>Neto Gravado</th><th>Crédito Fiscal</th></tr></thead>
+        <tbody></tbody><tfoot></tfoot>
+      </table>
+      <div id="tabla-cfrest-wrap" style="margin-top:14px;display:none">
+        <div style="font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Notas de Crédito recibidas — Crédito Fiscal a Restituir</div>
+        <table class="datatable" id="tabla-cfrest">
+          <thead><tr><th>Concepto</th><th>Alícuota</th><th>Neto Gravado</th><th>Crédito a Restituir</th></tr></thead>
+          <tbody></tbody><tfoot></tfoot>
+        </table>
+      </div>
+      <div id="sincredito-wrap" style="margin-top:14px;display:none">
+        <div class="alerta alerta-info" id="sincredito-txt" style="margin-bottom:0"></div>
+      </div>
+    </div>
+
+    <div id="dudosas-wrap" style="display:none" class="alerta alerta-warn"></div>
+
+    <div class="card">
+      <div class="card-title">📐 Primer Párrafo — Saldo Técnico</div>
+      <div class="result-grid">
+        <div class="r-item"><div class="r-label">Total Débito Fiscal</div><div class="r-val" id="res-totaldf">—</div></div>
+        <div class="r-item"><div class="r-label">Total Crédito Fiscal</div><div class="r-val" id="res-totalcf">—</div></div>
+        <div class="r-item"><div class="r-label">Primer Párrafo — Saldo Técnico</div><div class="r-val" id="res-saldotecnico">—</div></div>
+      </div>
+      <div class="result-grid">
+        <div class="r-item"><div class="r-label">Saldo a favor período anterior</div><div class="r-val" id="res-favorprimer">—</div></div>
+        <div class="r-item" style="grid-column:span 2"><div class="r-label">Total del Primer Párrafo</div><div class="r-val big" id="res-totalprimer">—</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💰 Segundo Párrafo — Ingresos Directos</div>
+      <div class="row2">
+        <div>
+          <div style="font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Retenciones de IVA sufridas</div>
+          <table class="datatable"><tbody id="tabla-retenciones"></tbody></table>
+        </div>
+        <div>
+          <div style="font-size:.72rem;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Percepciones de IVA sufridas</div>
+          <table class="datatable"><tbody id="tabla-percepciones"></tbody></table>
+        </div>
+      </div>
+      <div class="result-grid" style="margin-top:10px">
+        <div class="r-item"><div class="r-label">Total Retenciones</div><div class="r-val" id="res-retenciones">—</div></div>
+        <div class="r-item"><div class="r-label">Total Percepciones</div><div class="r-val" id="res-percepciones">—</div></div>
+        <div class="r-item"><div class="r-label">Segundo Párrafo — Saldo</div><div class="r-val" id="res-saldosegundo">—</div></div>
+      </div>
+      <div class="result-grid" style="margin-top:10px">
+        <div class="r-item"><div class="r-label">Saldo a favor período anterior</div><div class="r-val" id="res-favorsegundo">—</div></div>
+        <div class="r-item" style="grid-column:span 2"><div class="r-label">Total del Segundo Párrafo</div><div class="r-val big" id="res-totalsegundo">—</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✅ Saldo DDJJ</div>
+      <div class="r-item" style="padding:20px">
+        <div class="r-label" id="saldo-ddjj-label">Saldo a ingresar / a favor</div>
+        <div class="r-val big" id="res-saldoddjj" style="font-size:2rem">—</div>
+      </div>
+      <div class="alerta alerta-warn" style="margin-top:10px">⚠ Este resultado es orientativo (cálculo de control). La determinación oficial surge de presentar el F.2051 en ARCA.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⬇️ Exportar CSV para Portal IVA</div>
+      <p style="font-size:.74rem;color:var(--sub);margin-bottom:12px">Formato basado en exports reales de Portal IVA. Los marcados con <span class="warn-dot">⚠</span> no pudieron validarse contra un ejemplo con datos — revisalos antes de importar.</p>
+      <div class="csv-grid">
+        <button class="btn-csv" id="btn-df" onclick="descargarCSV('DF')">📄 IVA Simple DF</button>
+        <button class="btn-csv" id="btn-dfrest" onclick="descargarCSV('DFRestitucion')">📄 IVA Simple DF Restitución</button>
+        <button class="btn-csv" id="btn-cf" onclick="descargarCSV('CF')">📄 IVA Simple CF</button>
+        <button class="btn-csv" id="btn-cfrest" onclick="descargarCSV('CFRestitucion')">📄 IVA Simple CF Restitución</button>
+        <button class="btn-csv" id="btn-ret" onclick="descargarCSV('Retencion')"><span class="warn-dot">⚠</span> IVA Simple Retenciones</button>
+        <button class="btn-csv" id="btn-perc" onclick="descargarCSV('Percepcion')"><span class="warn-dot">⚠</span> IVA Simple Perc. Impositivas</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SheetJS para parsear los .xlsx en el navegador -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ============================================================
+// Núcleo de cálculo (ver /tmp/f2051/calc.js para la versión testeada en Node)
+// ============================================================
+var ALICUOTAS = [
+  { codigo: 5, pct: 21 },
+  { codigo: 3, pct: 10.5 },
+  { codigo: 6, pct: 27 },
+  { codigo: 8, pct: 5 },
+  { codigo: 9, pct: 2.5 },
+  { codigo: 4, pct: 0 },
+];
+
+function codigoAlicuotaPorPct(pct){
+  var mejor=null, dist=Infinity;
+  for(var i=0;i<ALICUOTAS.length;i++){
+    var d = Math.abs(ALICUOTAS[i].pct - pct);
+    if(d < dist){ dist = d; mejor = ALICUOTAS[i]; }
+  }
+  return { codigo: mejor.codigo, pct: mejor.pct, dudoso: dist > 1.5 };
+}
+
+function esNotaCredito(tipo){ return /nota de cr[eé]dito/i.test(tipo||''); }
+function esFacturaC(tipo){ return /factura c/i.test(tipo||'') || /^11\s*-/.test(tipo||''); }
+function esFacturaA(tipo){ return /factura a/i.test(tipo||'') || /^1\s*-/.test(tipo||''); }
+
+function normalizarFilas(filas){
+  return filas.map(function(r, idx){
+    var tc = (r.TipoCambio && r.TipoCambio > 0) ? r.TipoCambio : 1;
+    var neto = (r.NetoGravado||0) * tc;
+    var iva = (r.IVA||0) * tc;
+    var total = (r.Total||0) * tc;
+    var noGravado = (r.NoGravado||0) * tc;
+    var exento = (r.Exento||0) * tc;
+    var pct = 0;
+    if(neto > 0.009) pct = Math.round((iva/neto)*1000)/10;
+    var alic = codigoAlicuotaPorPct(pct);
+    return {
+      _idx: idx, fecha: r.Fecha, tipo: r.Tipo,
+      esNC: esNotaCredito(r.Tipo), esFacturaC: esFacturaC(r.Tipo), esFacturaA: esFacturaA(r.Tipo),
+      neto: neto, iva: iva, total: total, noGravado: noGravado, exento: exento,
+      pct: pct, codigoAlicuota: alic.codigo, alicuotaDudosa: alic.dudoso,
+      moneda: r.Moneda, tipoCambio: tc,
+    };
+  });
+}
+
+function calcularVentas(filasVenta, actividad){
+  var norm = normalizarFilas(filasVenta);
+  var dfGrupos = {}, dfRestGrupos = {};
+  for(var i=0;i<norm.length;i++){
+    var f = norm[i];
+    var tipoSujeto = f.esFacturaA ? 1 : 3;
+    var key = tipoSujeto+'|'+f.codigoAlicuota;
+    var destino = f.esNC ? dfRestGrupos : dfGrupos;
+    if(!destino[key]) destino[key] = { actividad: actividad, tipoOperacion: 1, tipoSujeto: tipoSujeto, codigoAlicuota: f.codigoAlicuota, neto:0, debito:0, exento:0, filas:[] };
+    destino[key].neto += f.neto;
+    destino[key].debito += f.iva;
+    destino[key].exento += (f.noGravado + f.exento);
+    destino[key].filas.push(f);
+  }
+  return { dfGrupos: Object.keys(dfGrupos).map(function(k){return dfGrupos[k];}), dfRestGrupos: Object.keys(dfRestGrupos).map(function(k){return dfRestGrupos[k];}), filas: norm };
+}
+
+function calcularCompras(filasCompra, concepto){
+  var norm = normalizarFilas(filasCompra);
+  var cfGrupos = {}, cfRestGrupos = {}, sinCredito = [];
+  for(var i=0;i<norm.length;i++){
+    var f = norm[i];
+    if(f.esFacturaC && !f.esNC){ sinCredito.push(f); continue; }
+    var key = concepto+'|'+f.codigoAlicuota;
+    var destino = f.esNC ? cfRestGrupos : cfGrupos;
+    if(!destino[key]) destino[key] = { concepto: concepto, codigoAlicuota: f.codigoAlicuota, neto:0, credito:0, filas:[] };
+    destino[key].neto += f.neto;
+    destino[key].credito += f.iva;
+    destino[key].filas.push(f);
+  }
+  return { cfGrupos: Object.keys(cfGrupos).map(function(k){return cfGrupos[k];}), cfRestGrupos: Object.keys(cfRestGrupos).map(function(k){return cfRestGrupos[k];}), filas: norm, sinCredito: sinCredito };
+}
+
+function round2(n){ return Math.round((n + Number.EPSILON) * 100) / 100; }
+
+function calcularLiquidacion(opts){
+  var vRes = calcularVentas(opts.ventas, opts.actividad);
+  var cRes = calcularCompras(opts.compras, opts.concepto);
+  function sum(arr, campo){ return arr.reduce(function(a,g){return a+g[campo];}, 0); }
+
+  var totalDF = round2(sum(vRes.dfGrupos, 'debito'));
+  var totalCFRest = round2(sum(cRes.cfRestGrupos, 'credito'));
+  var totalDebitoFiscal = round2(totalDF + totalCFRest);
+
+  var totalCF = round2(sum(cRes.cfGrupos, 'credito'));
+  var totalDFRest = round2(sum(vRes.dfRestGrupos, 'debito'));
+  var totalCreditoFiscal = round2(totalCF + totalDFRest);
+
+  var saldoTecnico = round2(totalDebitoFiscal - totalCreditoFiscal);
+  var favorPrimer = round2(opts.saldoFavorPrimer || 0);
+  var totalPrimerParrafo = round2(saldoTecnico - favorPrimer);
+
+  var totalRetenciones = round2((opts.retenciones||[]).reduce(function(a,r){return a+r.importe;},0));
+  var totalPercepciones = round2((opts.percepciones||[]).reduce(function(a,r){return a+r.importe;},0));
+  var saldoSegundoParrafo = round2(totalPrimerParrafo - totalRetenciones - totalPercepciones);
+  var favorSegundo = round2(opts.saldoFavorSegundo || 0);
+  var totalSegundoParrafo = round2(saldoSegundoParrafo - favorSegundo);
+  var saldoDDJJ = totalSegundoParrafo;
+
+  return { ventas: vRes, compras: cRes, totalDF: totalDF, totalCFRest: totalCFRest, totalDebitoFiscal: totalDebitoFiscal,
+    totalCF: totalCF, totalDFRest: totalDFRest, totalCreditoFiscal: totalCreditoFiscal,
+    saldoTecnico: saldoTecnico, favorPrimer: favorPrimer, totalPrimerParrafo: totalPrimerParrafo,
+    totalRetenciones: totalRetenciones, totalPercepciones: totalPercepciones,
+    saldoSegundoParrafo: saldoSegundoParrafo, favorSegundo: favorSegundo, totalSegundoParrafo: totalSegundoParrafo,
+    saldoDDJJ: saldoDDJJ };
+}
+
+// ============================================================
+// Parsers de archivos
+// ============================================================
+var COLS = ["Fecha","Tipo","PuntoVenta","NumeroDesde","NumeroHasta","TipoDoc","NroDoc","Denominacion","TipoCambio","Moneda","NetoGravado","NoGravado","Exento","IVA","Total"];
+
+function parseComprobantesXLSX(arrayBuffer){
+  var wb = XLSX.read(arrayBuffer, { type: 'array' });
+  var ws = wb.Sheets[wb.SheetNames[0]];
+  var rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+  // Buscar la fila de encabezado (contiene "Fecha" en la primera celda)
+  var headerIdx = -1;
+  for(var i=0;i<Math.min(rows.length,6);i++){
+    if(rows[i] && String(rows[i][0]||'').trim().toLowerCase() === 'fecha'){ headerIdx = i; break; }
+  }
+  if(headerIdx === -1) throw new Error('No se encontró la fila de encabezado (buscando "Fecha" en la primera columna).');
+  var out = [];
+  for(var r=headerIdx+1; r<rows.length; r++){
+    var row = rows[r];
+    if(!row || row.every(function(c){return c===null || c==='';})) continue;
+    var obj = {};
+    for(var c=0;c<COLS.length;c++) obj[COLS[c]] = row[c] !== undefined ? row[c] : null;
+    out.push(obj);
+  }
+  return out;
+}
+
+// Formato "Mis Retenciones/Percepciones" (aplicativo ARCA, ancho fijo):
+// [código régimen 3] [CUIT agente NN-NNNNNNNN-N] [fecha DD/MM/YYYY] [espacios] [certificado] [espacios] [importe]
+function parseAplicativoTxt(texto){
+  var re = /^(\d{3})(\d{2}-\d{8}-\d)(\d{2}\/\d{2}\/\d{4})\s*(\d+)\s+([\d.]+)\s*$/;
+  var out = [];
+  var lineas = texto.split(/\r?\n/);
+  for(var i=0;i<lineas.length;i++){
+    var linea = lineas[i].trim();
+    if(!linea) continue;
+    var m = linea.match(re);
+    if(!m){ continue; } // línea no reconocida (ej. encabezado del export) — se ignora
+    out.push({ codigo: m[1], cuit: m[2], fecha: m[3], cert: m[4], importe: parseFloat(m[5]) });
+  }
+  return out;
+}
+
+// ============================================================
+// Estado y UI
+// ============================================================
+var DATA = { compras: null, ventas: null, retenciones: null, percepciones: null };
+var RESULTADO = null;
+
+function leerArchivo(input, tipo){
+  return new Promise(function(resolve, reject){
+    var file = input.files && input.files[0];
+    if(!file){ resolve(null); return; }
+    var reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        if(tipo === 'xlsx') resolve(parseComprobantesXLSX(e.target.result));
+        else resolve(parseAplicativoTxt(e.target.result));
+      }catch(err){ reject(err); }
+    };
+    reader.onerror = function(){ reject(new Error('No se pudo leer el archivo ' + file.name)); };
+    if(tipo === 'xlsx') reader.readAsArrayBuffer(file);
+    else reader.readAsText(file, 'UTF-8');
+  });
+}
+
+function fmt(n){
+  n = parseFloat(n)||0;
+  return '$ ' + n.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function nombreSujeto(ts){ return ts === 1 ? 'Responsable Inscripto' : 'Consumidor Final / Otros'; }
+function nombreAlicuota(c){ var a = ALICUOTAS.filter(function(x){return x.codigo===c;})[0]; return a ? a.pct+'%' : c; }
+
+function procesar(){
+  document.getElementById('errores').innerHTML = '';
+  var actividad = parseInt(document.getElementById('actividad').value, 10);
+  if(!actividad){ mostrarError('Ingresá el Código de Actividad antes de procesar.'); return; }
+
+  Promise.all([
+    leerArchivo(document.getElementById('fCompras'), 'xlsx'),
+    leerArchivo(document.getElementById('fVentas'), 'xlsx'),
+    leerArchivo(document.getElementById('fRetenciones'), 'txt'),
+    leerArchivo(document.getElementById('fPercepciones'), 'txt'),
+  ]).then(function(res){
+    DATA.compras = res[0]; DATA.ventas = res[1]; DATA.retenciones = res[2]; DATA.percepciones = res[3];
+    if(!DATA.compras || !DATA.ventas){ mostrarError('Cargá los archivos de Compras y Ventas (son obligatorios).'); return; }
+
+    var favorPrimer = parseFloat(document.getElementById('saldoFavorPrimer').value) || 0;
+    var favorSegundo = parseFloat(document.getElementById('saldoFavorSegundo').value) || 0;
+
+    RESULTADO = calcularLiquidacion({
+      ventas: DATA.ventas, compras: DATA.compras,
+      retenciones: DATA.retenciones || [], percepciones: DATA.percepciones || [],
+      actividad: actividad, concepto: 1,
+      saldoFavorPrimer: favorPrimer, saldoFavorSegundo: favorSegundo,
+    });
+    renderResultados(RESULTADO);
+  }).catch(function(err){
+    mostrarError('Error procesando archivos: ' + err.message);
+  });
+}
+
+function mostrarError(msg){
+  document.getElementById('errores').innerHTML = '<div class="alerta alerta-warn">⚠ ' + msg + '</div>';
+}
+
+['fCompras','fVentas','fRetenciones','fPercepciones'].forEach(function(id){
+  document.getElementById(id).addEventListener('change', function(){
+    var tag = document.getElementById('ok-' + id.replace('f','').toLowerCase());
+    if(tag) tag.style.display = this.files.length ? 'block' : 'none';
+  });
+});
+
+function renderResultados(res){
+  // DF
+  var tbodyDF = document.querySelector('#tabla-df tbody'), tfootDF = document.querySelector('#tabla-df tfoot');
+  tbodyDF.innerHTML=''; var tnDF=0, tmDF=0;
+  res.ventas.dfGrupos.forEach(function(g){
+    tnDF+=g.neto; tmDF+=g.debito;
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+nombreSujeto(g.tipoSujeto)+'</td><td>'+nombreAlicuota(g.codigoAlicuota)+'</td><td>'+fmt(g.neto)+'</td><td>'+fmt(g.debito)+'</td>';
+    tbodyDF.appendChild(tr);
+  });
+  tfootDF.innerHTML='<tr><td colspan="2">Total</td><td>'+fmt(tnDF)+'</td><td>'+fmt(tmDF)+'</td></tr>';
+
+  var dfrestWrap = document.getElementById('tabla-dfrest-wrap');
+  if(res.ventas.dfRestGrupos.length){
+    dfrestWrap.style.display='block';
+    var tbodyDFR = document.querySelector('#tabla-dfrest tbody'), tfootDFR = document.querySelector('#tabla-dfrest tfoot');
+    tbodyDFR.innerHTML=''; var tnDFR=0, tmDFR=0;
+    res.ventas.dfRestGrupos.forEach(function(g){
+      tnDFR+=g.neto; tmDFR+=g.debito;
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+nombreSujeto(g.tipoSujeto)+'</td><td>'+nombreAlicuota(g.codigoAlicuota)+'</td><td>'+fmt(g.neto)+'</td><td>'+fmt(g.debito)+'</td>';
+      tbodyDFR.appendChild(tr);
+    });
+    tfootDFR.innerHTML='<tr><td colspan="2">Total</td><td>'+fmt(tnDFR)+'</td><td>'+fmt(tmDFR)+'</td></tr>';
+  } else { dfrestWrap.style.display='none'; }
+
+  // CF
+  var tbodyCF = document.querySelector('#tabla-cf tbody'), tfootCF = document.querySelector('#tabla-cf tfoot');
+  tbodyCF.innerHTML=''; var tnCF=0, tmCF=0;
+  res.compras.cfGrupos.forEach(function(g){
+    tnCF+=g.neto; tmCF+=g.credito;
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>Compras (Concepto '+g.concepto+')</td><td>'+nombreAlicuota(g.codigoAlicuota)+'</td><td>'+fmt(g.neto)+'</td><td>'+fmt(g.credito)+'</td>';
+    tbodyCF.appendChild(tr);
+  });
+  tfootCF.innerHTML='<tr><td colspan="2">Total</td><td>'+fmt(tnCF)+'</td><td>'+fmt(tmCF)+'</td></tr>';
+
+  var cfrestWrap = document.getElementById('tabla-cfrest-wrap');
+  if(res.compras.cfRestGrupos.length){
+    cfrestWrap.style.display='block';
+    var tbodyCFR = document.querySelector('#tabla-cfrest tbody'), tfootCFR = document.querySelector('#tabla-cfrest tfoot');
+    tbodyCFR.innerHTML=''; var tnCFR=0, tmCFR=0;
+    res.compras.cfRestGrupos.forEach(function(g){
+      tnCFR+=g.neto; tmCFR+=g.credito;
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>Compras (Concepto '+g.concepto+')</td><td>'+nombreAlicuota(g.codigoAlicuota)+'</td><td>'+fmt(g.neto)+'</td><td>'+fmt(g.credito)+'</td>';
+      tbodyCFR.appendChild(tr);
+    });
+    tfootCFR.innerHTML='<tr><td colspan="2">Total</td><td>'+fmt(tnCFR)+'</td><td>'+fmt(tmCFR)+'</td></tr>';
+  } else { cfrestWrap.style.display='none'; }
+
+  // Sin crédito (Factura C)
+  var sinCredWrap = document.getElementById('sincredito-wrap');
+  if(res.compras.sinCredito.length){
+    sinCredWrap.style.display='block';
+    var totalSinCred = res.compras.sinCredito.reduce(function(a,f){return a+f.total;},0);
+    document.getElementById('sincredito-txt').innerHTML = 'ℹ️ <strong>' + res.compras.sinCredito.length + ' comprobante(s)</strong> sin crédito fiscal (Factura C / proveedores Monotributo), por un total de <strong>' + fmt(totalSinCred) + '</strong>. No se incluyen en el Crédito Fiscal.';
+  } else { sinCredWrap.style.display='none'; }
+
+  // Alícuotas dudosas
+  var dudosas = res.ventas.filas.concat(res.compras.filas).filter(function(f){return f.alicuotaDudosa && f.neto>0.009;});
+  var dudosasWrap = document.getElementById('dudosas-wrap');
+  if(dudosas.length){
+    dudosasWrap.style.display='block';
+    dudosasWrap.innerHTML = '⚠ <strong>' + dudosas.length + ' comprobante(s)</strong> con una alícuota efectiva que no coincide exactamente con ninguna alícuota estándar de ARCA (0%, 2,5%, 5%, 10,5%, 21%, 27%) — se asignó la más cercana. Revisalos antes de exportar.';
+  } else { dudosasWrap.style.display='none'; }
+
+  // Primer párrafo
+  document.getElementById('res-totaldf').textContent = fmt(res.totalDebitoFiscal);
+  document.getElementById('res-totalcf').textContent = fmt(res.totalCreditoFiscal);
+  document.getElementById('res-saldotecnico').textContent = fmt(res.saldoTecnico);
+  document.getElementById('res-favorprimer').textContent = fmt(res.favorPrimer);
+  var elTP = document.getElementById('res-totalprimer');
+  elTP.textContent = fmt(res.totalPrimerParrafo);
+  elTP.className = 'r-val big ' + (res.totalPrimerParrafo >= 0 ? 'red' : 'green');
+
+  // Segundo párrafo
+  var tbodyRet = document.getElementById('tabla-retenciones');
+  tbodyRet.innerHTML = (DATA.retenciones||[]).map(function(r){
+    return '<tr><td>'+r.cuit+'</td><td>'+r.fecha+'</td><td>'+fmt(r.importe)+'</td></tr>';
+  }).join('') || '<tr><td style="color:var(--sub)">Sin datos</td></tr>';
+  var tbodyPerc = document.getElementById('tabla-percepciones');
+  tbodyPerc.innerHTML = (DATA.percepciones||[]).map(function(r){
+    return '<tr><td>'+r.cuit+'</td><td>'+r.fecha+'</td><td>'+fmt(r.importe)+'</td></tr>';
+  }).join('') || '<tr><td style="color:var(--sub)">Sin datos</td></tr>';
+  document.getElementById('res-retenciones').textContent = fmt(res.totalRetenciones);
+  document.getElementById('res-percepciones').textContent = fmt(res.totalPercepciones);
+  document.getElementById('res-saldosegundo').textContent = fmt(res.saldoSegundoParrafo);
+  document.getElementById('res-favorsegundo').textContent = fmt(res.favorSegundo);
+  var elTS = document.getElementById('res-totalsegundo');
+  elTS.textContent = fmt(res.totalSegundoParrafo);
+  elTS.className = 'r-val big ' + (res.totalSegundoParrafo >= 0 ? 'red' : 'green');
+
+  // Saldo DDJJ
+  var elDDJJ = document.getElementById('res-saldoddjj');
+  elDDJJ.textContent = fmt(Math.abs(res.saldoDDJJ));
+  if(res.saldoDDJJ >= 0){
+    elDDJJ.className = 'r-val big red';
+    document.getElementById('saldo-ddjj-label').textContent = 'Saldo a ingresar';
+  } else {
+    elDDJJ.className = 'r-val big green';
+    document.getElementById('saldo-ddjj-label').textContent = 'Saldo a favor del contribuyente';
+  }
+
+  // Habilitar botones de export según datos disponibles
+  document.getElementById('btn-dfrest').disabled = res.ventas.dfRestGrupos.length === 0;
+  document.getElementById('btn-cfrest').disabled = res.compras.cfRestGrupos.length === 0;
+  document.getElementById('btn-ret').disabled = !(DATA.retenciones && DATA.retenciones.length);
+  document.getElementById('btn-perc').disabled = !(DATA.percepciones && DATA.percepciones.length);
+
+  document.getElementById('result-box').classList.add('show');
+  document.getElementById('result-box').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ============================================================
+// Export CSV — formato real de Portal IVA (ARCA)
+// ============================================================
+function numComa(n){ return (Math.round((n+Number.EPSILON)*100)/100).toFixed(2).replace('.', ','); }
+
+function csvDF(grupos){
+  var header = 'Actividad; Tipo de Operacion; Tipo de sujeto comprador; Codigo de Alicuota; Monto Neto Gravado; Debito Fiscal Facturado; Debito Fiscal Operacion Dacion en Pago; Monto Neto Exento o No Gravado';
+  var lineas = [header];
+  grupos.forEach(function(g){
+    var vals = [g.actividad, g.tipoOperacion, g.tipoSujeto, g.codigoAlicuota, numComa(g.neto), numComa(g.debito), '', g.exento>0.009 ? numComa(g.exento) : ''];
+    lineas.push(vals.join(';') + ';');
+  });
+  return lineas.join('\r\n');
+}
+
+function csvDFRestitucion(grupos){
+  var header = 'Actividad; Tipo de Operacion; Tipo de sujeto comprador; Codigo de Alicuota; Monto Neto Gravado; Debito Fiscal a Restituir; Monto Neto Exento o No Gravado;';
+  var lineas = [header];
+  grupos.forEach(function(g){
+    var vals = [g.actividad, g.tipoOperacion, g.tipoSujeto, g.codigoAlicuota, numComa(g.neto), numComa(g.debito), ''];
+    lineas.push(vals.join(';') + ';');
+  });
+  return lineas.join('\r\n');
+}
+
+function csvCF(grupos){
+  var header = 'Concepto; Codigo de Alicuota; Monto Neto Gravado; Credito Fiscal Facturado; Credito Fiscal Computable';
+  var lineas = [header];
+  grupos.forEach(function(g){
+    var vals = [g.concepto, g.codigoAlicuota, numComa(g.neto), numComa(g.credito), numComa(g.credito)];
+    lineas.push(vals.join(';') + ';');
+  });
+  return lineas.join('\r\n');
+}
+
+function csvCFRestitucion(grupos){
+  var header = 'Concepto; Codigo de Alicuota; Monto Neto Gravado; Credito Fiscal Facturado';
+  var lineas = [header];
+  grupos.forEach(function(g){
+    var vals = [g.concepto, g.codigoAlicuota, numComa(g.neto), numComa(g.credito)];
+    lineas.push(vals.join(';') + ';');
+  });
+  return lineas.join('\r\n');
+}
+
+// Retenciones/Percepciones: SIN encabezado (igual que el export real cuando trae datos).
+// Columnas inferidas del único ejemplo real disponible (Percepción):
+// regimen; CUIT sin guiones; (vacío); fecha ISO; 1; nro. comprobante; importe
+// ⚠ No validado con un ejemplo real de Retenciones — revisar antes de importar.
+function csvRegistroDirecto(registros){
+  var lineas = [];
+  registros.forEach(function(r){
+    var cuitSinGuiones = r.cuit.replace(/-/g, '');
+    var fechaISO = r.fecha.split('/').reverse().join('-'); // DD/MM/YYYY -> YYYY-MM-DD
+    var vals = [r.codigo, cuitSinGuiones, '', fechaISO, '1', r.cert, numComa(r.importe)];
+    lineas.push(vals.join(';') + ';');
+  });
+  return lineas.join('\r\n');
+}
+
+function descargarCSV(tipo){
+  if(!RESULTADO) return;
+  var contenido = '', nombre = '';
+  var periodo = (document.getElementById('periodo').value || '').replace('-', '_');
+  var actividad = document.getElementById('actividad').value || 'actividad';
+  switch(tipo){
+    case 'DF': contenido = csvDF(RESULTADO.ventas.dfGrupos); nombre = 'IvaSimpleDF_' + periodo + '.csv'; break;
+    case 'DFRestitucion': contenido = csvDFRestitucion(RESULTADO.ventas.dfRestGrupos); nombre = 'IvaSimpleDFRestitucion_' + periodo + '.csv'; break;
+    case 'CF': contenido = csvCF(RESULTADO.compras.cfGrupos); nombre = 'IvaSimpleCF_' + periodo + '.csv'; break;
+    case 'CFRestitucion': contenido = csvCFRestitucion(RESULTADO.compras.cfRestGrupos); nombre = 'IvaSimpleCFRestitucion_' + periodo + '.csv'; break;
+    case 'Retencion': contenido = csvRegistroDirecto(DATA.retenciones||[]); nombre = 'IvaSimpleRetencion_' + periodo + '.csv'; break;
+    case 'Percepcion': contenido = csvRegistroDirecto(DATA.percepciones||[]); nombre = 'IvaSimplePercepcion_' + periodo + '.csv'; break;
+  }
+  var blob = new Blob(["﻿" + contenido], { type: 'text/csv;charset=utf-8;' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = nombre;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Inicializar período con el mes anterior
+(function(){
+  var hoy = new Date();
+  var mesAnterior = new Date(hoy.getFullYear(), hoy.getMonth()-1, 1);
+  var val = mesAnterior.getFullYear() + '-' + String(mesAnterior.getMonth()+1).padStart(2,'0');
+  document.getElementById('periodo').value = val;
+})();
+</script>
+
+<a href="https://api.whatsapp.com/send?text=Asistente%20F.2051%20IVA%20Simple%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/f2051-iva-simple.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
+  style="position:fixed;bottom:76px;right:20px;z-index:998;background:#25D366;color:#fff;
+    width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;text-decoration:none;box-shadow:0 2px 12px rgba(37,211,102,.3);transition:all .2s"
+  onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('../sw.js?v=11', { updateViaCache: 'none' }).then(function(reg){ reg.update(); setInterval(function(){ reg.update(); }, 1800000); }).catch(function(){}); var _swReloaded=false; navigator.serviceWorker.addEventListener('controllerchange', function(){ if(_swReloaded)return; _swReloaded=true; location.reload(); });}</script>
+<script src="/report-widget.js"></script>
+</body>
+</html>

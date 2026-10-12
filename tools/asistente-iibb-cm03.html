@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Asistente IIBB Local y CM03 — ImpoBot</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#2d4f68;--card:#35546f;--card2:#35546f;--border:#4d7a96;--text:#f0f6fb;--sub:#9dbdd6;--blue:#0b82f5;--blue-l:#60a5fa;--green:#10b981;--amber:#f59e0b;--red:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:60px}
+.shell{max-width:1100px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:16px}
+.card-title{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-l);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.68rem;font-weight:600;color:var(--sub);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select{width:100%;background:#1e3a4e;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:.88rem;outline:none;font-family:'Inter',sans-serif}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.field small{display:block;margin-top:4px;color:var(--sub);font-size:.68rem;line-height:1.4}
+.field.chk{display:flex;align-items:center;gap:8px;margin-top:4px}
+.field.chk input{width:auto}
+.field.chk label{margin:0;text-transform:none;font-size:.82rem;color:var(--text);font-weight:500}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.row4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.btn-calc{width:100%;background:linear-gradient(135deg,#0762c8,var(--blue));color:#fff;border:none;padding:12px;border-radius:10px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:4px}
+.btn-calc:hover{filter:brightness(1.1)}
+.btn-sec{background:#1e3a4e;border:1.5px solid var(--border);color:var(--text);padding:9px 16px;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-sec:hover{border-color:var(--blue)}
+.btn-danger{background:none;border:1.5px solid rgba(239,68,68,.4);color:var(--red);padding:7px 12px;border-radius:8px;font-size:.74rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-danger:hover{background:rgba(239,68,68,.1)}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.r-item{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.r-label{font-size:.65rem;color:var(--sub);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.r-val{font-size:1.1rem;font-weight:800;color:#fff}
+.r-val.big{font-size:1.5rem}
+.r-val.red{color:var(--red)}
+.r-val.green{color:var(--green)}
+.table-wrap{overflow-x:auto}
+.datatable{width:100%;border-collapse:collapse;font-size:.74rem;margin-bottom:6px;min-width:1100px}
+.datatable th{background:rgba(11,130,245,.1);color:var(--blue-l);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:7px 9px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+.datatable th:first-child,.datatable td:first-child{text-align:left}
+.datatable td{padding:6px 9px;border-bottom:1px solid rgba(26,47,69,.5);color:var(--text);text-align:right;white-space:nowrap}
+.datatable tr:last-child td{border-bottom:none}
+.datatable tfoot td{font-weight:800;border-top:1.5px solid var(--border);color:#fff}
+.badge{display:inline-block;font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:5px;margin-left:6px;white-space:nowrap}
+.badge-green{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);color:var(--green)}
+.badge-amber{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:var(--amber)}
+.alerta{border-radius:8px;padding:10px 13px;font-size:.75rem;line-height:1.5;margin-bottom:12px}
+.alerta-warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.alerta-info{background:rgba(11,130,245,.07);border:1px solid rgba(11,130,245,.2);color:var(--blue-l)}
+.alerta-ok{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);color:#6ee7b7}
+.jur-card{background:#1e3a4e;border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.jur-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.jur-head input{background:transparent;border:none;color:#fff;font-size:1rem;font-weight:800;padding:2px 0;width:auto;max-width:260px}
+.jur-head input:focus{outline:none;border-bottom:1.5px solid var(--blue)}
+.vacio{color:var(--sub);font-size:.84rem;padding:14px 0;text-align:center}
+@media(max-width:700px){.row2,.row3,.row4,.result-grid{grid-template-columns:1fr}}
+
+/* ── FH: header ImpoBot ── */
+.fh-head{position:sticky;top:0;z-index:500;font-family:'Inter',system-ui,sans-serif}
+.fh-bar{height:46px;display:flex;align-items:center;gap:10px;padding:0 16px;background:linear-gradient(135deg,#0b1220,#141d2e);border-bottom:1px solid rgba(255,255,255,.06)}
+.fh-brand{display:flex;align-items:center;gap:7px;text-decoration:none;flex-shrink:0}
+.fh-brand img{width:24px;height:24px;border-radius:50%;display:block}
+.fh-word{font-size:.86rem;font-weight:800;color:#eaf1f8;letter-spacing:-.02em;white-space:nowrap}
+.fh-word b{color:#38bdf8;font-weight:800}
+.fh-sep{width:1px;height:20px;background:rgba(255,255,255,.15);flex-shrink:0}
+.fh-title{font-size:.78rem;font-weight:700;color:#eaf1f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fh-tools{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.fh-chip{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-size:.75rem;text-decoration:none;background:rgba(255,255,255,.07);transition:background .15s}
+.fh-chip:hover{background:rgba(255,255,255,.14)}
+.fh-strip{height:28px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px;background:linear-gradient(90deg,#0b82f5,#0ea5e9);font-size:.66rem;font-weight:600;color:#eaf6ff;overflow:hidden}
+.fh-crumb a{color:#eaf6ff;opacity:.85;text-decoration:none}
+.fh-crumb a:hover{opacity:1;text-decoration:underline}
+.fh-crumb i{opacity:.6;margin:0 4px;font-style:normal}
+.fh-meta{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
+.fh-badge{background:rgba(255,255,255,.2);padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.02em}
+@media(max-width:640px){.fh-strip .fh-meta-text{display:none}.fh-title{max-width:130px}}
+
+.guia-wrap{margin:0 0 16px;border:1px solid rgba(77,122,150,.35);border-radius:10px;overflow:hidden}
+.guia-wrap summary{cursor:pointer;padding:10px 16px;background:rgba(30,58,78,.6);color:var(--sub,#9dbdd6);font-size:.8rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+.guia-wrap summary:hover{color:var(--text,#f0f6fb)}
+.guia-wrap[open] summary{color:var(--text,#f0f6fb);background:rgba(30,58,78,.9)}
+.guia-body{padding:14px 18px;background:rgba(30,58,78,.4);font-size:.82rem;line-height:1.65;color:var(--text,#f0f6fb)}
+.guia-body ol{margin:8px 0 8px 18px;padding:0}
+.guia-body li{margin-bottom:5px}
+.guia-nota{margin-top:10px;padding:8px 12px;background:rgba(245,158,11,.07);border-left:3px solid #f59e0b;border-radius:4px;font-size:.75rem;color:var(--sub,#9dbdd6)}
+</style>
+<link rel="manifest" href="../manifest.json"/>
+<meta name="theme-color" content="#0b82f5"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<link rel="apple-touch-icon" href="../logo.png"/>
+</head>
+<body>
+<header class="fh-head">
+  <div class="fh-bar">
+    <a class="fh-brand" href="../index.html">
+      <img src="../logo-sm.png" alt="ImpoBot"/>
+      <span class="fh-word"><b>impo</b>bot</span>
+    </a>
+    <span class="fh-sep"></span>
+    <span class="fh-title">🏛️ Asistente IIBB Local y CM03</span>
+    <div class="fh-tools">
+      <a class="fh-chip" style="background:#FFDD00;color:#000" href="https://www.buymeacoffee.com/impobot" target="_blank" rel="noopener" title="Buy Me a Coffee">☕</a>
+      <a class="fh-chip" style="background:#FF5E5B;color:#fff" href="https://ko-fi.com/impobot" target="_blank" rel="noopener" title="Ko-fi">💙</a>
+    </div>
+  </div>
+  <div class="fh-strip">
+    <span class="fh-crumb"><a href="../index.html">Herramientas</a><i>›</i><strong>IIBB Local y CM03</strong></span>
+    <span class="fh-meta"><span class="fh-meta-text">Convenio Multilateral · Liquidación por jurisdicción</span><span class="fh-badge">Tramo 1/4</span></span>
+  </div>
+</header>
+
+<div class="shell">
+  <div style="margin-bottom:18px">
+    <details class="guia-wrap">
+      <summary>❓ ¿Cómo usar este asistente?</summary>
+      <div class="guia-body">
+        <ol>
+          <li>Configurá los <strong>Datos generales</strong> del período (mes, y los switches que correspondan: Primer año IIBB, actividad especial, etc.).</li>
+          <li>Agregá una <strong>jurisdicción</strong> por cada provincia en la que tributás, con su coeficiente de Convenio Multilateral (el que ya calculaste en tu CM05), alícuota, sobretasas y mínimos.</li>
+          <li>Por ahora, cargá manualmente las <strong>Ventas Netas</strong> de cada jurisdicción (en el próximo tramo esto se completa solo, importando el Excel de ventas). También podés cargar a mano el saldo a favor anterior y, si ya los tenés, las retenciones/percepciones sufridas.</li>
+          <li>Hacé clic en <strong>Calcular liquidación</strong> y revisá el reporte por jurisdicción.</li>
+        </ol>
+        <div class="guia-nota">⚠ Este es el <strong>Tramo 1</strong> de la herramienta: valida el motor de cálculo (coeficientes, mínimos, sobretasas, primer año, actividad especial). La importación de ventas y de retenciones/percepciones se agrega en los próximos tramos.</div>
+      </div>
+    </details>
+    <h1 style="font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:5px">Asistente IIBB Local y CM03</h1>
+    <p style="font-size:.82rem;color:var(--sub)">Calculá el saldo a pagar o a favor de Ingresos Brutos por jurisdicción, aplicando los coeficientes de Convenio Multilateral, sobretasas y mínimos que ya tenés configurados.</p>
+  </div>
+
+  <div class="alerta alerta-info">
+    🔒 <strong>Nada de lo que cargás acá sale de tu navegador.</strong> No se sube a ningún servidor — todo el cálculo se hace localmente.
+  </div>
+  <div class="alerta alerta-warn">
+    ⚠ Herramienta de <strong>control / pre-liquidación</strong>, no reemplaza la presentación oficial en SIFERE Web. Revisá siempre los resultados contra tus propios registros.
+  </div>
+
+  <!-- DATOS GENERALES -->
+  <div class="card">
+    <div class="card-title">⚙️ Datos generales</div>
+    <div class="row2">
+      <div class="field">
+        <label>Período a liquidar</label>
+        <input type="month" id="g-periodo"/>
+        <small>Determina si se usa el coeficiente abril–diciembre o enero–marzo de cada jurisdicción.</small>
+      </div>
+      <div class="field">
+        <label>Jurisdicción Sede (para actividad especial)</label>
+        <select id="g-sede"><option value="">— Sin definir —</option></select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field chk"><input type="checkbox" id="g-primeranio"/><label for="g-primeranio">Primer año IIBB (liquida directo, sin coeficiente)</label></div>
+      <div class="field chk"><input type="checkbox" id="g-actespecial"/><label for="g-actespecial">Posee actividad especial</label></div>
+    </div>
+    <div class="row2" id="g-actespecial-wrap" style="display:none">
+      <div class="field">
+        <label>Porcentaje Sede por Actividad Especial</label>
+        <input type="number" id="g-pctsede" placeholder="Ej: 20" step="0.01"/>
+        <small>Se aplica sobre el Total Imponible de la jurisdicción marcada como Sede.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- JURISDICCIONES -->
+  <div class="card">
+    <div class="card-title">🗺️ Jurisdicciones</div>
+    <div id="jurisdicciones-wrap"></div>
+    <div class="vacio" id="jur-vacio" style="display:none">Todavía no agregaste ninguna jurisdicción.</div>
+    <button class="btn-sec" onclick="agregarJurisdiccion()">+ Agregar jurisdicción</button>
+  </div>
+
+  <button class="btn-calc" onclick="calcular()">📊 Calcular liquidación</button>
+  <div id="errores" style="margin-top:10px"></div>
+
+  <!-- RESULTADOS -->
+  <div id="result-box" style="display:none;margin-top:16px">
+    <div class="card">
+      <div class="card-title">📋 Reporte por jurisdicción</div>
+      <div class="table-wrap">
+        <table class="datatable" id="tabla-reporte">
+          <thead><tr>
+            <th>Jurisdicción</th><th>Ventas Netas</th><th>Total Imponible</th><th>Imponible Ajustado</th>
+            <th>Alícuota</th><th>Impuesto Determinado</th><th>Sobretasas</th><th>Saldo Favor Ant.</th>
+            <th>Retenciones</th><th>Percepciones</th><th>Saldo Final</th>
+          </tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <div id="alertas-jur" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✅ Resultado consolidado</div>
+      <div class="result-grid">
+        <div class="r-item"><div class="r-label">Total Impuesto Determinado</div><div class="r-val" id="res-impuesto">—</div></div>
+        <div class="r-item"><div class="r-label">Total Retenciones + Percepciones</div><div class="r-val" id="res-retperc">—</div></div>
+        <div class="r-item"><div class="r-label">Saldo Final (todas las jurisdicciones)</div><div class="r-val big" id="res-saldofinal">—</div></div>
+      </div>
+      <div class="alerta alerta-warn">⚠ Este resultado es orientativo (cálculo de control). La determinación oficial surge de presentar en SIFERE Web.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// Núcleo de cálculo (idéntico a /tmp/iibb/calc_core.js, ya testeado en Node)
+// ============================================================
+function round2(n) { return Math.round((n + Number.EPSILON) * 100) / 100; }
+function num(v) { var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+
+function coeficienteVigente(j, mes) {
+  return (mes >= 4 && mes <= 12) ? num(j.coefAbrDic) : num(j.coefEneMar);
+}
+
+function calcularJurisdiccion(j, general, mes) {
+  var ventasNetas = num(j.ventasNetas);
+  var esDirecta = !!general.primerAnio || !!j.esArt2Coef0;
+  var coef = coeficienteVigente(j, mes);
+
+  var totalImponible = esDirecta ? ventasNetas : round2(ventasNetas * (coef / 100));
+
+  var actEspecialAplicada = false;
+  if (general.actividadEspecial && general.sedeId && j.id === general.sedeId) {
+    totalImponible = round2(totalImponible * (num(general.pctSedeActEspecial) / 100));
+    actEspecialAplicada = true;
+  }
+
+  var imponibleAjustado = round2(totalImponible + num(j.ajusteManual));
+  var minBaseAplicado = false;
+  if (j.minBase !== '' && j.minBase != null && imponibleAjustado < num(j.minBase)) {
+    imponibleAjustado = num(j.minBase);
+    minBaseAplicado = true;
+  }
+
+  var impuestoDeterminado = round2(imponibleAjustado * (num(j.alicuota) / 100));
+  var minImpuestoAplicado = false;
+  if (j.minImpuesto !== '' && j.minImpuesto != null && impuestoDeterminado < num(j.minImpuesto)) {
+    impuestoDeterminado = num(j.minImpuesto);
+    minImpuestoAplicado = true;
+  }
+
+  var sobretasas = round2(num(j.sobretasa1) + num(j.sobretasa2));
+  var impuestoConSobretasas = round2(impuestoDeterminado + sobretasas);
+
+  var saldoFavorAnterior = num(j.saldoFavorAnterior);
+  var retenciones = num(j.retenciones);
+  var percepciones = num(j.percepciones);
+
+  var saldoFinal = round2(impuestoConSobretasas - saldoFavorAnterior - retenciones - percepciones);
+
+  return {
+    id: j.id, nombre: j.nombre, coefVigente: coef, esDirecta: esDirecta,
+    ventasNetas: ventasNetas, totalImponible: totalImponible,
+    actEspecialAplicada: actEspecialAplicada,
+    imponibleAjustado: imponibleAjustado, minBaseAplicado: minBaseAplicado,
+    alicuota: num(j.alicuota), impuestoDeterminado: impuestoDeterminado, minImpuestoAplicado: minImpuestoAplicado,
+    sobretasas: sobretasas, impuestoConSobretasas: impuestoConSobretasas,
+    saldoFavorAnterior: saldoFavorAnterior, retenciones: retenciones, percepciones: percepciones,
+    saldoFinal: saldoFinal,
+  };
+}
+
+function calcularLiquidacionIIBB(jurisdicciones, general) {
+  var mes = 0;
+  if (general.periodo) {
+    var partes = String(general.periodo).split('-');
+    mes = parseInt(partes[1], 10) || 0;
+  }
+  var filas = (jurisdicciones || []).map(function (j) { return calcularJurisdiccion(j, general, mes); });
+  var totales = filas.reduce(function (acc, f) {
+    acc.ventasNetas += f.ventasNetas;
+    acc.totalImponible += f.totalImponible;
+    acc.imponibleAjustado += f.imponibleAjustado;
+    acc.impuestoDeterminado += f.impuestoDeterminado;
+    acc.sobretasas += f.sobretasas;
+    acc.impuestoConSobretasas += f.impuestoConSobretasas;
+    acc.saldoFavorAnterior += f.saldoFavorAnterior;
+    acc.retenciones += f.retenciones;
+    acc.percepciones += f.percepciones;
+    acc.saldoFinal += f.saldoFinal;
+    return acc;
+  }, { ventasNetas: 0, totalImponible: 0, imponibleAjustado: 0, impuestoDeterminado: 0, sobretasas: 0, impuestoConSobretasas: 0, saldoFavorAnterior: 0, retenciones: 0, percepciones: 0, saldoFinal: 0 });
+  Object.keys(totales).forEach(function (k) { totales[k] = round2(totales[k]); });
+  return { mes: mes, filas: filas, totales: totales };
+}
+
+// ============================================================
+// Estado y UI
+// ============================================================
+var JURISDICCIONES = [];
+var NEXT_ID = 1;
+
+function nuevaJurisdiccion() {
+  return {
+    id: 'j' + (NEXT_ID++), nombre: 'Nueva jurisdicción',
+    coefAbrDic: 0, coefEneMar: 0, alicuota: 0, sobretasa1: 0, sobretasa2: 0,
+    minBase: '', minImpuesto: '', esArt2Coef0: false,
+    ventasNetas: 0, ajusteManual: 0, saldoFavorAnterior: 0, retenciones: 0, percepciones: 0,
+  };
+}
+
+function agregarJurisdiccion() {
+  JURISDICCIONES.push(nuevaJurisdiccion());
+  renderJurisdicciones();
+}
+
+function quitarJurisdiccion(id) {
+  JURISDICCIONES = JURISDICCIONES.filter(function (j) { return j.id !== id; });
+  renderJurisdicciones();
+}
+
+function campoJurisdiccion(j, campo, valor) {
+  if (campo === 'esArt2Coef0') { j[campo] = !!valor; }
+  else { j[campo] = valor; }
+  renderSedeSelect();
+}
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+function renderJurisdicciones() {
+  var wrap = document.getElementById('jurisdicciones-wrap');
+  document.getElementById('jur-vacio').style.display = JURISDICCIONES.length ? 'none' : 'block';
+  wrap.innerHTML = JURISDICCIONES.map(function (j) {
+    return '<div class="jur-card" data-id="' + j.id + '">' +
+      '<div class="jur-head">' +
+        '<input type="text" value="' + esc(j.nombre) + '" onchange="campoJurisdiccion(JUR(\'' + j.id + '\'),\'nombre\',this.value); renderJurisdiccionesLigero();"/>' +
+        '<button class="btn-danger" onclick="quitarJurisdiccion(\'' + j.id + '\')">Quitar</button>' +
+      '</div>' +
+      '<div class="row4">' +
+        campo(j, 'Coef. Abril–Diciembre (%)', 'coefAbrDic', 'number') +
+        campo(j, 'Coef. Enero–Marzo (%)', 'coefEneMar', 'number') +
+        campo(j, 'Alícuota (%)', 'alicuota', 'number') +
+        campo(j, 'Ventas Netas del período', 'ventasNetas', 'number') +
+      '</div>' +
+      '<div class="row4">' +
+        campo(j, 'Sobretasa 1', 'sobretasa1', 'number') +
+        campo(j, 'Sobretasa 2', 'sobretasa2', 'number') +
+        campo(j, 'Mínimo Base Imponible', 'minBase', 'number') +
+        campo(j, 'Mínimo Impuesto Determinado', 'minImpuesto', 'number') +
+      '</div>' +
+      '<div class="row4">' +
+        campo(j, 'Ajuste manual (Imponible Ajustado)', 'ajusteManual', 'number') +
+        campo(j, 'Saldo a Favor período anterior', 'saldoFavorAnterior', 'number') +
+        campo(j, 'Retenciones sufridas (manual)', 'retenciones', 'number') +
+        campo(j, 'Percepciones sufridas (manual)', 'percepciones', 'number') +
+      '</div>' +
+      '<div class="field chk">' +
+        '<input type="checkbox" id="chk-' + j.id + '" ' + (j.esArt2Coef0 ? 'checked' : '') + ' onchange="campoJurisdiccion(JUR(\'' + j.id + '\'),\'esArt2Coef0\',this.checked)"/>' +
+        '<label for="chk-' + j.id + '">¿Es Art. 2 y Coef. 0? (jurisdicción nueva — asigna directo sin coeficiente)</label>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  renderSedeSelect();
+}
+
+// Evita perder el foco del input de nombre en cada tecla: solo re-renderiza
+// el combo de sede (que depende del nombre) sin reconstruir toda la tarjeta.
+function renderJurisdiccionesLigero() { renderSedeSelect(); }
+
+function campo(j, label, key, tipo) {
+  var val = j[key];
+  return '<div class="field"><label>' + label + '</label>' +
+    '<input type="' + tipo + '" value="' + esc(val) + '" step="0.01" onchange="campoJurisdiccion(JUR(\'' + j.id + '\'),\'' + key + '\',this.value)"/></div>';
+}
+
+function JUR(id) { return JURISDICCIONES.filter(function (j) { return j.id === id; })[0]; }
+
+function renderSedeSelect() {
+  var sel = document.getElementById('g-sede');
+  var actual = sel.value;
+  sel.innerHTML = '<option value="">— Sin definir —</option>' + JURISDICCIONES.map(function (j) {
+    return '<option value="' + j.id + '">' + esc(j.nombre) + '</option>';
+  }).join('');
+  if (JUR(actual)) sel.value = actual;
+}
+
+document.getElementById('g-actespecial').addEventListener('change', function () {
+  document.getElementById('g-actespecial-wrap').style.display = this.checked ? 'grid' : 'none';
+});
+
+function fmt(n) {
+  n = parseFloat(n) || 0;
+  return '$ ' + n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function mostrarError(msg) {
+  document.getElementById('errores').innerHTML = '<div class="alerta alerta-warn">⚠ ' + msg + '</div>';
+}
+
+var RESULTADO = null;
+
+function calcular() {
+  document.getElementById('errores').innerHTML = '';
+  if (!JURISDICCIONES.length) { mostrarError('Agregá al menos una jurisdicción antes de calcular.'); return; }
+  var periodo = document.getElementById('g-periodo').value;
+  if (!periodo) { mostrarError('Elegí el período a liquidar.'); return; }
+
+  var general = {
+    periodo: periodo,
+    primerAnio: document.getElementById('g-primeranio').checked,
+    actividadEspecial: document.getElementById('g-actespecial').checked,
+    sedeId: document.getElementById('g-sede').value || null,
+    pctSedeActEspecial: document.getElementById('g-pctsede').value,
+  };
+
+  RESULTADO = calcularLiquidacionIIBB(JURISDICCIONES, general);
+  renderResultados(RESULTADO);
+}
+
+function renderResultados(res) {
+  var tbody = document.querySelector('#tabla-reporte tbody');
+  var tfoot = document.querySelector('#tabla-reporte tfoot');
+  var alertas = [];
+
+  tbody.innerHTML = res.filas.map(function (f) {
+    var nombreCeldas = esc(f.nombre);
+    if (f.esDirecta) { nombreCeldas += ' <span class="badge badge-amber">Directa / Coef. 0</span>'; alertas.push(f.nombre + ': se asignó el total directo, sin aplicar coeficiente.'); }
+    if (f.minBaseAplicado) { nombreCeldas += ' <span class="badge badge-amber">Mín. base</span>'; alertas.push(f.nombre + ': se aplicó el mínimo de base imponible configurado.'); }
+    if (f.minImpuestoAplicado) { nombreCeldas += ' <span class="badge badge-amber">Mín. impuesto</span>'; alertas.push(f.nombre + ': se aplicó el mínimo de impuesto determinado configurado.'); }
+    if (f.actEspecialAplicada) { nombreCeldas += ' <span class="badge badge-green">Act. especial</span>'; }
+    return '<tr>' +
+      '<td>' + nombreCeldas + '</td>' +
+      '<td>' + fmt(f.ventasNetas) + '</td>' +
+      '<td>' + fmt(f.totalImponible) + '</td>' +
+      '<td>' + fmt(f.imponibleAjustado) + '</td>' +
+      '<td>' + f.alicuota.toLocaleString('es-AR') + '%</td>' +
+      '<td>' + fmt(f.impuestoDeterminado) + '</td>' +
+      '<td>' + fmt(f.sobretasas) + '</td>' +
+      '<td>' + fmt(f.saldoFavorAnterior) + '</td>' +
+      '<td>' + fmt(f.retenciones) + '</td>' +
+      '<td>' + fmt(f.percepciones) + '</td>' +
+      '<td style="font-weight:800;color:' + (f.saldoFinal >= 0 ? 'var(--red)' : 'var(--green)') + '">' + fmt(f.saldoFinal) + '</td>' +
+    '</tr>';
+  }).join('');
+
+  var t = res.totales;
+  tfoot.innerHTML = '<tr>' +
+    '<td>Total</td><td>' + fmt(t.ventasNetas) + '</td><td>' + fmt(t.totalImponible) + '</td><td>' + fmt(t.imponibleAjustado) + '</td>' +
+    '<td></td><td>' + fmt(t.impuestoDeterminado) + '</td><td>' + fmt(t.sobretasas) + '</td><td>' + fmt(t.saldoFavorAnterior) + '</td>' +
+    '<td>' + fmt(t.retenciones) + '</td><td>' + fmt(t.percepciones) + '</td>' +
+    '<td style="color:' + (t.saldoFinal >= 0 ? 'var(--red)' : 'var(--green)') + '">' + fmt(t.saldoFinal) + '</td>' +
+  '</tr>';
+
+  var alertasWrap = document.getElementById('alertas-jur');
+  if (alertas.length) {
+    alertasWrap.innerHTML = '<div class="alerta alerta-info">ℹ️ ' + alertas.join('<br/>') + '</div>';
+  } else { alertasWrap.innerHTML = ''; }
+
+  document.getElementById('res-impuesto').textContent = fmt(t.impuestoConSobretasas);
+  document.getElementById('res-retperc').textContent = fmt(round2(t.retenciones + t.percepciones));
+  var elSF = document.getElementById('res-saldofinal');
+  elSF.textContent = fmt(Math.abs(t.saldoFinal));
+  elSF.className = 'r-val big ' + (t.saldoFinal >= 0 ? 'red' : 'green');
+
+  document.getElementById('result-box').style.display = 'block';
+  document.getElementById('result-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Inicializar período con el mes anterior, y arrancar con una jurisdicción vacía.
+(function () {
+  var hoy = new Date();
+  var mesAnterior = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1);
+  var val = mesAnterior.getFullYear() + '-' + String(mesAnterior.getMonth() + 1).padStart(2, '0');
+  document.getElementById('g-periodo').value = val;
+  agregarJurisdiccion();
+})();
+</script>
+
+<a href="https://api.whatsapp.com/send?text=Asistente%20IIBB%20Local%20y%20CM03%20%F0%9F%87%A6%F0%9F%87%B7%20%E2%86%92%20https://www.impobot.com.ar/tools/asistente-iibb-cm03.html" target="_blank" rel="noopener" title="Compartir por WhatsApp"
+  style="position:fixed;bottom:76px;right:20px;z-index:998;background:#25D366;color:#fff;
+    width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;text-decoration:none;box-shadow:0 2px 12px rgba(37,211,102,.3);transition:all .2s"
+  onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('../sw.js?v=11', { updateViaCache: 'none' }).then(function(reg){ reg.update(); setInterval(function(){ reg.update(); }, 1800000); }).catch(function(){}); var _swReloaded=false; navigator.serviceWorker.addEventListener('controllerchange', function(){ if(_swReloaded)return; _swReloaded=true; location.reload(); });}</script>
+<script src="/report-widget.js"></script>
+</body>
+</html>
